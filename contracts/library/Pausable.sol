@@ -58,7 +58,7 @@ contract Pausable is Ownable {
     /**
      * @dev Called by the contract owner to pause, triggers stopped state.
      */
-    function pause() internal whenNotPaused onlyOwner {
+    function pause() public whenNotPaused onlyOwner {
         _paused = true;
         emit Paused(owner());
     }
@@ -66,7 +66,7 @@ contract Pausable is Ownable {
     /**
      * @dev Called by the contract owner to unpause, returns to normal state.
      */
-    function unpause() internal whenPaused onlyOwner {
+    function unpause() public whenPaused onlyOwner {
         _paused = false;
         emit Unpaused(owner());
     }
