@@ -11,8 +11,8 @@ pragma solidity 0.5.12;
  * functions to restrict their use to the manager.
  */
 contract Ownable {
-    address private _owner;
-    address private _pendingOwner;
+    address public owner;
+    address public pendingOwner;
     mapping(address => bool) public managers;
 
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
@@ -23,7 +23,7 @@ contract Ownable {
      * @dev Throws if called by any account other than the owner.
      */
     modifier onlyOwner() {
-        require(msg.sender == _owner, "non-owner");
+        require(msg.sender == owner, "non-owner");
         _;
     }
 
@@ -39,22 +39,8 @@ contract Ownable {
      * @dev Initializes the contract setting the deployer as the initial owner.
      */
     constructor () public {
-        _owner = msg.sender;
+        owner = msg.sender;
         emit OwnershipTransferred(address(0), msg.sender);
-    }
-
-    /**
-     * @dev Returns the address of the current owner.
-     */
-    function owner() public view returns (address) {
-        return _owner;
-    }
-
-    /**
-     * @dev Returns the address of the pending owner.
-     */
-    function pendingOwner() public view returns (address) {
-        return _pendingOwner;
     }
 
     /**
@@ -69,19 +55,19 @@ contract Ownable {
      * Can only be called by the current owner.
      */
     function transferOwnership(address newOwner) external onlyOwner {
-        require(newOwner != _owner, "TransferOwnership: the same owner.");
-        _pendingOwner = newOwner;
+        require(newOwner != owner, "TransferOwnership: the same owner.");
+        pendingOwner = newOwner;
     }
 
     /**
      * @dev Accepts ownership of the contract.
-     * Can only be called by the settting new owner(`_pendingOwner`).
+     * Can only be called by the settting new owner(`pendingOwner`).
      */
     function acceptOwnership() external {
-        require(msg.sender == _pendingOwner, "AcceptOwnership: only new owner do this.");
-        emit OwnershipTransferred(_owner, _pendingOwner);
-        _owner = _pendingOwner;
-        _pendingOwner = address(0);
+        require(msg.sender == pendingOwner, "AcceptOwnership: only new owner do this.");
+        emit OwnershipTransferred(owner, pendingOwner);
+        owner = pendingOwner;
+        pendingOwner = address(0);
     }
 
     /**
@@ -92,7 +78,7 @@ contract Ownable {
         require(account != address(0), "setManager: account cannot be a zero address.");
         require(!isManager(account), "setManager: Already a manager address.");
         managers[account] = true;
-        emit SetManager(_owner, account);
+        emit SetManager(owner, account);
     }
 
     /**
@@ -103,6 +89,6 @@ contract Ownable {
         require(account != address(0), "RemoveManager: account cannot be a zero address.");
         require(isManager(account), "RemoveManager: Not an admin address.");
         managers[account] = false;
-        emit RemoveManager(_owner, account);
+        emit RemoveManager(owner, account);
     }
 }

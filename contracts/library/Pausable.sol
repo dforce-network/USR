@@ -12,7 +12,7 @@ import './Ownable.sol';
  * simply including this module, only once the modifiers are put in place.
  */
 contract Pausable is Ownable {
-    bool private _paused;
+    bool public paused;
 
     /**
      * @dev Emitted when the pause is triggered by a pauser (`account`).
@@ -28,7 +28,7 @@ contract Pausable is Ownable {
      * @dev Modifier to make a function callable only when the contract is not paused.
      */
     modifier whenNotPaused() {
-        require(!_paused, "Pausable: paused");
+        require(!paused, "Pausable: paused");
         _;
     }
 
@@ -36,7 +36,7 @@ contract Pausable is Ownable {
      * @dev Modifier to make a function callable only when the contract is paused.
      */
     modifier whenPaused() {
-        require(_paused, "Pausable: not paused");
+        require(paused, "Pausable: not paused");
         _;
     }
 
@@ -45,29 +45,22 @@ contract Pausable is Ownable {
      * to the deployer.
      */
     constructor () internal {
-        _paused = false;
-    }
-
-    /**
-     * @dev Returns true if the contract is paused, and false otherwise.
-     */
-    function paused() public view returns (bool) {
-        return _paused;
+        paused = false;
     }
 
     /**
      * @dev Called by the contract owner to pause, triggers stopped state.
      */
     function pause() public whenNotPaused onlyOwner {
-        _paused = true;
-        emit Paused(owner());
+        paused = true;
+        emit Paused(owner);
     }
 
     /**
      * @dev Called by the contract owner to unpause, returns to normal state.
      */
     function unpause() public whenPaused onlyOwner {
-        _paused = false;
-        emit Unpaused(owner());
+        paused = false;
+        emit Unpaused(owner);
     }
 }
