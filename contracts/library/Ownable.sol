@@ -23,7 +23,7 @@ contract Ownable {
      * @dev Throws if called by any account other than the owner.
      */
     modifier onlyOwner() {
-        require(msg.sender == owner, "non-owner");
+        require(msg.sender == owner, "onlyOwner: non-owner");
         _;
     }
 
@@ -31,7 +31,7 @@ contract Ownable {
      * @dev Throws if called by any account other than a manager.
      */
     modifier onlyManager() {
-        require(managers[msg.sender], "non-manager");
+        require(managers[msg.sender], "onlyOwner: non-manager");
         _;
     }
 
@@ -46,17 +46,17 @@ contract Ownable {
     /**
      * @dev Returns true if the user(`account`) is the a manager.
      */
-    function isManager(address account) public view returns (bool) {
-        return managers[account];
+    function isManager(address _account) public view returns (bool) {
+        return managers[_account];
     }
 
     /**
      * @dev Transfers ownership of the contract to a new account (`newOwner_`).
      * Can only be called by the current owner.
      */
-    function transferOwnership(address newOwner) external onlyOwner {
-        require(newOwner != owner, "TransferOwnership: the same owner.");
-        pendingOwner = newOwner;
+    function transferOwnership(address _newOwner) external onlyOwner {
+        require(_newOwner != owner, "transferOwnership: the same owner.");
+        pendingOwner = _newOwner;
     }
 
     /**
@@ -64,7 +64,7 @@ contract Ownable {
      * Can only be called by the settting new owner(`pendingOwner`).
      */
     function acceptOwnership() external {
-        require(msg.sender == pendingOwner, "AcceptOwnership: only new owner do this.");
+        require(msg.sender == pendingOwner, "acceptOwnership: only new owner do this.");
         emit OwnershipTransferred(owner, pendingOwner);
         owner = pendingOwner;
         pendingOwner = address(0);
@@ -74,21 +74,21 @@ contract Ownable {
      * @dev Set a new user(`account`) as a manager.
      * Can only be called by the current owner.
      */
-    function setManager(address account) external onlyOwner {
-        require(account != address(0), "setManager: account cannot be a zero address.");
-        require(!isManager(account), "setManager: Already a manager address.");
-        managers[account] = true;
-        emit SetManager(owner, account);
+    function setManager(address _account) external onlyOwner {
+        require(_account != address(0), "setManager: account cannot be a zero address.");
+        require(!isManager(_account), "setManager: Already a manager address.");
+        managers[_account] = true;
+        emit SetManager(owner, _account);
     }
 
     /**
      * @dev Remove a previous manager account.
      * Can only be called by the current owner.
      */
-    function removeManager(address account) external onlyOwner {
-        require(account != address(0), "RemoveManager: account cannot be a zero address.");
-        require(isManager(account), "RemoveManager: Not an admin address.");
-        managers[account] = false;
-        emit RemoveManager(owner, account);
+    function removeManager(address _account) external onlyOwner {
+        require(_account != address(0), "removeManager: _account cannot be a zero address.");
+        require(isManager(_account), "removeManager: Not an admin address.");
+        managers[_account] = false;
+        emit RemoveManager(owner, _account);
     }
 }

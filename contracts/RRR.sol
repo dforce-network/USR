@@ -1,140 +1,49 @@
 pragma solidity 0.5.12;
 
-contract Core {
-    function chi() external returns (uint256);
-    function rho() external returns (uint256);
-    function drip() external returns (uint256);
-    function join(uint256) external;
-    function exit(uint256) external;
+import './library/ERC20SafeTransfer';
+import './library/IERC20';
+import './library/LibNote';
+import './library/Pausable';
+
+contract InterestModel {
+    function getInterestRate() external view returns (uint);
 }
 
-contract IERC20Token {
-    function transfer(address _to, uint _value) public;
-    function transferFrom(address _from, address _to, uint _value) public;
-    function approve(address _spender, uint _value) public;
-}
+/// RRR.sol -- USDx Savings Rate
 
-contract SafeToken {
+/*
+   "Savings USDx" is obtained when USDx is deposited into
+   this contract. Each "Savings USDx" accrues USDx interest
+   at the "USDx Savings Rate".
 
-    function doTransferOut(address _token, address _to, uint _amount) internal returns (bool) {
-        IERC20Token token = IERC20Token(_token);
-        bool result;
+   This contract does not implement a user tradeable token
+   and is intended to be used with adapters.
 
-        token.transfer(_to, _amount);
+         --- `save` your `USDx` in the `RRR` ---
 
-        assembly {
-            switch returndatasize()
-                case 0 {
-                    result := not(0)
-                }
-                case 32 {
-                    returndatacopy(0, 0, 32)
-                    result := mload(0)
-                }
-                default {
-                    revert(0, 0)
-                }
-        }
-        return result;
-    }
+   - `usr`: the USDx Savings Rate
+   - `pie`: user balance of Savings USDx
 
-    function doTransferFrom(address _token, address _from, address _to, uint _amount) internal returns (bool) {
-        IERC20Token token = IERC20Token(_token);
-        bool result;
+   - `join`: start saving some USDx
+   - `exit`: remove some USDx
+   - `drip`: perform rate collection
+*/
 
-        token.transferFrom(_from, _to, _amount);
-
-        assembly {
-            switch returndatasize()
-                case 0 {
-                    result := not(0)
-                }
-                case 32 {
-                    returndatacopy(0, 0, 32)
-                    result := mload(0)
-                }
-                default {
-                    revert(0, 0)
-                }
-        }
-        return result;
-    }
-
-    function doApprove(address _token, address _to, uint _amount) internal returns (bool) {
-        IERC20Token token = IERC20Token(_token);
-        bool result;
-
-        token.approve(_to, _amount);
-
-        assembly {
-            switch returndatasize()
-                case 0 {
-                    result := not(0)
-                }
-                case 32 {
-                    returndatacopy(0, 0, 32)
-                    result := mload(0)
-                }
-                default {
-                    revert(0, 0)
-                }
-        }
-        return result;
-    }
-}
-
-contract Auth {
-    address public owner;
-    address public newOwner;
-    mapping(address => bool) public admin;
-
-    event OwnerUpdate(address indexed owner, address indexed newOwner);
-    event SetAdmin(address indexed owner, address indexed newAdmin);
-    event CancelAdmin(address indexed owner, address indexed newAdmin);
-
-    modifier onlyOwner() {
-        require(msg.sender == owner, "non-owner");
-        _;
-    }
-
-    modifier isAdmin() {
-        require(admin[msg.sender], "non-admin");
-        _;
-    }
-
-    function transferOwnership(address newOwner_) external onlyOwner {
-        require(newOwner_ != owner, "TransferOwnership: the same owner.");
-        newOwner = newOwner_;
-    }
-
-    function acceptOwnership() external {
-        require(msg.sender == newOwner, "AcceptOwnership: only new owner do this.");
-        emit OwnerUpdate(owner, newOwner);
-        owner = newOwner;
-        newOwner = address(0x0);
-    }
-
-    function setAdmin(address _admin) external onlyOwner {
-        require(_admin != address(0), "setAdmin: _admin cannot be a zero address.");
-        require(!admin[_admin], "setAdmin: Already an admin address.");
-        admin[_admin] = true;
-        emit SetAdmin(owner, _admin);
-    }
-
-    function cancelAdmin(address _admin) external onlyOwner {
-        require(_admin != address(0), "setAdmin: _admin cannot be a zero address.");
-        require(admin[_admin], "setAdmin: Not an admin address.");
-        admin[_admin] = false;
-        emit CancelAdmin(owner, _admin);
-    }
-}
-
-contract RRR is Auth, SafeToken {
+contract RRR is LibNote, Pausable, ERC20SafeTransfer {
     using SafeMath for uint;
-
     // --- Data ---
+    // initialization data
+    bool private initialized;
+
+    uint public chi;  // the Rate Accumulator
+    uint public rho;  // time of last drip
+    uint public originationFee;
+
+    address public interestModel;
     address public token;
-    Core public core;
+
+    // uint public Pie;  // total Savings USDx
+    // mapping (address => uint) public pie;  // user Savings USDx
 
     // --- ERC20 Data ---
     string  public constant name     = "RRR";
@@ -147,18 +56,55 @@ contract RRR is Auth, SafeToken {
     mapping (address => mapping (address => uint)) public allowance;
     mapping (address => uint)                      public nonces;
 
+    // --- Event ---
     event Approval(address indexed src, address indexed guy, uint wad);
     event Transfer(address indexed src, address indexed dst, uint wad);
 
     event SetToken(address indexed owner, address indexed newToken, address indexed oldToken);
-    event SetCore(address indexed owner, address indexed newCore, address indexed oldCore);
+    event NewInterestModel(address indexed owner, address indexed InterestRate, address indexed oldInterestRate);
+    event NewOriginationFee(uint oldOriginationFeeMantissa, uint newOriginationFeeMantissa);
 
-    constructor(address _token, address _core) public {
+    /**
+     * The constructor is used here to ensure that the implementation
+     * contract is initialized. An uncontrolled implementation
+     * contract might lead to misleading state
+     * for users who accidentally interact with it.
+     */
+    constructor(address _interestModel, address _usdx, uint _originationFee) public {
+        initialize(_interestModel, _usdx, _originationFee);
+    }
 
-        owner = msg.sender;
+    // --- Init ---
+    function initialize(address _interestModel, address _token, uint _originationFee) public {
+        require(!initialized, "initialize: already initialized.");
+        interestModel = _interestModel;
         token = _token;
-        core = Core(_core);
-        doApprove(_token, _core, uint(-1));
+        owner = msg.sender;
+        chi = ONE;
+        rho = now;
+        originationFee = _originationFee;
+        initialized = true;
+
+        emit NewInterestModel(msg.sender, _interestModel, address(0));
+        emit SetToken(msg.sender, _token, address(0));
+        emit NewOriginationFee(0, _originationFee);
+    }
+
+    // --- Administration ---
+    function updateInterestModel(address _newInterestModel) external note onlyOwner {
+        require(_newInterestModel != interestModel, "updateInterestModel: same interest model address.");
+        address _oldInterestModel = interestModel;
+        interestModel = _newInterestModel;
+        emit NewInterestModel(msg.sender, _newInterestModel, _oldInterestModel);
+    }
+
+    function updateOriginationFee(uint _newOriginationFee) external onlyOwner returns (bool) {
+        require(_newOriginationFee < ONE, "updateOriginationFee: fee should be less than ONE.");
+        uint _oldOriginationFee = originationFee;
+        originationFee = _newOriginationFee;
+        emit NewOriginationFee(_oldOriginationFee, _newOriginationFee);
+
+        return true;
     }
 
     function setToken(address _token) external onlyOwner {
@@ -166,110 +112,148 @@ contract RRR is Auth, SafeToken {
         address _oldToken = token;
         require(_oldToken != _token, "setToken: The old and new addresses cannot be the same.");
         token = _token;
-        doApprove(_oldToken, address(core), 0);
         emit SetToken(owner, _token, _oldToken);
     }
 
-    function setCore(address _core) external onlyOwner {
-        require(_core != address(0), "setCore: pot cannot be a zero address.");
-        address _oldCore = address(core);
-        require(_oldCore != _core, "setCore: The old and new addresses cannot be the same.");
-        core = Core(_core);
-        doApprove(token, _oldCore, 0);
-        emit SetCore(owner, _core, _oldCore);
+    function transferOut(address _token, address _recipient, uint _amount) external onlyManager whenNotPaused returns (bool) {
+        IERC20(_token).transfer(_recipient, _amount);
+        return true;
+    }
+
+    // --- Math ---
+    uint constant ONE = 10 ** 27;
+    function rpow(uint x, uint n, uint base) internal pure returns (uint z) {
+        assembly {
+            switch x case 0 {switch n case 0 {z := base} default {z := 0}}
+            default {
+                switch mod(n, 2) case 0 { z := base } default { z := x }
+                let half := div(base, 2)  // for rounding.
+                for { n := div(n, 2) } n { n := div(n,2) } {
+                    let xx := mul(x, x)
+                    if iszero(eq(div(xx, x), x)) { revert(0,0) }
+                    let xxRound := add(xx, half)
+                    if lt(xxRound, xx) { revert(0,0) }
+                    x := div(xxRound, base)
+                    if mod(n,2) {
+                        let zx := mul(z, x)
+                        if and(iszero(iszero(x)), iszero(eq(div(zx, x), z))) { revert(0,0) }
+                        let zxRound := add(zx, half)
+                        if lt(zxRound, zx) { revert(0,0) }
+                        z := div(zxRound, base)
+                    }
+                }
+            }
+        }
+    }
+
+    function rmul(uint x, uint y) internal pure returns (uint z) {
+        z = x.mul(y) / ONE;
+    }
+    function rdiv(uint x, uint y) internal pure returns (uint z) {
+        z = x.mul(ONE) / y;
+    }
+    function rdivup(uint x, uint y) internal pure returns (uint z) {
+        z = x.mul(ONE).add(y.sub(1)) / y;
+    }
+
+    // --- Savings Rate Accumulation ---
+    function drip() public note returns (uint _tmp) {
+        require(now >= rho, "drip: invalid now.");
+        uint _usr = InterestModel(interestModel).getInterestRate();
+        _tmp = rmul(rpow(_usr, now - rho, ONE), chi);
+        chi = _tmp;
+        rho = now;
+    }
+
+    // --- Savings USDx Management ---
+    function join(address _dst, uint _wad) public note whenNotPaused  {
+        require(now == rho, "join: rho not updated.");
+        doTransferFrom(token, msg.sender, address(this), _wad);
+        uint _pie = rdiv(_wad, chi);
+        balanceOf[_dst] = balanceOf[_dst].add(_pie);
+        totalSupply = totalSupply.add(_pie);
+        emit Transfer(address(0), _dst, _pie);
+    }
+
+    function exit(address _src, uint _wad) public note whenNotPaused {
+        require(now == rho, "exit: rho not updated.");
+        require(balanceOf[_src] >= _wad, "exit: insufficient balance");
+        if (_src != msg.sender && allowance[_src][msg.sender] != uint(-1)) {
+            require(allowance[_src][msg.sender] >= _wad, "exit: insufficient allowance");
+            allowance[_src][msg.sender] = allowance[_src][msg.sender].sub(_wad);
+        }
+        balanceOf[_src] = balanceOf[_src].sub(_wad);
+        totalSupply = totalSupply.sub(_wad);
+        uint earningWithoutFee = rmul(_wad, chi);
+
+        doTransferOut(token, msg.sender, rmul(earningWithoutFee, ONE.sub(originationFee)));
+        emit Transfer(_src, address(0), _wad);
     }
 
     // --- Token ---
-    function transfer(address dst, uint wad) external returns (bool) {
-        return transferFrom(msg.sender, dst, wad);
+    function transfer(address _dst, uint _wad) external returns (bool) {
+        return transferFrom(msg.sender, _dst, _wad);
     }
+
     // like transferFrom but Token-denominated
-    function move(address src, address dst, uint wad) external returns (bool) {
-        uint chi = (now > core.rho()) ? core.drip() : core.chi();
-        // rounding up ensures dst gets at least wad Token
-        return transferFrom(src, dst, wad.rdivup(chi));
+    function move(address _src, address _dst, uint _wad) external returns (bool) {
+        uint _chi = (now > rho) ? drip() : chi;
+        // rounding up ensures _dst gets at least _wad Token
+        return transferFrom(_src, _dst, rdivup(_wad, _chi));
     }
-    function transferFrom(address src, address dst, uint wad)
-        public returns (bool)
+
+    function transferFrom(address _src, address _dst, uint _wad) public returns (bool)
     {
-        require(balanceOf[src] >= wad, "chai/insufficient-balance");
-        if (src != msg.sender && allowance[src][msg.sender] != uint(-1)) {
-            require(allowance[src][msg.sender] >= wad, "chai/insufficient-allowance");
-            allowance[src][msg.sender] = allowance[src][msg.sender].sub(wad);
+        require(balanceOf[_src] >= _wad, "transferFrom: insufficient balance");
+        if (_src != msg.sender && allowance[_src][msg.sender] != uint(-1)) {
+            require(allowance[_src][msg.sender] >= _wad, "transferFrom: insufficient allowance");
+            allowance[_src][msg.sender] = allowance[_src][msg.sender].sub(_wad);
         }
-        balanceOf[src] = balanceOf[src].sub(wad);
-        balanceOf[dst] = balanceOf[src].add(wad);
-        emit Transfer(src, dst, wad);
-        return true;
-    }
-    function approve(address usr, uint wad) external returns (bool) {
-        allowance[msg.sender][usr] = wad;
-        emit Approval(msg.sender, usr, wad);
+        balanceOf[_src] = balanceOf[_src].sub(_wad);
+        balanceOf[_dst] = balanceOf[_src].add(_wad);
+        emit Transfer(_src, _dst, _wad);
         return true;
     }
 
-    function Token(address usr) external returns (uint wad) {
-        uint chi = (now > core.rho()) ? core.drip() : core.chi();
-        wad = chi.rmul(balanceOf[usr]);
-    }
-    // wad is denominated in Token
-    function join(address dst, uint wad) external {
-        uint chi = (now > core.rho()) ? core.drip() : core.chi();
-        uint pie = wad.rdiv(chi);
-        balanceOf[dst] = balanceOf[dst].add(pie);
-        totalSupply = totalSupply.add(pie);
-
-        doTransferFrom(token, msg.sender, address(this), wad);
-        core.join(pie);
-        emit Transfer(address(0), dst, pie);
+    function approve(address usr, uint _wad) external returns (bool) {
+        allowance[msg.sender][usr] = _wad;
+        emit Approval(msg.sender, usr, _wad);
+        return true;
     }
 
-    // wad is denominated in (1/chi) * Token
-    function exit(address src, uint wad) public {
-        require(balanceOf[src] >= wad, "chai/insufficient-balance");
-        if (src != msg.sender && allowance[src][msg.sender] != uint(-1)) {
-            require(allowance[src][msg.sender] >= wad, "chai/insufficient-allowance");
-            allowance[src][msg.sender] = allowance[src][msg.sender].sub(wad);
-        }
-        balanceOf[src] = balanceOf[src].sub(wad);
-        totalSupply = totalSupply.sub(wad);
-
-        uint chi = (now > core.rho()) ? core.drip() : core.chi();
-        core.exit(wad);
-        doTransferOut(token, msg.sender, wad.rmul(chi));
-        emit Transfer(src, address(0), wad);
+    function Token(address usr) external view returns (uint _wad) {
+        uint _chi = rmul(rpow(InterestModel(interestModel).getInterestRate(), now - rho, ONE), chi);
+        _wad = rmul(_chi, balanceOf[usr]);
     }
 
-    // wad is denominated in Token
-    function draw(address src, uint wad) external {
-        uint chi = (now > core.rho()) ? core.drip() : core.chi();
-        // rounding up ensures usr gets at least wad Token
-        exit(src, wad.rdivup(chi));
+    function getExchangeRate() external view returns (uint) {
+        return getFixedExchangeRate(now.sub(rho));
     }
-}
 
-library SafeMath {
+    function getFixedExchangeRate(uint interval) public view returns (uint) {
+        uint _scale = ONE;
+        return rpow(InterestModel(interestModel).getInterestRate(), interval, _scale).mul(chi) / _scale;
+    }
 
-    uint constant RAY = 10 ** 27;
-    function add(uint x, uint y) internal pure returns (uint z) {
-        require((z = x + y) >= x);
+    // _wad is denominated in Token
+    function mint(address _dst, uint _wad) external {
+        if (now > rho)
+            drip();
+
+        join(_dst, _wad);
     }
-    function sub(uint x, uint y) internal pure returns (uint z) {
-        require((z = x - y) <= x);
+
+    // _wad is denominated in (1/chi) * Token
+    function burn(address _src, uint _wad) public {
+        if (now > rho)
+            drip();
+        exit(_src, _wad);
     }
-    function mul(uint x, uint y) internal pure returns (uint z) {
-        require(y == 0 || (z = x * y) / y == x);
-    }
-    function rmul(uint x, uint y) internal pure returns (uint z) {
-        // always rounds down
-        z = mul(x, y) / RAY;
-    }
-    function rdiv(uint x, uint y) internal pure returns (uint z) {
-        // always rounds down
-        z = mul(x, RAY) / y;
-    }
-    function rdivup(uint x, uint y) internal pure returns (uint z) {
-        // always rounds up
-        z = add(mul(x, RAY), sub(y, 1)) / y;
+
+    // _wad is denominated in Token
+    function draw(address _src, uint _wad) external {
+        uint _chi = (now > rho) ? drip() : chi;
+        // rounding up ensures usr gets at least _wad Token
+        exit(_src, rdivup(_wad, _chi));
     }
 }
