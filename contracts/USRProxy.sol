@@ -140,7 +140,7 @@ contract AdminUpgradeabilityProxy is UpgradeabilityProxy {
     }
 }
 
-contract USProxy is AdminUpgradeabilityProxy {
+contract USRProxy is AdminUpgradeabilityProxy {
     constructor(address _implementation) public AdminUpgradeabilityProxy(_implementation) {
     }
 }

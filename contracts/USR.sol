@@ -56,7 +56,6 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
     event Approval(address indexed src, address indexed guy, uint wad);
     event Transfer(address indexed src, address indexed dst, uint wad);
 
-    event SetToken(address indexed owner, address indexed newToken, address indexed oldToken);
     event SetMaxDebtAmount(address indexed owner, uint indexed newTokenMaxAmount, uint indexed oldTokenMaxAmount);
     event NewInterestModel(address InterestRate, address oldInterestRate);
     event NewOriginationFee(uint oldOriginationFeeMantissa, uint newOriginationFeeMantissa);
@@ -74,6 +73,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
     // --- Init ---
     function initialize(string memory _name, string memory _symbol, uint8 _decimals, address _interestModel, address _usdx, uint _originationFee, uint _maxDebtAmount) public {
         require(!initialized, "initialize: already initialized.");
+        require(_originationFee < BASE / 10, "initialize: fee should be less than ten percent.");
         name = _name;
         symbol = _symbol;
         decimals = _decimals;
@@ -88,7 +88,6 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
 
         emit NewInterestModel(_interestModel, address(0));
         emit NewOriginationFee(0, _originationFee);
-        emit SetToken(msg.sender, _usdx, address(0));
         emit SetMaxDebtAmount(msg.sender, _maxDebtAmount, 0);
     }
 
@@ -113,20 +112,13 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
      * @return bool true=success, otherwise a failure.
      */
     function updateOriginationFee(uint _newOriginationFee) external onlyOwner returns (bool) {
-        require(_newOriginationFee < BASE / 10, "updateOriginationFee: fee should be less than ONE.");
+        require(_newOriginationFee < BASE / 10, "updateOriginationFee: fee should be less than ten percent.");
         uint _oldOriginationFee = originationFee;
+        require(_oldOriginationFee != _newOriginationFee, "updateOriginationFee: The old and new values cannot be the same.");
         originationFee = _newOriginationFee;
         emit NewOriginationFee(_oldOriginationFee, _newOriginationFee);
 
         return true;
-    }
-
-    function setToken(address _token) external onlyOwner {
-        require(_token != address(0), "setToken: pot cannot be a zero address.");
-        address _oldToken = usdx;
-        require(_oldToken != _token, "setToken: The old and new addresses cannot be the same.");
-        usdx = _token;
-        emit SetToken(owner, _token, _oldToken);
     }
 
     /**
@@ -135,7 +127,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
      */
     function setMaxDebtAmount(uint _newMaxDebtAmount) external onlyOwner {
         uint _oldTokenMaxAmount = maxDebtAmount;
-        require(_oldTokenMaxAmount != _newMaxDebtAmount, "setMaxDebtAmount: The old and new addresses cannot be the same.");
+        require(_oldTokenMaxAmount != _newMaxDebtAmount, "setMaxDebtAmount: The old and new values cannot be the same.");
         maxDebtAmount = _newMaxDebtAmount;
         emit SetMaxDebtAmount(owner, _newMaxDebtAmount, _oldTokenMaxAmount);
     }
@@ -143,7 +135,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
     /**
      * @dev Manager function to transfer token out to earn extra savings
             but only when the contract is not paused.
-     * @param _token deposit asset, generally spaking it should be USDx.
+     * @param _token reserve asset, generally spaking it should be USDx.
      * @param _recipient account to receive asset.
      * @param _amount transfer amount.
      * @return bool true=success, otherwise a failure.
@@ -193,7 +185,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
     }
 
     function divScale(uint x, uint y) internal pure returns (uint z) {
-        z = x.mul(BASE) / y;
+        z = x.mul(BASE).add(y.sub(1)) / y;
     }
 
     /**
@@ -211,22 +203,22 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
     /**
      * @dev Deposit USDx to earn savings, but only when the contract is not paused.
      * @param _dst account who will get benefits.
-     * @param _wad amount to deposit, scaled by 1e18.
+     * @param _pie amount to buy, scaled by 1e18.
      */
-    function join(address _dst, uint _wad) public note whenNotPaused {
-        require(now == lastTriggerTime, "join: lastTriggerTime not updated.");
-        require(doTransferFrom(usdx, msg.sender, address(this), _wad));
-        uint _pie = rdiv(_wad, exchangeRate);
-        balanceOf[_dst] = balanceOf[_dst].add(_pie);
-        totalSupply = totalSupply.add(_pie);
-        require(mulScale(rmul(totalSupply, exchangeRate), BASE.sub(originationFee)) <= maxDebtAmount, "join: lastTriggerTime not updated.");
-        emit Transfer(address(0), _dst, _pie);
+    function join(address _dst, uint _pie) public note whenNotPaused {
+        require(now == lastTriggerTime, "join: last trigger time not updated.");
+        require(doTransferFrom(usdx, msg.sender, address(this), _pie));
+        uint _wad = rdiv(_pie, exchangeRate);
+        balanceOf[_dst] = balanceOf[_dst].add(_wad);
+        totalSupply = totalSupply.add(_wad);
+        require(rmul(totalSupply, exchangeRate) <= maxDebtAmount, "join: not enough to join.");
+        emit Transfer(address(0), _dst, _wad);
     }
 
     /**
-     * @dev Withdraw to get USDx, but only when the contract is not paused.
+     * @dev Withdraw to get USDx according to input USR amount, but only when the contract is not paused.
      * @param _src account who will receive benefits.
-     * @param _wad amount to withdraw, scaled by 1e18.
+     * @param _wad amount to burn USR, scaled by 1e18.
      */
     function exit(address _src, uint _wad) public note whenNotPaused {
         require(now == lastTriggerTime, "exit: lastTriggerTime not updated.");
@@ -243,16 +235,36 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
         emit Transfer(_src, address(0), _wad);
     }
 
+    /**
+     * @dev Withdraw to get specified USDx, but only when the contract is not paused.
+     * @param _src account who will receive benefits.
+     * @param _wad amount to withdraw USDx, scaled by 1e18.
+     */
+    function draw(address _src, uint _pie) public note whenNotPaused {
+        require(now == lastTriggerTime, "draw: last trigger time not updated.");
+        uint _wad = rdiv(divScale(_pie, BASE.sub(originationFee)), exchangeRate);
+        require(balanceOf[_src] >= _wad, "draw: insufficient balance");
+        if (_src != msg.sender && allowance[_src][msg.sender] != uint(-1)) {
+            require(allowance[_src][msg.sender] >= _wad, "draw: insufficient allowance");
+            allowance[_src][msg.sender] = allowance[_src][msg.sender].sub(_wad);
+        }
+        balanceOf[_src] = balanceOf[_src].sub(_wad);
+        totalSupply = totalSupply.sub(_wad);
+
+        require(doTransferOut(usdx, msg.sender, _pie));
+        emit Transfer(_src, address(0), _wad);
+    }
+
     // --- Token ---
     function transfer(address _dst, uint _wad) external returns (bool) {
         return transferFrom(msg.sender, _dst, _wad);
     }
 
     // like transferFrom but Token-denominated
-    function move(address _src, address _dst, uint _wad) external returns (bool) {
-        uint _chi = (now > lastTriggerTime) ? drip() : exchangeRate;
-        // rounding up ensures _dst gets at least _wad Token
-        return transferFrom(_src, _dst, rdivup(_wad, _chi));
+    function move(address _src, address _dst, uint _pie) external returns (bool) {
+        uint _exchangeRate = (now > lastTriggerTime) ? drip() : exchangeRate;
+        // rounding up ensures _dst gets at least _pie Token
+        return transferFrom(_src, _dst, rdivup(_pie, _exchangeRate));
     }
 
     function transferFrom(address _src, address _dst, uint _wad) public returns (bool)
@@ -280,7 +292,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
      *         otherwise in debt, and it indicates lossing amount, scaled by 1e18.
      */
     function equity() external view returns (int) {
-        uint _totalAmount = mulScale(rmul(totalSupply, getExchangeRate()), BASE.sub(originationFee));
+        uint _totalAmount = rmul(totalSupply, getExchangeRate());
         uint _banance = IERC20(usdx).balanceOf(address(this));
         if (_totalAmount > _banance)
             return -1 * int(_totalAmount.sub(_banance));
@@ -289,12 +301,12 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
     }
 
     /**
-     * @dev Remaining deposit amount.
-     * @return uint > 0 indicates remaining share can deposit, scaled by 1e18,
+     * @dev Available quantity to buy.
+     * @return uint > 0 indicates remaining share can be bought, scaled by 1e18,
      *         otherwise no share.
      */
     function share() external view returns (uint) {
-        uint _totalAmount = mulScale(rmul(totalSupply, getExchangeRate()), BASE.sub(originationFee));
+        uint _totalAmount = rmul(totalSupply, getExchangeRate());
         uint _tokenMaxAmount = maxDebtAmount;
         return _tokenMaxAmount > _totalAmount ? _tokenMaxAmount.sub(_totalAmount) : 0;
     }
@@ -305,8 +317,8 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
      * @return total balance with any accumulated interest.
      */
     function getTotalBalance(address _account) external view returns (uint _wad) {
-        uint _chi = getExchangeRate();
-        _wad = rmul(rmul(balanceOf[_account], _chi), BASE.sub(originationFee));
+        uint _exchangeRate = getExchangeRate();
+        _wad = mulScale(rmul(balanceOf[_account], _exchangeRate), BASE.sub(originationFee));
     }
 
     /**
@@ -321,26 +333,26 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
         return rpow(InterestModel(interestModel).getInterestRate(), interval, _scale).mul(exchangeRate) / _scale;
     }
 
-    // _wad is denominated in Token
-    function mint(address _dst, uint _wad) external {
+    // _pie is denominated in Token
+    function mint(address _dst, uint _pie) external {
         if (now > lastTriggerTime)
             drip();
 
-        join(_dst, _wad);
+        join(_dst, _pie);
     }
 
     // _wad is denominated in (1/exchangeRate) * Token
     function burn(address _src, uint _wad) public {
         if (now > lastTriggerTime)
             drip();
-
         exit(_src, _wad);
     }
 
-    // _wad is denominated in Token
-    function draw(address _src, uint _wad) external {
-        uint _chi = (now > lastTriggerTime) ? drip() : exchangeRate;
-        // rounding up ensures usr gets at least _wad Token
-        exit(_src, rdivup(_wad, _chi));
+    // _pie is denominated in Token
+    function withdraw(address _src, uint _pie) external {
+        if (now > lastTriggerTime)
+            drip();
+        // rounding up ensures usr gets at least _pie Token
+        draw(_src, _pie);
     }
 }
