@@ -275,7 +275,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
             allowance[_src][msg.sender] = allowance[_src][msg.sender].sub(_wad);
         }
         balanceOf[_src] = balanceOf[_src].sub(_wad);
-        balanceOf[_dst] = balanceOf[_src].add(_wad);
+        balanceOf[_dst] = balanceOf[_dst].add(_wad);
         emit Transfer(_src, _dst, _wad);
         return true;
     }
