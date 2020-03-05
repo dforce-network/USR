@@ -13,8 +13,8 @@ class SmartContract:
         self.file_name = file_name
         self.args = args
 
-    def deploy_contract(self):
-        contract_name = self.file_name.split('.')[0]
+    def get_contract_interface(self):
+        self.contract_name = self.file_name.split('.')[0]
         base_dir = os.getcwd() + '/contracts/'
         actual_path = base_dir + self.file_name
 
@@ -38,26 +38,42 @@ class SmartContract:
             },
         }, allow_paths=base_dir)
 
-        abi = compiled_sol['contracts'][self.file_name][contract_name]['abi']
-        bytecode = compiled_sol['contracts'][self.file_name][contract_name]['evm']['bytecode']['object']
+        self.abi = compiled_sol['contracts'][self.file_name][self.contract_name]['abi']
+        bytecode = compiled_sol['contracts'][self.file_name][self.contract_name]['evm']['bytecode']['object']
 
-        # instantiate and deploy contract to blockchain
-        deployed_contract = self.w3.eth.contract(abi=abi, bytecode=bytecode)
+        return self.abi, bytecode
 
-        # submit the transaction to deploy the contract
-        tx_hash = deployed_contract.constructor(
-            *self.args).transact({'gas': 600000})
+    def initialize_contract(self, address, abi):
+        # create the contract instance with the newly deployed address
+        self.contract = self.w3.eth.contract(
+            address=address, abi=abi)
+
+        return self.contract
+
+    def deploy_contract(self):
+        abi, bytecode = self.get_contract_interface()
+        contract_ = self.w3.eth.contract(abi=abi, bytecode=bytecode)
+
+        acct = self.w3.eth.account.privateKeyToAccount(
+            '0x5571743c612dbe11fb0b7f1f21e8cbd26baef7b9593dc9596db30a76ada6d3dd')
+
+        construct_txn = contract_.constructor(*self.args).buildTransaction({
+            'from': acct.address,
+            'nonce': self.w3.eth.getTransactionCount(acct.address),
+            'gas': 6000000,
+            'gasPrice': self.w3.toWei('21', 'gwei')
+        })
+
+        signed = acct.signTransaction(construct_txn)
+
+        tx_hash = self.w3.eth.sendRawTransaction(signed.rawTransaction)
 
         # get tx receipt to get contract address
         tx_receipt = self.w3.eth.waitForTransactionReceipt(tx_hash)
         self.contract_address = tx_receipt['contractAddress']
-        print(contract_name, " Contract Deployed At:", self.contract_address)
+        print(self.contract_name, " Contract Deployed At:", self.contract_address)
 
-        # create the contract instance with the newly deployed address
-        self.contract = self.w3.eth.contract(
-            address=self.contract_address, abi=abi)
-
-        # return contract
+        self.initialize_contract(self.contract_address, abi)
 
 
 if __name__ == '__main__':
