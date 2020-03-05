@@ -1,0 +1,17 @@
+# dependencies
+node_modules
+
+# misc
+.DS_Store
+*/.DS_Store
+.env
+.idea/
+.vscode/
+.mypy_cache/
+
+# Logs
+logs
+*.log
+
+# testing
+/test
