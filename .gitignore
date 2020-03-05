@@ -9,6 +9,9 @@ node_modules
 .vscode/
 .mypy_cache/
 
+# testing
+/coverage
+
 # Logs
 logs
 *.log
