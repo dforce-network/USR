@@ -205,7 +205,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
      * @param _dst account who will get benefits.
      * @param _pie amount to buy, scaled by 1e18.
      */
-    function join(address _dst, uint _pie) public note whenNotPaused {
+    function join(address _dst, uint _pie) private note whenNotPaused {
         require(now == lastTriggerTime, "join: last trigger time not updated.");
         require(doTransferFrom(usdx, msg.sender, address(this), _pie));
         uint _wad = rdiv(_pie, exchangeRate);
@@ -220,7 +220,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
      * @param _src account who will receive benefits.
      * @param _wad amount to burn USR, scaled by 1e18.
      */
-    function exit(address _src, uint _wad) public note whenNotPaused {
+    function exit(address _src, uint _wad) private note whenNotPaused {
         require(now == lastTriggerTime, "exit: lastTriggerTime not updated.");
         require(balanceOf[_src] >= _wad, "exit: insufficient balance");
         if (_src != msg.sender && allowance[_src][msg.sender] != uint(-1)) {
@@ -238,11 +238,11 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
     /**
      * @dev Withdraw to get specified USDx, but only when the contract is not paused.
      * @param _src account who will receive benefits.
-     * @param _wad amount to withdraw USDx, scaled by 1e18.
+     * @param _pie amount to withdraw USDx, scaled by 1e18.
      */
-    function draw(address _src, uint _pie) public note whenNotPaused {
+    function draw(address _src, uint _pie) private note whenNotPaused {
         require(now == lastTriggerTime, "draw: last trigger time not updated.");
-        uint _wad = rdiv(divScale(_pie, BASE.sub(originationFee)), exchangeRate);
+        uint _wad = rdivup(divScale(_pie, BASE.sub(originationFee)), exchangeRate);
         require(balanceOf[_src] >= _wad, "draw: insufficient balance");
         if (_src != msg.sender && allowance[_src][msg.sender] != uint(-1)) {
             require(allowance[_src][msg.sender] >= _wad, "draw: insufficient allowance");
@@ -342,7 +342,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
     }
 
     // _wad is denominated in (1/exchangeRate) * Token
-    function burn(address _src, uint _wad) public {
+    function burn(address _src, uint _wad) external {
         if (now > lastTriggerTime)
             drip();
         exit(_src, _wad);
