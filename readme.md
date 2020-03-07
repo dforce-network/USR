@@ -1,4 +1,4 @@
 ## Audit Scope
-- ./InterestModel.sol
-- ./USR.sol
-- ./USRProxy.sol
+- ./contracts/InterestModel.sol
+- ./contracts/USR.sol
+- ./contracts/USRProxy.sol
