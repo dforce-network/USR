@@ -1,4 +1,4 @@
-## Audit Scope(tag: audit_20200307)
+## Audit Scope
 - ./InterestModel.sol
 - ./USR.sol
 - ./USRProxy.sol
