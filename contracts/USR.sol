@@ -6,10 +6,6 @@ import './library/LibNote';
 import './library/Pausable';
 import './library/SafeMath';
 
-contract InterestModel {
-    function getInterestRate() external view returns (uint);
-}
-
 /// USR.sol -- USDx Savings Rate
 
 /*
@@ -31,11 +27,11 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
     // --- Data ---
     bool private initialized;     // flag of initialize data
 
+    uint public interestRate;
     uint public exchangeRate;     // the rate accumulator
     uint public lastTriggerTime;  // time of last drip
     uint public originationFee;   // trade fee
 
-    address public interestModel;
     address public usdx;
 
     uint public maxDebtAmount;    // max debt amount, scaled by 1e18.
@@ -57,7 +53,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
     event Transfer(address indexed src, address indexed dst, uint wad);
 
     event SetMaxDebtAmount(address indexed owner, uint indexed newTokenMaxAmount, uint indexed oldTokenMaxAmount);
-    event NewInterestModel(address InterestRate, address oldInterestRate);
+    event SetInterestRate(address indexed owner, uint indexed InterestRate, uint indexed oldInterestRate);
     event NewOriginationFee(uint oldOriginationFeeMantissa, uint newOriginationFeeMantissa);
 
     /**
@@ -66,59 +62,55 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
      * contract might lead to misleading state
      * for users who accidentally interact with it.
      */
-    constructor(string memory _name, string memory _symbol, uint8 _decimals, address _interestModel, address _usdx, uint _originationFee, uint _maxDebtAmount) public {
-        initialize(_name, _symbol, _decimals, _interestModel, _usdx, _originationFee, _maxDebtAmount);
+    constructor(string memory _name, string memory _symbol, uint8 _decimals, address _usdx, uint _originationFee, uint _maxDebtAmount) public {
+        initialize(_name, _symbol, _decimals, _usdx, _originationFee, _maxDebtAmount);
     }
 
     // --- Init ---
-    function initialize(string memory _name, string memory _symbol, uint8 _decimals, address _interestModel, address _usdx, uint _originationFee, uint _maxDebtAmount) public {
+    function initialize(string memory _name, string memory _symbol, uint8 _decimals, address _usdx, uint _originationFee, uint _maxDebtAmount) public {
         require(!initialized, "initialize: already initialized.");
         require(_originationFee < BASE / 10, "initialize: fee should be less than ten percent.");
         name = _name;
         symbol = _symbol;
         decimals = _decimals;
-        interestModel = _interestModel;
         usdx = _usdx;
         owner = msg.sender;
+        interestRate = ONE;
         exchangeRate = ONE;
         lastTriggerTime = now;
         originationFee = _originationFee;
         maxDebtAmount = _maxDebtAmount;
         initialized = true;
 
-        emit NewInterestModel(_interestModel, address(0));
+        emit SetInterestRate(msg.sender, ONE, 0);
         emit NewOriginationFee(0, _originationFee);
         emit SetMaxDebtAmount(msg.sender, _maxDebtAmount, 0);
     }
 
     // --- Administration ---
     /**
-     * @dev Owner function to set a new interest model contract address.
-     * @param _newInterestModel new interest model contract address.
-     * @return bool true=success, otherwise a failure.
+     * @dev Owner function to set a new interest rate values.
+     * @param _interestRate new interest rate values.
      */
-    function updateInterestModel(address _newInterestModel) external note onlyOwner returns (bool) {
-        require(_newInterestModel != interestModel, "updateInterestModel: same interest model address.");
-        address _oldInterestModel = interestModel;
-        interestModel = _newInterestModel;
-        emit NewInterestModel(_newInterestModel, _oldInterestModel);
-
-        return true;
+    function setInterestRate(uint _interestRate) external onlyOwner {
+        uint _oldInterestRate = interestRate;
+        require(_interestRate != _oldInterestRate, "setInterestRate: Old and new values cannot be the same.");
+        require(_interestRate >= ONE, "setInterestRate: Old and new values cannot be the same.");
+        drip();
+        interestRate = _interestRate;
+        emit SetInterestRate(msg.sender, _interestRate, _oldInterestRate);
     }
 
     /**
      * @dev Owner function to set a new origination fee.
      * @param _newOriginationFee rational trading fee ratio, scaled by 1e18.
-     * @return bool true=success, otherwise a failure.
      */
-    function updateOriginationFee(uint _newOriginationFee) external onlyOwner returns (bool) {
+    function updateOriginationFee(uint _newOriginationFee) external onlyOwner {
         require(_newOriginationFee < BASE / 10, "updateOriginationFee: fee should be less than ten percent.");
         uint _oldOriginationFee = originationFee;
         require(_oldOriginationFee != _newOriginationFee, "updateOriginationFee: The old and new values cannot be the same.");
         originationFee = _newOriginationFee;
         emit NewOriginationFee(_oldOriginationFee, _newOriginationFee);
-
-        return true;
     }
 
     /**
@@ -138,11 +130,9 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
      * @param _token reserve asset, generally spaking it should be USDx.
      * @param _recipient account to receive asset.
      * @param _amount transfer amount.
-     * @return bool true=success, otherwise a failure.
      */
-    function transferOut(address _token, address _recipient, uint _amount) external onlyManager whenNotPaused returns (bool) {
+    function transferOut(address _token, address _recipient, uint _amount) external onlyManager whenNotPaused {
         require(doTransferOut(_token, _recipient, _amount));
-        return true;
     }
 
     // --- Math ---
@@ -193,9 +183,8 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
      * @return the most recent exchange rate, scaled by 1e27.
      */
     function drip() public note returns (uint _tmp) {
-        require(now >= lastTriggerTime, "drip: invalid now.");
-        uint _usr = InterestModel(interestModel).getInterestRate();
-        _tmp = rmul(rpow(_usr, now - lastTriggerTime, ONE), exchangeRate);
+        require(now > lastTriggerTime, "drip: invalid now.");
+        _tmp = rmul(rpow(interestRate, now - lastTriggerTime, ONE), exchangeRate);
         exchangeRate = _tmp;
         lastTriggerTime = now;
     }
@@ -293,11 +282,11 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
      */
     function equity() external view returns (int) {
         uint _totalAmount = rmul(totalSupply, getExchangeRate());
-        uint _banance = IERC20(usdx).balanceOf(address(this));
-        if (_totalAmount > _banance)
-            return -1 * int(_totalAmount.sub(_banance));
+        uint _balance = IERC20(usdx).balanceOf(address(this));
+        if (_totalAmount > _balance)
+            return -1 * int(_totalAmount.sub(_balance));
 
-        return int(_banance.sub(_totalAmount));
+        return int(_balance.sub(_totalAmount));
     }
 
     /**
@@ -330,7 +319,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
 
     function getFixedExchangeRate(uint interval) public view returns (uint) {
         uint _scale = ONE;
-        return rpow(InterestModel(interestModel).getInterestRate(), interval, _scale).mul(exchangeRate) / _scale;
+        return rpow(interestRate, interval, _scale).mul(exchangeRate) / _scale;
     }
 
     // _pie is denominated in Token

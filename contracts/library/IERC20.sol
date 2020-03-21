@@ -18,11 +18,9 @@ interface IERC20 {
     /**
      * @dev Moves `amount` tokens from the caller's account to `recipient`.
      *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
      * Emits a {Transfer} event.
      */
-    function transfer(address recipient, uint amount) external returns (bool);
+    function transfer(address recipient, uint amount) external;
 
     /**
      * @dev Returns the remaining number of tokens that `spender` will be
@@ -36,8 +34,6 @@ interface IERC20 {
     /**
      * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
      *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
      * IMPORTANT: Beware that changing an allowance with this method brings the risk
      * that someone may use both the old and the new allowance by unfortunate
      * transaction ordering. One possible solution to mitigate this race
@@ -47,18 +43,16 @@ interface IERC20 {
      *
      * Emits an {Approval} event.
      */
-    function approve(address spender, uint amount) external returns (bool);
+    function approve(address spender, uint amount) external;
 
     /**
      * @dev Moves `amount` tokens from `sender` to `recipient` using the
      * allowance mechanism. `amount` is then deducted from the caller's
      * allowance.
      *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
      * Emits a {Transfer} event.
      */
-    function transferFrom(address sender, address recipient, uint amount) external returns (bool);
+    function transferFrom(address sender, address recipient, uint amount) external;
 
     /**
      * @dev Emitted when `value` tokens are moved from one account (`from`) to

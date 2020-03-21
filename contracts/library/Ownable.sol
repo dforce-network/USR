@@ -56,6 +56,7 @@ contract Ownable {
      */
     function transferOwnership(address _newOwner) external onlyOwner {
         require(_newOwner != owner, "transferOwnership: the same owner.");
+        require(pendingOwner != _newOwner, "transferOwnership : the same pendingOwner.");
         pendingOwner = _newOwner;
     }
 
