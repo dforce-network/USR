@@ -67,6 +67,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
     }
 
     // --- Init ---
+    // Do not modify this function
     function initialize(string memory _name, string memory _symbol, uint8 _decimals, address _usdx, uint _originationFee, uint _maxDebtAmount) public {
         require(!initialized, "initialize: already initialized.");
         require(_originationFee < BASE / 10, "initialize: fee should be less than ten percent.");
@@ -131,7 +132,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
      * @param _recipient account to receive asset.
      * @param _amount transfer amount.
      */
-    function transferOut(address _token, address _recipient, uint _amount) external onlyManager whenNotPaused {
+    function takeOut(address _token, address _recipient, uint _amount) external onlyManager whenNotPaused {
         require(doTransferOut(_token, _recipient, _amount));
     }
 
@@ -183,7 +184,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
      * @return the most recent exchange rate, scaled by 1e27.
      */
     function drip() public note returns (uint _tmp) {
-        require(now > lastTriggerTime, "drip: invalid now.");
+        require(now >= lastTriggerTime, "drip: invalid now.");
         _tmp = rmul(rpow(interestRate, now - lastTriggerTime, ONE), exchangeRate);
         exchangeRate = _tmp;
         lastTriggerTime = now;
