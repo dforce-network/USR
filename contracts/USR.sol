@@ -323,6 +323,15 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
         return rpow(interestRate, interval, _scale).mul(exchangeRate) / _scale;
     }
 
+    /**
+     * @dev the most recent interest rate, scaled by 1e27.
+     * @param _interval time interval in seconds.
+     * @return interest rate for a fixed period.
+     */
+    function getFixedInterestRate(uint _interval) external view returns (uint) {
+        return rpow(interestRate, _interval, ONE);
+    }
+
     // _pie is denominated in Token
     function mint(address _dst, uint _pie) external {
         if (now > lastTriggerTime)
