@@ -7,14 +7,14 @@ contract Proxy {
 
     function _implementation() internal view returns (address);
 
-    function _delegate(address _implementation) internal {
+    function _delegate(address implementation) internal {
         assembly {
             calldatacopy(0, 0, calldatasize)
 
-            let _result := delegatecall(gas, _implementation, 0, calldatasize, 0, 0)
+            let result := delegatecall(gas, implementation, 0, calldatasize, 0, 0)
             returndatacopy(0, 0, returndatasize)
 
-            switch _result
+            switch result
             case 0 { revert(0, returndatasize) }
             default { return(0, returndatasize) }
         }
@@ -31,11 +31,11 @@ contract Proxy {
 
 library AddressUtils {
 
-    function isContract(address _addr) internal view returns (bool) {
-        uint256 _size;
+    function isContract(address addr) internal view returns (bool) {
+        uint256 size;
 
-        assembly { _size := extcodesize(_addr) }
-        return _size > 0;
+        assembly { size := extcodesize(addr) }
+        return size > 0;
     }
 
 }
@@ -51,25 +51,25 @@ contract UpgradeabilityProxy is Proxy {
         _setImplementation(_implementation);
     }
 
-    function _implementation() internal view returns (address _impl) {
-        bytes32 _slot = IMPLEMENTATION_SLOT;
+    function _implementation() internal view returns (address impl) {
+        bytes32 slot = IMPLEMENTATION_SLOT;
         assembly {
-            _impl := sload(_slot)
+            impl := sload(slot)
         }
     }
 
-    function _upgradeTo(address _newImplementation) internal {
-        _setImplementation(_newImplementation);
-        emit Upgraded(_newImplementation);
+    function _upgradeTo(address newImplementation) internal {
+        _setImplementation(newImplementation);
+        emit Upgraded(newImplementation);
     }
 
-    function _setImplementation(address _newImplementation) private {
-        require(AddressUtils.isContract(_newImplementation), "Cannot set a proxy implementation to a non-contract address");
+    function _setImplementation(address newImplementation) private {
+        require(AddressUtils.isContract(newImplementation), "Cannot set a proxy implementation to a non-contract address");
 
-        bytes32 _slot = IMPLEMENTATION_SLOT;
+        bytes32 slot = IMPLEMENTATION_SLOT;
 
         assembly {
-            sstore(_slot, _newImplementation)
+            sstore(slot, newImplementation)
         }
     }
 }
@@ -125,43 +125,43 @@ contract AdminUpgradeabilityProxy is UpgradeabilityProxy {
         emit AdminUpdated(_newAdmin);
     }
 
-    function upgradeTo(address _newImplementation) external ifAdmin {
-        _upgradeTo(_newImplementation);
+    function upgradeTo(address newImplementation) external ifAdmin {
+        _upgradeTo(newImplementation);
     }
 
-    function upgradeToAndCall(address _newImplementation, bytes calldata _data) payable external ifAdmin {
-        _upgradeTo(_newImplementation);
-        (bool _success,) = address(this).call.value(msg.value)(_data);
-        require(_success, "upgradeToAndCall-error");
+    function upgradeToAndCall(address newImplementation, bytes calldata data) payable external ifAdmin {
+        _upgradeTo(newImplementation);
+        (bool success,) = address(this).call.value(msg.value)(data);
+        require(success, "upgradeToAndCall-error");
     }
 
-    function _admin() internal view returns (address _adm) {
-        bytes32 _slot = ADMIN_SLOT;
+    function _admin() internal view returns (address adm) {
+        bytes32 slot = ADMIN_SLOT;
         assembly {
-            _adm := sload(_slot)
+            adm := sload(slot)
         }
     }
 
-    function _pendingAdmin() internal view returns (address _pendingAdm) {
-        bytes32 _slot = PENDING_ADMIN_SLOT;
+    function _pendingAdmin() internal view returns (address pendingAdm) {
+        bytes32 slot = PENDING_ADMIN_SLOT;
         assembly {
-            _pendingAdm := sload(_slot)
+            pendingAdm := sload(slot)
         }
     }
 
-    function _setAdmin(address _newAdmin) internal {
-        bytes32 _slot = ADMIN_SLOT;
+    function _setAdmin(address newAdmin) internal {
+        bytes32 slot = ADMIN_SLOT;
 
         assembly {
-            sstore(_slot, _newAdmin)
+            sstore(slot, newAdmin)
         }
     }
 
-    function _setPendingAdmin(address _pendingAdm) internal {
-        bytes32 _slot = PENDING_ADMIN_SLOT;
+    function _setPendingAdmin(address pendingAdm) internal {
+        bytes32 slot = PENDING_ADMIN_SLOT;
 
         assembly {
-            sstore(_slot, _pendingAdm)
+            sstore(slot, pendingAdm)
         }
     }
 
