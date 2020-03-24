@@ -183,11 +183,16 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
      * @dev Savings Rate Accumulation.
      * @return the most recent exchange rate, scaled by 1e27.
      */
-    function drip() public note returns (uint _tmp) {
-        require(now >= lastTriggerTime, "drip: invalid now.");
-        _tmp = rmul(rpow(interestRate, now - lastTriggerTime, ONE), exchangeRate);
-        exchangeRate = _tmp;
-        lastTriggerTime = now;
+    function drip() public note returns (uint) {
+        if (now > lastTriggerTime) {
+            uint _tmp = rmul(rpow(interestRate, now - lastTriggerTime, ONE), exchangeRate);
+            exchangeRate = _tmp;
+            lastTriggerTime = now;
+            
+            return _tmp;
+        }
+        
+        return exchangeRate;
     }
 
     /**
@@ -318,9 +323,9 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
         return getFixedExchangeRate(now.sub(lastTriggerTime));
     }
 
-    function getFixedExchangeRate(uint interval) public view returns (uint) {
+    function getFixedExchangeRate(uint _interval) public view returns (uint) {
         uint _scale = ONE;
-        return rpow(interestRate, interval, _scale).mul(exchangeRate) / _scale;
+        return rpow(interestRate, _interval, _scale).mul(exchangeRate) / _scale;
     }
 
     /**
