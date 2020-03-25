@@ -31,7 +31,7 @@ contract Ownable {
      * @dev Throws if called by any account other than a manager.
      */
     modifier onlyManager() {
-        require(managers[msg.sender], "onlyOwner: non-manager");
+        require(managers[msg.sender], "onlyManager: non-manager");
         _;
     }
 

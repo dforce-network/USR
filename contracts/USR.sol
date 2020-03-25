@@ -93,7 +93,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
      * @dev Owner function to set a new interest rate values.
      * @param _interestRate new interest rate values.
      */
-    function setInterestRate(uint _interestRate) external onlyOwner {
+    function setInterestRate(uint _interestRate) external onlyManager {
         uint _oldInterestRate = interestRate;
         require(_interestRate != _oldInterestRate, "setInterestRate: Old and new values cannot be the same.");
         require(_interestRate >= ONE, "setInterestRate: Old and new values cannot be the same.");
@@ -106,7 +106,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
      * @dev Owner function to set a new origination fee.
      * @param _newOriginationFee rational trading fee ratio, scaled by 1e18.
      */
-    function updateOriginationFee(uint _newOriginationFee) external onlyOwner {
+    function updateOriginationFee(uint _newOriginationFee) external onlyManager {
         require(_newOriginationFee < BASE / 10, "updateOriginationFee: fee should be less than ten percent.");
         uint _oldOriginationFee = originationFee;
         require(_oldOriginationFee != _newOriginationFee, "updateOriginationFee: The old and new values cannot be the same.");
@@ -118,7 +118,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
      * @dev Owner function to set max debt amount.
      * @param _newMaxDebtAmount rational debt threshold, scaled by 1e18.
      */
-    function setMaxDebtAmount(uint _newMaxDebtAmount) external onlyOwner {
+    function setMaxDebtAmount(uint _newMaxDebtAmount) external onlyManager {
         uint _oldTokenMaxAmount = maxDebtAmount;
         require(_oldTokenMaxAmount != _newMaxDebtAmount, "setMaxDebtAmount: The old and new values cannot be the same.");
         maxDebtAmount = _newMaxDebtAmount;
@@ -132,7 +132,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
      * @param _recipient account to receive asset.
      * @param _amount transfer amount.
      */
-    function takeOut(address _token, address _recipient, uint _amount) external onlyManager whenNotPaused {
+    function takeOut(address _token, address _recipient, uint _amount) external onlyOwner {
         require(doTransferOut(_token, _recipient, _amount));
     }
 
