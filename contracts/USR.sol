@@ -257,7 +257,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
 
     // like transferFrom but Token-denominated
     function move(address _src, address _dst, uint _pie) external returns (bool) {
-        uint _exchangeRate = (now > lastTriggerTime) ? drip() : exchangeRate;
+        uint _exchangeRate = drip();
         // rounding up ensures _dst gets at least _pie Token
         return transferFrom(_src, _dst, rdivup(_pie, _exchangeRate));
     }
@@ -339,23 +339,19 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
 
     // _pie is denominated in Token
     function mint(address _dst, uint _pie) external {
-        if (now > lastTriggerTime)
-            drip();
-
+        drip();
         join(_dst, _pie);
     }
 
     // _wad is denominated in (1/exchangeRate) * Token
     function burn(address _src, uint _wad) external {
-        if (now > lastTriggerTime)
-            drip();
+        drip();
         exit(_src, _wad);
     }
 
     // _pie is denominated in Token
     function withdraw(address _src, uint _pie) external {
-        if (now > lastTriggerTime)
-            drip();
+        drip();
         // rounding up ensures usr gets at least _pie Token
         draw(_src, _pie);
     }
