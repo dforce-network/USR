@@ -185,13 +185,9 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
      */
     function drip() public note returns (uint) {
         if (now > lastTriggerTime) {
-            uint _tmp = rmul(rpow(interestRate, now - lastTriggerTime, ONE), exchangeRate);
-            exchangeRate = _tmp;
+            exchangeRate = getExchangeRate();
             lastTriggerTime = now;
-            
-            return _tmp;
         }
-        
         return exchangeRate;
     }
 
@@ -262,8 +258,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
         return transferFrom(_src, _dst, rdivup(_pie, _exchangeRate));
     }
 
-    function transferFrom(address _src, address _dst, uint _wad) public returns (bool)
-    {
+    function transferFrom(address _src, address _dst, uint _wad) public returns (bool) {
         require(balanceOf[_src] >= _wad, "transferFrom: insufficient balance");
         if (_src != msg.sender && allowance[_src][msg.sender] != uint(-1)) {
             require(allowance[_src][msg.sender] >= _wad, "transferFrom: insufficient allowance");
@@ -324,8 +319,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
     }
 
     function getFixedExchangeRate(uint _interval) public view returns (uint) {
-        uint _scale = ONE;
-        return rpow(interestRate, _interval, _scale).mul(exchangeRate) / _scale;
+        return rmul(rpow(interestRate, _interval, ONE), exchangeRate);
     }
 
     /**
