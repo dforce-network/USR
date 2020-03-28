@@ -199,7 +199,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
     function join(address _dst, uint _pie) private note whenNotPaused {
         require(now == lastTriggerTime, "join: last trigger time not updated.");
         require(doTransferFrom(usdx, msg.sender, address(this), _pie));
-        uint _wad = rdiv(_pie, exchangeRate);
+        uint _wad = rdivup(_pie, exchangeRate);
         balanceOf[_dst] = balanceOf[_dst].add(_wad);
         totalSupply = totalSupply.add(_wad);
         require(rmul(totalSupply, exchangeRate) <= maxDebtAmount, "join: not enough to join.");
