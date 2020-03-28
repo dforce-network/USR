@@ -229,7 +229,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
     /**
      * @dev Withdraw to get specified USDx, but only when the contract is not paused.
      * @param _src account who will receive benefits.
-     * @param _pie amount to withdraw USDx, scaled by 1e18.
+     * @param _pie amount to redeem USDx, scaled by 1e18.
      */
     function draw(address _src, uint _pie) private note whenNotPaused {
         require(now == lastTriggerTime, "draw: last trigger time not updated.");
@@ -344,7 +344,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
     }
 
     // _pie is denominated in Token
-    function withdraw(address _src, uint _pie) external {
+    function redeem(address _src, uint _pie) external {
         drip();
         // rounding up ensures usr gets at least _pie Token
         draw(_src, _pie);
