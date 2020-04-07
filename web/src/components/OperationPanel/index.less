@@ -1,0 +1,107 @@
+.box {
+  width: 478px;
+  height: 350px;
+  background: rgba(255,255,255,1);
+  box-shadow: 0px 0px 35px 0px rgba(94,85,126,0.15);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &__content {
+    width: 430px;
+    height: 300px;
+    border: 1px solid rgba(229,230,242,1);
+    border-radius: 4px;
+  }
+
+  .deposit__form {
+    width: 88%;
+    margin: 0 auto;
+
+    .usdx {
+      display: flex;
+      height: 60px;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 18px;
+      color: #434976;
+
+      span {
+        display: inline-flex;
+        align-items: center;
+        font-weight: 500;
+        color: #434976;
+      }
+      img {
+        width: 22px;
+        margin-right: 5px;
+      }
+    }
+
+    .input {
+      input {
+        height: 52px;
+        font-size: 18px;
+        border: 2px solid rgba(229,230,242,1);
+        border-radius: 2px;
+      }
+      p {
+        font-size: 14px;
+        color: #434976;
+        margin: 14px 0;
+      }
+    }
+    .btn {
+      height: 52px;
+      font-size: 20px;
+      border-radius: 4px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .box {
+    width: 100%;
+    height: auto;
+    padding: 13px 0;
+    margin-bottom: 12px;
+    border-radius: 3px;
+
+    &__content {
+      width: 93%;
+      height: auto;
+    }
+
+    .deposit__form {
+      width: 93%;
+      .usdx {
+        height: 50px;
+        font-size: 13px;
+
+        label {
+          font-weight: bold;
+        }
+      }
+
+      .input {
+        p {
+          font-size: 10px;
+          margin-bottom: 15px;
+        }
+        input {
+          height: 44px;
+          font-size: 13px;
+          border-width: 1px;
+        }
+      }
+      .btn {
+        height: 40px;
+        font-size: 14px;
+        margin-bottom: 15px;
+      }
+    }
+  }
+}

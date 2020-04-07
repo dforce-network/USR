@@ -1,0 +1,47 @@
+.overview {
+  width: 478px;
+  height: 349px;
+  background: rgba(255,255,255,1);
+  box-shadow: 0px 0px 35px 0px rgba(94,85,126,0.15);
+  border-radius: 6px;
+  float: right;
+
+  h2 {
+    line-height: 80px;
+    color: #434976;
+    font-weight: normal;
+    font-size: 20px;
+    padding-left: 24px;
+    border-bottom: solid 1px #E5E6F2;
+  }
+
+  p {
+    font-size: 18px;
+    color: #434976;
+    padding-left: 24px;
+    margin: 36px 0 0 0;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .overview {
+    border-radius: 3px;
+    padding-bottom: 18px;
+    height: auto;
+    width: 100%;
+
+    h2 {
+      line-height: 56px;
+      font-size: 14px;
+      padding-left: 12px;
+      b {
+        font-size: 18px;
+      }
+    }
+    p {
+      font-size: 14px;
+      margin-top: 18px;
+      padding-left: 12px;
+    }
+  }
+}
