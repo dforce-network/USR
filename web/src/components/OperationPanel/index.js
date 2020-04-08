@@ -12,7 +12,7 @@ class OperationPanel extends Component {
   }
 
   handleDeposit = () => {
-
+    console.log(this.props.usr)
   }
 
   __renderDepositForm = () => {
@@ -33,7 +33,7 @@ class OperationPanel extends Component {
         </Col>
 
         <Col span={24}>
-          <Button type="primary" block className={styles.btn}>DEPOSIT</Button>
+          <Button type="primary" onClick={this.handleDeposit} block className={styles.btn}>DEPOSIT</Button>
         </Col>
       </Row>
     );

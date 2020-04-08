@@ -1,12 +1,13 @@
 import Web3 from 'web3';
 import config from './config';
 import USRABI from '../abi/USR.abi.json';
+import USDxABI from '../abi/USDx.abi.json';
 
 let Decimal = require('decimal.js-light')
 Decimal = require('toformat')(Decimal)
 
-const USDxAddress = config.USDx
-const USRAddress = config.USR
+const USDxAddress = config.USDx;
+const USRAddress = config.USR;
 
 export const WadDecimal = Decimal.clone({
   rounding: 1, // round down
@@ -15,12 +16,78 @@ export const WadDecimal = Decimal.clone({
   toExpPos: 78,
 })
 
-export function setupContracts() {
-
+WadDecimal.format = {
+  groupSeparator: ",",
+  groupSize: 3,
 }
 
-export function getData() {
+// to fixed
+function toFixed(num, precision) {
+  return (+(Math.round(+(num + 'e' + precision)) + 'e' + -precision)).toFixed(precision);
+}
 
+// get usdx balance
+export async function getUSDxBalance() {
+  const {
+    web3,
+    walletAddress,
+    usdxObj,
+  } = this.props.usr;
+  const { dispatch } = this.props;
+
+  if (!usdxObj || walletAddress) return;
+
+  const usdxBalanceRaw = await usdxObj.methods.balanceOf(walletAddress).call();
+  const usdxBalanceDecimal = new WadDecimal(usdxBalanceRaw).div('1e18');
+  const usdxBalance = toFixed(parseFloat(web3.utils.fromWei(usdxBalanceRaw)), 5);
+
+  dispatch({
+    type: 'usr/updateMultiParams',
+    payload: {
+      usdxBalance,
+      usdxBalanceDecimal,
+    }
+  });
+}
+
+// get usr balance
+export async function getUSRBalance() {
+  const {
+    dispatch,
+    usr: {
+      web3,
+      usrObj,
+      walletAddress,
+    }
+  } = this.props;
+
+  if (!usrObj || walletAddress) return;
+
+  const usrBalanceRaw = await usrObj.methods.balanceOf(walletAddress).call();
+  const usrBalanceDecimal = new WadDecimal(usrBalanceRaw).div('1e18');
+  const usrBalance = toFixed(parseFloat(web3.utils.fromWei(usrBalanceRaw)), 5);
+
+  // save usr balance
+  dispatch({
+    type: 'usr/updateMultiParams',
+    payload: {
+      usrBalance,
+      usrBalanceDecimal,
+    },
+  });
+}
+
+// set up contracts
+export function setupContracts(dispatch) {
+  const { web3 } = this.props.usr;
+  dispatch('usrObj', new web3.eth.Contract(USRABI, USRAddress));
+  dispatch('usdxObj', new web3.eth.Contract(USDxABI, USDxAddress));
+}
+
+// get balance of usr and usdx
+export async function getData() {
+  getUSRBalance.bind(this)();
+  getUSDxBalance.bind(this)();
 }
 
 export const initBrowserWallet = async function(dispatch, prompt = true) {
@@ -67,6 +134,6 @@ export const initBrowserWallet = async function(dispatch, prompt = true) {
   dispatch('walletAddress', accounts[0]);
   dispatch('walletType', walletType);
 
-  setupContracts.bind(this)();
+  setupContracts.bind(this)(dispatch);
   getData.bind(this)();
 }

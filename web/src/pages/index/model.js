@@ -6,7 +6,13 @@ export default {
     web3Failure: false,
     web3: null,
     walletAddress: '',
-    walletType: ''
+    walletType: '',
+    usrObj: null,
+    usdxObj: null,
+    usdxBalance: 0,
+    usdxBalanceDecimal: 0,
+    usrBalance: 0,
+    usrBalanceDecimal: 0,
   },
   effects: {},
   reducers: {
@@ -14,6 +20,12 @@ export default {
       return {
         ...state,
         [action.payload.name]: action.payload.value,
+      };
+    },
+    updateMultiParams(state, action) {
+      return {
+        ...state,
+        ...action.payload,
       };
     }
   }
