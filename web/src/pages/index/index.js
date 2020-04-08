@@ -9,10 +9,14 @@ import { connect } from 'dva';
 import config from '@utils/config';
 import Web3 from 'web3';
 
-const web3 = new Web3(new Web3.providers.HttpProvider(config.defaultWeb3Provider))
+const web3 = new Web3(new Web3.providers.HttpProvider(config.defaultWeb3Provider));
 
 @connect(({ usr }) => ({ usr }))
 class IndexPage extends PureComponent {
+  state = {
+    web3: web3
+  }
+
   handleTest = () => {
     this.props.dispatch({
       type: 'usr/updateParams',

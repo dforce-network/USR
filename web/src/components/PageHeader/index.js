@@ -2,11 +2,30 @@ import React, { Component } from 'react';
 import { Button, Menu, Dropdown, Drawer } from 'antd';
 import styles from './index.less';
 import { MenuOutlined, CloseOutlined } from '@ant-design/icons';
+import { initBrowserWallet } from '@utils/web3Utils';
+import { connect } from 'dva';
+import { accountHideFormatter } from '@utils';
 
 const downSvg = require('@assets/icon_xl.svg');
-export default class PageHeader extends Component {
+
+@connect(({ usr }) => ({ usr }))
+class PageHeader extends Component {
   state = {
     drawerVisible: false
+  }
+
+  dispatchValue = (name, value) => {
+    this.props.dispatch({
+      type: 'usr/updateParams',
+      payload: {
+        name,
+        value
+      }
+    })
+  }
+
+  componentDidMount() {
+    initBrowserWallet(this.dispatchValue);
   }
 
   onClose = () => {
@@ -22,11 +41,16 @@ export default class PageHeader extends Component {
   }
 
   // connect wallet
-  connectWallet = () => {
+  connectWallet = async () => {
+    console.log('connectWallet')
+    initBrowserWallet(this.dispatchValue);
 
+    console.log(this.props.usr)
   }
 
   render() {
+    const { walletAddress } = this.props.usr;
+
     const stablecoinMenu = (
       <Menu className={styles.header__overlay}>
         <Menu.Item>
@@ -106,7 +130,12 @@ export default class PageHeader extends Component {
             </span>
           </Dropdown>
 
-          <a className={styles.header__menu_wallet} onClick={this.connectWallet}>Connect Wallet</a>
+          {
+            walletAddress
+              ? <a className={styles.header__menu_wallet}>{ accountHideFormatter(walletAddress) }</a>
+              : <a className={styles.header__menu_wallet} onClick={this.connectWallet}>Connect Wallet</a>
+          }
+
         </div>
 
         <Drawer
@@ -161,3 +190,5 @@ export default class PageHeader extends Component {
     )
   };
 }
+
+export default PageHeader;
