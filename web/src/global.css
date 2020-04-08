@@ -20,6 +20,9 @@ body .ant-tabs-tab {
   font-size: 18px;
   font-weight: bold;
 }
+body .ant-tabs-bar {
+  margin: 0;
+}
 
 @media screen and (max-width: 768px) {
   body .ant-tabs-nav-scroll .ant-tabs-nav {

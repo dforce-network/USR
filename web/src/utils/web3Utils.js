@@ -3,8 +3,8 @@ import config from './config';
 import USRABI from '../abi/USR.abi.json';
 import USDxABI from '../abi/USDx.abi.json';
 
-let Decimal = require('decimal.js-light')
-Decimal = require('toformat')(Decimal)
+let Decimal = require('decimal.js-light');
+Decimal = require('toformat')(Decimal);
 
 const USDxAddress = config.USDx;
 const USRAddress = config.USR;
@@ -35,7 +35,7 @@ export async function getUSDxBalance() {
   } = this.props.usr;
   const { dispatch } = this.props;
 
-  if (!usdxObj || walletAddress) return;
+  if (!usdxObj || !walletAddress) return;
 
   const usdxBalanceRaw = await usdxObj.methods.balanceOf(walletAddress).call();
   const usdxBalanceDecimal = new WadDecimal(usdxBalanceRaw).div('1e18');
@@ -61,7 +61,7 @@ export async function getUSRBalance() {
     }
   } = this.props;
 
-  if (!usrObj || walletAddress) return;
+  if (!usrObj || !walletAddress) return;
 
   const usrBalanceRaw = await usrObj.methods.balanceOf(walletAddress).call();
   const usrBalanceDecimal = new WadDecimal(usrBalanceRaw).div('1e18');

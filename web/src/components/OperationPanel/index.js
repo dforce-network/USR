@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import styles from './index.less';
 import { Row, Col, Tabs, Button, Form, Input } from 'antd';
 // import { Translation } from 'react-i18next';
+import { formatCurrencyNumber } from '@utils';
 
 const { TabPane } = Tabs;
 const usdxIcon = require('@assets/icon_usdx.svg');
@@ -16,6 +17,8 @@ class OperationPanel extends Component {
   }
 
   __renderDepositForm = () => {
+    const { usdxBalance } = this.props.usr;
+
     return (
       <Row className={styles.deposit__form}>
         <Col className={styles.usdx} span={24}>
@@ -23,11 +26,19 @@ class OperationPanel extends Component {
             <img src={usdxIcon} />
             USDx
           </span>
-          <label>123,456,789.12</label>
+          <label>{ formatCurrencyNumber(usdxBalance) }</label>
         </Col>
 
         <Col className={styles.input} span={24}>
-          <Input placeholder="Amount in USDx" />
+          <div className={styles.input__text}>
+            <Input
+              type="number"
+              min="0"
+              step="1"
+              placeholder="Amount in USDx"
+            />
+            <a>MAX</a>
+          </div>
 
           <p>You will receive approximately <b>0.98231567</b> USR</p>
         </Col>

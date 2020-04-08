@@ -1,5 +1,6 @@
+// format account address
+import numeral from 'numeral';
 
-// 格式化钱包地址
 export function accountFormatter(account) {
   if (account.length && account.length === 40) {
     return ('0x' + account).toLowerCase()
@@ -7,8 +8,16 @@ export function accountFormatter(account) {
   return account.toLowerCase()
 }
 
-// 将钱包地址格式化为 0xff****xx2a
+// format wallet address
 export function accountHideFormatter(account) {
   let newaccount = accountFormatter(account);
   return `${newaccount.substring(0, 4)}****${newaccount.substring(newaccount.length - 4)}`;
+}
+
+// currency format
+export function formatCurrencyNumber(b) {
+  if (b > 0) {
+    return numeral(b).format('0,0.00');
+  }
+  return '0';
 }
