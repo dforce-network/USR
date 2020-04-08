@@ -20,7 +20,7 @@ export function _onCreate() {
     app.use(plugin);
   });
   
-  
+  app.model({ namespace: 'model', ...(require('/Users/limeng/Desktop/project/myproject/USR/web/src/pages/index/model.js').default) });
   return app;
 }
 

@@ -21,6 +21,11 @@ export default class PageHeader extends Component {
     });
   }
 
+  // connect wallet
+  connectWallet = () => {
+
+  }
+
   render() {
     const stablecoinMenu = (
       <Menu className={styles.header__overlay}>
@@ -101,7 +106,7 @@ export default class PageHeader extends Component {
             </span>
           </Dropdown>
 
-          <a className={styles.header__menu_wallet}>7b79…10f4</a>
+          <a className={styles.header__menu_wallet} onClick={this.connectWallet}>Connect Wallet</a>
         </div>
 
         <Drawer
