@@ -90,7 +90,7 @@ export async function getData() {
   getUSDxBalance.bind(this)();
 }
 
-export const initBrowserWallet = async function(dispatch, prompt = true) {
+export async function initBrowserWallet(dispatch, prompt = true) {
   dispatch('walletLoading', true);
   // if (!localStorage.getItem('walletKnown') && !prompt) return;
 
@@ -136,4 +136,23 @@ export const initBrowserWallet = async function(dispatch, prompt = true) {
 
   setupContracts.bind(this)(dispatch);
   getData.bind(this)();
+}
+
+// transfer usdx
+export async function transferUSDxToContract() {
+  let {
+    web3,
+    usrObj,
+    usdxObj,
+    joinAmount,
+    walletAddress,
+  } = this.props.usr;
+
+  joinAmount = joinAmount.mul(10**18);
+
+  return usdxObj.methods.approve(usrObj.options.address, '-1')
+    .send({ from: walletAddress })
+    .then(() => {
+      return usrObj.methods.mint(walletAddress, joinAmount.toFixed()).send({ from: walletAddress });
+    });
 }

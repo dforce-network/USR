@@ -3,7 +3,8 @@ import React, { Component } from 'react';
 import styles from './index.less';
 import { Row, Col, Tabs, Button, Form, Input } from 'antd';
 // import { Translation } from 'react-i18next';
-import { formatCurrencyNumber } from '@utils';
+import { formatCurrencyNumber,  } from '@utils';
+import { WadDecimal, transferUSDxToContract } from '@utils/web3Utils';
 
 const { TabPane } = Tabs;
 const usdxIcon = require('@assets/icon_usdx.svg');
@@ -14,10 +15,49 @@ class OperationPanel extends Component {
 
   handleDeposit = () => {
     console.log(this.props.usr)
+    transferUSDxToContract.bind(this)();
+  }
+
+  // max btn event
+  handleMaxEvent = tag => {
+    const { usdxBalance, usrBalance } = this.props.usr;
+    if (tag === 'join') {
+      // join
+      this.props.dispatch({
+        type: 'usr/updateParams',
+        payload: {
+          name: 'joinAmount',
+          value: this.formatDecimalValue(usdxBalance)
+        }
+      });
+    } else {
+      // exit
+      this.props.dispatch({
+        type: 'usr/updateParams',
+        payload: {
+          name: 'exitAmount',
+          value: this.formatDecimalValue(usrBalance)
+        }
+      });
+    }
+  }
+
+  formatDecimalValue = v => {
+    let value;
+    try {
+      value = new WadDecimal(v);
+    } catch {
+      if (v.length === 0) {
+        value = new WadDecimal(0);
+      } else {
+        return 0;
+      }
+    }
+    return value;
   }
 
   __renderDepositForm = () => {
-    const { usdxBalance } = this.props.usr;
+    const { usdxBalance, receiveUSRValue } = this.props.usr;
 
     return (
       <Row className={styles.deposit__form}>
@@ -36,38 +76,65 @@ class OperationPanel extends Component {
               min="0"
               step="1"
               placeholder="Amount in USDx"
+              onChange={e => {
+                this.props.dispatch({
+                  type: 'usr/updateParams',
+                  payload: {
+                    name: 'joinAmount',
+                    value: this.formatDecimalValue(e.target.value)
+                  }
+                });
+              }}
             />
-            <a>MAX</a>
+            <a href="javascript:void(0)" onClick={e => this.handleMaxEvent('join')}>MAX</a>
           </div>
 
-          <p>You will receive approximately <b>0.98231567</b> USR</p>
+          <p>You will receive approximately <b>{ formatCurrencyNumber(receiveUSRValue) }</b> USR</p>
         </Col>
 
         <Col span={24}>
-          <Button type="primary" onClick={this.handleDeposit} block className={styles.btn}>DEPOSIT</Button>
+          <Button
+            type="primary"
+            disabled={this.props.usr.joinAmount <= 0}
+            block
+            onClick={this.handleDeposit}
+            className={styles.btn}
+          >
+            DEPOSIT
+          </Button>
         </Col>
       </Row>
     );
   }
 
   __renderRedeemForm = () => {
+    const { usrBalance, receiveUSDxValue } = this.props.usr;
+
     return (
       <Row className={styles.deposit__form}>
         <Col className={styles.usdx} span={24}>
           <span>
             USR
           </span>
-          <label>123,456,789.12</label>
+          <label>{ formatCurrencyNumber(usrBalance) }</label>
         </Col>
 
         <Col className={styles.input} span={24}>
-          <Input placeholder="Amount in USR" />
+          <div className={styles.input__text}>
+            <Input
+              type="number"
+              min="0"
+              step="1"
+              placeholder="Amount in USR"
+            />
+            <a>MAX</a>
+          </div>
 
-          <p>You will receive at least <b>0.98231567</b> USDx</p>
+          <p>You will receive at least <b>{ formatCurrencyNumber(receiveUSDxValue) }</b> USDx</p>
         </Col>
 
         <Col span={24}>
-          <Button type="primary" block className={styles.btn}>REDEEM</Button>
+          <Button disabled type="primary" block className={styles.btn}>REDEEM</Button>
         </Col>
       </Row>
     );

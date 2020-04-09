@@ -57,6 +57,7 @@
         color: #675CFF;
         font-size: 18px;
         font-weight: 400;
+        z-index: 100;
       }
 
       input {
@@ -112,6 +113,26 @@
       }
 
       .input {
+        &__text {
+          position: relative;
+        }
+
+        a {
+          position: absolute;
+          height: 100%;
+          display: block;
+          min-width: 50px;
+          height: 44px;
+          line-height: 44px;
+          text-align: center;
+          right: 10px;
+          top: 0;
+          color: #675CFF;
+          font-size: 18px;
+          font-weight: 400;
+          z-index: 100;
+        }
+
         p {
           font-size: 10px;
           margin-bottom: 15px;

@@ -13,6 +13,16 @@ export default {
     usdxBalanceDecimal: 0,
     usrBalance: 0,
     usrBalanceDecimal: 0,
+
+    joinAmount: 0,
+    exitAmount: 0,
+
+    depositLoading: false,
+    redeemLoading: false,
+
+    // how many usr you will receive
+    receiveUSRValue: 0,
+    receiveUSDxValue: 0
   },
   effects: {},
   reducers: {
