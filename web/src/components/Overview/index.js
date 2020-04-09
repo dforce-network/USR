@@ -8,6 +8,8 @@ export default class Overview extends Component {
     const {
       usrBalance,
       usdxBalance,
+      interestRate,
+      exchangeRate,
     } = this.props.usr;
 
     return (
@@ -15,8 +17,8 @@ export default class Overview extends Component {
         <h2>You can withdraw <b>{ formatCurrencyNumber(usdxBalance) }</b> USDx</h2>
 
         <p>USR balance: { formatCurrencyNumber(usrBalance) }</p>
-        <p>1 USR = 1.01801456 USDx</p>
-        <p>USDx Annual Rate: 14.45%</p>
+        <p>1 USR = { exchangeRate } USDx</p>
+        <p>USDx Annual Rate: { interestRate }%</p>
       </section>
     );
   }

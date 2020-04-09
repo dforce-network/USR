@@ -26,6 +26,8 @@ export default {
 
     // exchange rate
     exchangeRate: 1.5,
+    // interest rate
+    interestRate: 0,
 
     usdxShowValue: 0,
     usrShowValue: 0,

@@ -96,6 +96,29 @@ export async function getExchangeRate() {
   });
 }
 
+export async function getTotalBalanceOfUSDx() {
+
+}
+
+export async function getShares() {
+
+}
+
+// get interest rate
+export async function getInterestRate() {
+  const { web3, usrObj } = this.props.usr;
+  // console.log(usrObj.methods)
+  const interestRateRaw = await usrObj.methods.interestRate().call();
+  const interestRateDecimal = new WadDecimal(interestRateRaw).div('1e27');
+  const interestRate = interestRateDecimal.toFixed();
+
+  console.log(interestRateRaw)
+  this.props.dispatch({
+    type: 'usr/updateMultiParams',
+    payload: { interestRate }
+  });
+}
+
 // get total balance
 
 // get shares
@@ -112,6 +135,7 @@ export async function getData() {
   getUSRBalance.bind(this)();
   getUSDxBalance.bind(this)();
   getExchangeRate.bind(this)();
+  getInterestRate.bind(this)();
 }
 
 export async function initBrowserWallet(dispatch, prompt = true) {
@@ -177,8 +201,15 @@ export async function mintUSR() {
   // return usdxObj.methods.approve(usrObj.options.address, '-1')
   //   .send({ from: walletAddress })
   //   .then(() => {
-      return usrObj.methods.mint(walletAddress, joinAmount.toFixed()).send({ from: walletAddress });
+
     // });
+  let sendTransaction = usrObj.methods
+    .mint(walletAddress, joinAmount.toFixed())
+    .send({
+      from: walletAddress
+    });
+
+  return sendTransaction;
 }
 
 // transfer usr
