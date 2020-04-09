@@ -21,11 +21,7 @@ class PageHeader extends Component {
         name,
         value
       }
-    })
-  }
-
-  componentDidMount() {
-    initBrowserWallet.bind(this)(this.dispatchValue);
+    });
   }
 
   onClose = () => {

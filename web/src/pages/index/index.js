@@ -8,6 +8,7 @@ import styles from './index.less';
 import { connect } from 'dva';
 import config from '@utils/config';
 import Web3 from 'web3';
+import { initBrowserWallet } from '@utils/web3Utils';
 
 const web3 = new Web3(new Web3.providers.HttpProvider(config.defaultWeb3Provider));
 
@@ -15,6 +16,20 @@ const web3 = new Web3(new Web3.providers.HttpProvider(config.defaultWeb3Provider
 class IndexPage extends PureComponent {
   state = {
     web3: web3
+  }
+
+  dispatchValue = (name, value) => {
+    this.props.dispatch({
+      type: 'usr/updateParams',
+      payload: {
+        name,
+        value
+      }
+    });
+  }
+
+  componentDidMount() {
+    initBrowserWallet.bind(this)(this.dispatchValue);
   }
 
   handleTest = () => {
@@ -36,7 +51,7 @@ class IndexPage extends PureComponent {
           <OperationPanel { ...this.props } />
           <Overview { ...this.props } />
         </div>
-        <Transactions />
+        <Transactions { ...this.props } />
       </div>
     );
   }

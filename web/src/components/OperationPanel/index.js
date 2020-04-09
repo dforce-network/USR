@@ -1,10 +1,10 @@
 // operation panel
 import React, { Component } from 'react';
 import styles from './index.less';
-import { Row, Col, Tabs, Button, Form, Input } from 'antd';
+import { Row, Col, Tabs, Button, Form, Input, message } from 'antd';
 // import { Translation } from 'react-i18next';
 import { formatCurrencyNumber,  } from '@utils';
-import { WadDecimal, transferUSDxToContract } from '@utils/web3Utils';
+import { WadDecimal, mintUSR, burnUSR } from '@utils/web3Utils';
 
 const { TabPane } = Tabs;
 const usdxIcon = require('@assets/icon_usdx.svg');
@@ -13,30 +13,76 @@ class OperationPanel extends Component {
     selectedPanel: 0
   }
 
+  // deposit function
   handleDeposit = () => {
-    console.log(this.props.usr)
-    transferUSDxToContract.bind(this)();
+    const { joinAmount, usdxBalance } = this.props.usr;
+
+    if (!joinAmount) {
+      message.warn('Deposit value should greater than 0!');
+      return;
+    }
+
+    if (joinAmount.cmp(usdxBalance) > 0) {
+      message.warning('Deposit value should less than ' + formatCurrencyNumber(usdxBalance));
+      return;
+    }
+
+    mintUSR.bind(this)();
+  }
+
+  // redeem function
+  handleRedeem = () => {
+    const { exitAmount, usrBalance } = this.props.usr;
+
+    if (!exitAmount) {
+      message.warn('Redeem value should greater than 0!');
+      return;
+    }
+
+    if (exitAmount.cmp(usrBalance) > 0) {
+      message.warning('Redeem value should less than ' + formatCurrencyNumber(usrBalance));
+      return;
+    }
+
+    burnUSR.bind(this)();
   }
 
   // max btn event
   handleMaxEvent = tag => {
-    const { usdxBalance, usrBalance } = this.props.usr;
+    let { usdxBalance, usrBalance, exchangeRate, receiveUSRValue, receiveUSDxValue } = this.props.usr;
+
     if (tag === 'join') {
       // join
+      let usdxShowValue = 0;
+
+      if (usdxBalance) {
+        usdxShowValue = parseFloat(usdxBalance).toFixed(2);
+        receiveUSRValue = usdxShowValue * exchangeRate;
+      }
+
       this.props.dispatch({
-        type: 'usr/updateParams',
+        type: 'usr/updateMultiParams',
         payload: {
-          name: 'joinAmount',
-          value: this.formatDecimalValue(usdxBalance)
+          usdxShowValue,
+          receiveUSRValue,
+          joinAmount: this.formatDecimalValue(usdxBalance)
         }
       });
     } else {
       // exit
+      let usrShowValue = 0;
+
+      if (usrBalance) {
+        usrShowValue = parseFloat(usrBalance).toFixed(2);
+        receiveUSDxValue = usrShowValue / exchangeRate;
+      }
+
       this.props.dispatch({
-        type: 'usr/updateParams',
+        type: 'usr/updateMultiParams',
         payload: {
-          name: 'exitAmount',
-          value: this.formatDecimalValue(usrBalance)
+          usrShowValue,
+          receiveUSDxValue,
+          exitAmount: this.formatDecimalValue(usrBalance)
         }
       });
     }
@@ -57,7 +103,7 @@ class OperationPanel extends Component {
   }
 
   __renderDepositForm = () => {
-    const { usdxBalance, receiveUSRValue } = this.props.usr;
+    const { usdxBalance, receiveUSRValue, exchangeRate } = this.props.usr;
 
     return (
       <Row className={styles.deposit__form}>
@@ -75,18 +121,25 @@ class OperationPanel extends Component {
               type="number"
               min="0"
               step="1"
+              value={this.props.usr.usdxShowValue}
               placeholder="Amount in USDx"
+              onFocus={e => {
+                e.target.select();
+              }}
               onChange={e => {
+                let joinAmount = this.formatDecimalValue(e.target.value);
+
                 this.props.dispatch({
-                  type: 'usr/updateParams',
+                  type: 'usr/updateMultiParams',
                   payload: {
-                    name: 'joinAmount',
-                    value: this.formatDecimalValue(e.target.value)
+                    joinAmount,
+                    usdxShowValue: e.target.value,
+                    receiveUSRValue: this.formatDecimalValue(joinAmount * exchangeRate)
                   }
                 });
               }}
             />
-            <a href="javascript:void(0)" onClick={e => this.handleMaxEvent('join')}>MAX</a>
+            <a onClick={e => this.handleMaxEvent('join')}>MAX</a>
           </div>
 
           <p>You will receive approximately <b>{ formatCurrencyNumber(receiveUSRValue) }</b> USR</p>
@@ -108,7 +161,7 @@ class OperationPanel extends Component {
   }
 
   __renderRedeemForm = () => {
-    const { usrBalance, receiveUSDxValue } = this.props.usr;
+    const { usrBalance, receiveUSDxValue, exchangeRate } = this.props.usr;
 
     return (
       <Row className={styles.deposit__form}>
@@ -125,16 +178,40 @@ class OperationPanel extends Component {
               type="number"
               min="0"
               step="1"
+              value={this.props.usr.usrShowValue}
               placeholder="Amount in USR"
+              onFocus={e => {
+                e.target.select();
+              }}
+              onChange={e => {
+                let exitAmount = this.formatDecimalValue(e.target.value);
+
+                this.props.dispatch({
+                  type: 'usr/updateMultiParams',
+                  payload: {
+                    exitAmount,
+                    usrShowValue: e.target.value,
+                    receiveUSDxValue: this.formatDecimalValue(exitAmount / exchangeRate)
+                  }
+                });
+              }}
             />
-            <a>MAX</a>
+            <a onClick={e => this.handleMaxEvent('exit')}>MAX</a>
           </div>
 
           <p>You will receive at least <b>{ formatCurrencyNumber(receiveUSDxValue) }</b> USDx</p>
         </Col>
 
         <Col span={24}>
-          <Button disabled type="primary" block className={styles.btn}>REDEEM</Button>
+          <Button
+            disabled={this.props.usr.exitAmount <= 0}
+            block
+            type="primary"
+            className={styles.btn}
+            onClick={this.handleRedeem}
+          >
+            REDEEM
+          </Button>
         </Col>
       </Row>
     );

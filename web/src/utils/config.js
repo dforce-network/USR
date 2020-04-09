@@ -1,3 +1,11 @@
+import { message } from 'antd';
+
+message.config({
+  top: 100,
+  maxCount: 1,
+  duration: 2
+});
+
 export default {
   "USDx": "0xC0FdE3cC59CF2A809daBE9E0af30a92CacEDEc6f",
   "USR": "0x02285AcaafEB533e03A7306C55EC031297df9224",

@@ -10,6 +10,18 @@ export default class Transactions extends Component {
     anchorEl: null,
   }
 
+  componentDidMount() {
+    let transactions = [
+      {
+        action: 'deposit',
+        time: new Date(),
+        hash: '',
+        usr: '300',
+        usdx: '100',
+      }
+    ];
+  }
+
   render() {
     return (
       <div className={styles.transactions}>

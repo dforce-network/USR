@@ -77,6 +77,29 @@ export async function getUSRBalance() {
   });
 }
 
+// get recent transactions
+export async function getRecentTransactions() {
+  const { web3, walletAddress } = this.props.usr;
+  let result = await web3.eth.getTransactionCount(walletAddress);
+}
+
+// get exchange rate
+export async function getExchangeRate() {
+  const { web3, usrObj } = this.props.usr;
+  const exchangeRateRaw = await usrObj.methods.getExchangeRate().call();
+  const exchangeRateDecimal = new WadDecimal(exchangeRateRaw).div('1e27');
+  const exchangeRate = exchangeRateDecimal.toFixed();
+
+  this.props.dispatch({
+    type: 'usr/updateMultiParams',
+    payload: { exchangeRate }
+  });
+}
+
+// get total balance
+
+// get shares
+
 // set up contracts
 export function setupContracts(dispatch) {
   const { web3 } = this.props.usr;
@@ -88,6 +111,7 @@ export function setupContracts(dispatch) {
 export async function getData() {
   getUSRBalance.bind(this)();
   getUSDxBalance.bind(this)();
+  getExchangeRate.bind(this)();
 }
 
 export async function initBrowserWallet(dispatch, prompt = true) {
@@ -139,7 +163,7 @@ export async function initBrowserWallet(dispatch, prompt = true) {
 }
 
 // transfer usdx
-export async function transferUSDxToContract() {
+export async function mintUSR() {
   let {
     web3,
     usrObj,
@@ -150,9 +174,24 @@ export async function transferUSDxToContract() {
 
   joinAmount = joinAmount.mul(10**18);
 
-  return usdxObj.methods.approve(usrObj.options.address, '-1')
-    .send({ from: walletAddress })
-    .then(() => {
+  // return usdxObj.methods.approve(usrObj.options.address, '-1')
+  //   .send({ from: walletAddress })
+  //   .then(() => {
       return usrObj.methods.mint(walletAddress, joinAmount.toFixed()).send({ from: walletAddress });
-    });
+    // });
+}
+
+// transfer usr
+export async function burnUSR() {
+  let {
+    web3,
+    usrObj,
+    usdxObj,
+    joinAmount,
+    exitAmount,
+    walletAddress,
+  } = this.props.usr;
+
+  exitAmount = exitAmount.mul(10**18);
+  return usrObj.methods.burn(walletAddress, exitAmount.toFixed()).send({ from: walletAddress });
 }

@@ -22,7 +22,13 @@ export default {
 
     // how many usr you will receive
     receiveUSRValue: 0,
-    receiveUSDxValue: 0
+    receiveUSDxValue: 0,
+
+    // exchange rate
+    exchangeRate: 1.5,
+
+    usdxShowValue: 0,
+    usrShowValue: 0,
   },
   effects: {},
   reducers: {
