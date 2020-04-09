@@ -29,6 +29,8 @@ export default class Transactions extends Component {
       return <></>;
     }
 
+    recentTransactions.reverse();
+
     return (
       <div className={styles.transactions}>
         <h2>Recent Transactions</h2>
@@ -45,7 +47,7 @@ export default class Transactions extends Component {
 
                   <div>
                     <p>
-                      { item.time ? item.time : formatTime(new Date) }  |
+                      { item.time || '-' }  |
                       <a
                         target="_blank"
                         href={`https://rinkeby.etherscan.io/tx/${item.data.transactionHash}`}
