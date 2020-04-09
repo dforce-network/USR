@@ -30,6 +30,9 @@ class IndexPage extends PureComponent {
 
   componentDidMount() {
     initBrowserWallet.bind(this)(this.dispatchValue);
+    this.props.dispatch({
+      type: 'usr/updateRecentTransactions'
+    });
   }
 
   handleTest = () => {

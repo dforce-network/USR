@@ -1,4 +1,6 @@
 // usr modal
+import { getTransactions } from '@utils';
+
 export default {
   namespace: 'usr',
   state: {
@@ -31,8 +33,9 @@ export default {
 
     usdxShowValue: 0,
     usrShowValue: 0,
+
+    recentTransactions: []
   },
-  effects: {},
   reducers: {
     updateParams(state, action) {
       return {
@@ -44,6 +47,13 @@ export default {
       return {
         ...state,
         ...action.payload,
+      };
+    },
+    updateRecentTransactions(state) {
+      const transactions = getTransactions();
+      return {
+        ...state,
+        recentTransactions: [...transactions],
       };
     }
   }

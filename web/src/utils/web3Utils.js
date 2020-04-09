@@ -2,6 +2,7 @@ import Web3 from 'web3';
 import config from './config';
 import USRABI from '../abi/USR.abi.json';
 import USDxABI from '../abi/USDx.abi.json';
+import { saveTransactions } from './index';
 
 let Decimal = require('decimal.js-light');
 Decimal = require('toformat')(Decimal);
@@ -112,7 +113,6 @@ export async function getInterestRate() {
   const interestRateDecimal = new WadDecimal(interestRateRaw).div('1e27');
   const interestRate = interestRateDecimal.toFixed();
 
-  console.log(interestRateRaw)
   this.props.dispatch({
     type: 'usr/updateMultiParams',
     payload: { interestRate }
@@ -194,7 +194,10 @@ export async function mintUSR() {
     usdxObj,
     joinAmount,
     walletAddress,
+    receiveUSRValue,
   } = this.props.usr;
+
+  let storeJoinAmount = joinAmount.toFixed();
 
   joinAmount = joinAmount.mul(10**18);
 
@@ -203,13 +206,24 @@ export async function mintUSR() {
   //   .then(() => {
 
     // });
-  let sendTransaction = usrObj.methods
+  return usrObj.methods
     .mint(walletAddress, joinAmount.toFixed())
     .send({
       from: walletAddress
-    });
+    })
+    .then(res => {
+      let obj = {
+        action: 'deposit',
+        data: res,
+        usr: receiveUSRValue,
+        usdx: storeJoinAmount
+      };
+      saveTransactions(obj);
 
-  return sendTransaction;
+      this.props.dispatch({
+        type: 'usr/updateRecentTransactions'
+      });
+    });
 }
 
 // transfer usr
@@ -221,8 +235,29 @@ export async function burnUSR() {
     joinAmount,
     exitAmount,
     walletAddress,
+    receiveUSDxValue,
   } = this.props.usr;
 
+  let storeExitAmount = exitAmount.toFixed();
+
   exitAmount = exitAmount.mul(10**18);
-  return usrObj.methods.burn(walletAddress, exitAmount.toFixed()).send({ from: walletAddress });
+
+  return usrObj.methods
+    .burn(walletAddress, exitAmount.toFixed())
+    .send({
+      from: walletAddress
+    })
+    .then(res => {
+      let obj = {
+        action: 'redeem',
+        data: res,
+        usr: storeExitAmount,
+        usdx: receiveUSDxValue
+      };
+      saveTransactions(obj);
+
+      this.props.dispatch({
+        type: 'usr/updateRecentTransactions'
+      });
+    });
 }

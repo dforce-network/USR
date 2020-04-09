@@ -23,28 +23,37 @@ export default class Transactions extends Component {
   }
 
   render() {
+    const { recentTransactions } = this.props.usr;
+    if (!recentTransactions.length) {
+      return <></>;
+    }
+
     return (
       <div className={styles.transactions}>
         <h2>Recent Transactions</h2>
 
         <div>
-          <section className={styles.transactions__item}>
-            <img src={depositIcon} className={styles.transactions__item_icon} />
+          {
+            recentTransactions.map((item, key) => {
+              return (
+                <section className={styles.transactions__item} key={key}>
+                  <img
+                    src={item.action === 'deposit' ? depositIcon : redeemIcon}
+                    className={styles.transactions__item_icon}
+                  />
 
-            <div>
-              <p>Mar 24, 2019 at 10:26:40  |  <a>Tx-Hash</a></p>
-              <label>Redeem 200 USR, Receive199.743864 USDx</label>
-            </div>
-          </section>
-
-          <section className={styles.transactions__item}>
-            <img src={redeemIcon} className={styles.transactions__item_icon} />
-
-            <div>
-              <p>Mar 24, 2019 at 10:26:40  |  <a>Tx-Hash</a></p>
-              <label>Redeem 200 USR, Receive199.743864 USDx</label>
-            </div>
-          </section>
+                  <div>
+                    <p>Mar 24, 2019 at 10:26:40  |  <a href={`${item.data.transactionHash}`}>Tx-Hash</a></p>
+                    {
+                      item.action === 'deposit'
+                        ? <label>Deposit { item.usdx } USDx, Receive { item.usr } USR</label>
+                        : <label>Redeem { item.usr } USR, Receive { item.usdx } USDx</label>
+                    }
+                  </div>
+                </section>
+              );
+            })
+          }
         </div>
       </div>
     )

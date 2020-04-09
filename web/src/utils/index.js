@@ -21,3 +21,40 @@ export function formatCurrencyNumber(b) {
   }
   return '0';
 }
+
+// get transactions from local
+export function getTransactions() {
+  let normalArray = window.localStorage.getItem('__transactions');
+
+  if (!normalArray) {
+    normalArray = [];
+  } else {
+    try {
+      normalArray = JSON.parse(normalArray);
+    } catch {
+      normalArray = [];
+    }
+  }
+  return normalArray;
+}
+
+// save transactions to localStorage
+export function saveTransactions(transObj) {
+  let normalArray = window.localStorage.getItem('__transactions');
+
+  if (!normalArray) {
+    normalArray = [];
+  } else {
+    try {
+      normalArray = JSON.parse(normalArray);
+    } catch {
+      normalArray = [];
+    }
+  }
+
+  if (normalArray) {
+    normalArray.push(transObj);
+  }
+
+  window.localStorage.setItem('__transactions', JSON.stringify(normalArray));
+}
