@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import styles from './index.less';
 import { Button, Menu } from 'antd';
+import { formatTime } from '@utils';
 
 const depositIcon = require('@assets/icon_deposit.svg');
 const redeemIcon = require('@assets/icon_redeem.svg');
@@ -43,7 +44,14 @@ export default class Transactions extends Component {
                   />
 
                   <div>
-                    <p>Mar 24, 2019 at 10:26:40  |  <a href={`${item.data.transactionHash}`}>Tx-Hash</a></p>
+                    <p>
+                      { item.time ? item.time : formatTime(new Date) }  |
+                      <a
+                        target="_blank"
+                        href={`https://rinkeby.etherscan.io/tx/${item.data.transactionHash}`}
+                      > Tx-Hash
+                      </a>
+                    </p>
                     {
                       item.action === 'deposit'
                         ? <label>Deposit { item.usdx } USDx, Receive { item.usr } USR</label>

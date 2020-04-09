@@ -2,7 +2,7 @@ import Web3 from 'web3';
 import config from './config';
 import USRABI from '../abi/USR.abi.json';
 import USDxABI from '../abi/USDx.abi.json';
-import { saveTransactions } from './index';
+import { saveTransactions, formatTime } from './index';
 
 let Decimal = require('decimal.js-light');
 Decimal = require('toformat')(Decimal);
@@ -216,7 +216,8 @@ export async function mintUSR() {
         action: 'deposit',
         data: res,
         usr: receiveUSRValue,
-        usdx: storeJoinAmount
+        usdx: storeJoinAmount,
+        time: formatTime(new Date())
       };
       saveTransactions(obj);
 
@@ -252,7 +253,8 @@ export async function burnUSR() {
         action: 'redeem',
         data: res,
         usr: storeExitAmount,
-        usdx: receiveUSDxValue
+        usdx: receiveUSDxValue,
+        time: formatTime(new Date())
       };
       saveTransactions(obj);
 

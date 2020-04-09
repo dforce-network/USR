@@ -1,5 +1,11 @@
 // format account address
 import numeral from 'numeral';
+import moment from 'moment';
+
+// format time
+export function formatTime(time) {
+  return moment(time).format('YYYY-MM-DD HH:mm:ss');
+}
 
 export function accountFormatter(account) {
   if (account.length && account.length === 40) {
