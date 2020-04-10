@@ -128,6 +128,12 @@ class PageHeader extends Component {
               ?  (
                 <a
                   className={styles.header__menu_wallet}
+                  href={
+                    this.props.usr.network == 1
+                      ? `https://etherscan.com/address/${walletAddress}`
+                      : `https://rinkeby.etherscan.io/address/${walletAddress}`
+                  }
+                  target="_blank"
                 >
                   <i style={{ backgroundColor: this.props.usr.network == 1 ? '#29B6AF' : 'orange' }}></i>
                   { accountHideFormatter(walletAddress) }
