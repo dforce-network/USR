@@ -34,7 +34,10 @@ export default {
     usdxShowValue: 0,
     usrShowValue: 0,
 
-    recentTransactions: []
+    recentTransactions: [],
+
+    shareValue: 0,
+    totalBalanceValue: 0
   },
   reducers: {
     updateParams(state, action) {

@@ -1,7 +1,7 @@
 // operation panel
 import React, { Component } from 'react';
 import styles from './index.less';
-import { formatCurrencyNumber } from '@utils';
+import { formatCurrencyNumber, percentFormatter } from '@utils';
 
 export default class Overview extends Component {
   render() {
@@ -18,7 +18,7 @@ export default class Overview extends Component {
 
         <p>USR balance: { formatCurrencyNumber(usrBalance) }</p>
         <p>1 USR = { exchangeRate } USDx</p>
-        <p>USDx Annual Rate: { interestRate }%</p>
+        <p>USDx Annual Rate: { percentFormatter(interestRate) }</p>
       </section>
     );
   }

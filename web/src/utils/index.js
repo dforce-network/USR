@@ -3,15 +3,22 @@ import numeral from 'numeral';
 import moment from 'moment';
 
 // format time
-export function formatTime(time) {
+export function timeFormatter(time) {
   return moment(time).format('YYYY-MM-DD HH:mm:ss');
 }
 
+// account formatter
 export function accountFormatter(account) {
   if (account.length && account.length === 40) {
     return ('0x' + account).toLowerCase()
   }
   return account.toLowerCase()
+}
+
+// format percent
+export function percentFormatter(v) {
+  let fixValue = parseFloat(v * 100).toFixed(2);
+  return `${fixValue}%`;
 }
 
 // format wallet address

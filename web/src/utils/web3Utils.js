@@ -2,7 +2,7 @@ import Web3 from 'web3';
 import config from './config';
 import USRABI from '../abi/USR.abi.json';
 import USDxABI from '../abi/USDx.abi.json';
-import { saveTransactions, formatTime } from './index';
+import { saveTransactions, timeFormatter } from './index';
 
 let Decimal = require('decimal.js-light');
 Decimal = require('toformat')(Decimal);
@@ -97,14 +97,6 @@ export async function getExchangeRate() {
   });
 }
 
-export async function getTotalBalanceOfUSDx() {
-
-}
-
-export async function getShares() {
-
-}
-
 // get interest rate
 export async function getInterestRate() {
   const { web3, usrObj } = this.props.usr;
@@ -120,8 +112,31 @@ export async function getInterestRate() {
 }
 
 // get total balance
+export async function getTotalBalanceOfUSDx() {
+  const { web3, usrObj, walletAddress } = this.props.usr;
+  const totalBalanceRaw = await usrObj.methods.getTotalBalance(walletAddress).call();
+  const totalBalanceValue = toFixed(parseFloat(web3.utils.fromWei(totalBalanceRaw)), 5);
+  console.log(totalBalanceValue);
 
-// get shares
+  this.props.dispatch({
+    type: 'usr/updateMultiParams',
+    payload: { totalBalanceValue }
+  });
+}
+
+// get share
+// usdx value
+export async function getShare() {
+  const { web3, usrObj } = this.props.usr;
+  const shareRaw = await usrObj.methods.share().call();
+  const shareValue = toFixed(parseFloat(web3.utils.fromWei(shareRaw)), 5);
+  console.log(shareValue)
+
+  this.props.dispatch({
+    type: 'usr/updateMultiParams',
+    payload: { shareValue }
+  });
+}
 
 // set up contracts
 export function setupContracts(dispatch) {
@@ -136,6 +151,8 @@ export async function getData() {
   getUSDxBalance.bind(this)();
   getExchangeRate.bind(this)();
   getInterestRate.bind(this)();
+  getShare.bind(this)();
+  getTotalBalanceOfUSDx.bind(this)();
 }
 
 // init browser wallet
@@ -231,7 +248,7 @@ export async function mintUSR() {
         data: res,
         usr: receiveUSRValue,
         usdx: storeJoinAmount,
-        time: formatTime(new Date())
+        time: timeFormatter(new Date())
       };
       saveTransactions(obj);
 
@@ -270,7 +287,7 @@ export async function burnUSR() {
         data: res,
         usr: storeExitAmount,
         usdx: receiveUSDxValue,
-        time: formatTime(new Date())
+        time: timeFormatter(new Date())
       };
       saveTransactions(obj);
 
