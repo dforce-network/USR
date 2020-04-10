@@ -38,10 +38,7 @@ class PageHeader extends Component {
 
   // connect wallet
   connectWallet = async () => {
-    console.log('connectWallet')
-    initBrowserWallet(this.dispatchValue);
-
-    console.log(this.props.usr)
+    initBrowserWallet.bind(this)(this.dispatchValue);
   }
 
   render() {
@@ -141,7 +138,7 @@ class PageHeader extends Component {
                 <img src={require('@assets/logo.svg')} />
               </a>
 
-              <CloseOutlined onClick={this.onClose} />
+              <img className={styles.header__close} onClick={this.onClose} src={require('@assets/icon_close.svg')} />
             </section>
           )}
           placement='top'
@@ -151,7 +148,10 @@ class PageHeader extends Component {
           height="640"
         >
           <section className={styles.header__drawer}>
-            <h2>dForce Stablecoin</h2>
+            <h2>
+              dForce Stablecoin
+              <img src={require('@assets/icon_down.svg')} />
+            </h2>
             <a target="_blank" rel="noopener noreferrer" href="" className={styles.header__overlay_item}>
               <span>USDx</span>
               <label>Portal</label>
@@ -167,7 +167,10 @@ class PageHeader extends Component {
           </section>
 
           <section className={styles.header__drawer}>
-            <h2>Yield Market</h2>
+            <h2>
+              Yield Market
+              <img src={require('@assets/icon_down.svg')} />
+            </h2>
             <a target="_blank" rel="noopener noreferrer" href="" className={styles.header__overlay_item}>
               <span>LendfMe</span>
               <label>Lend and Borrow with Incredible Interest</label>
@@ -175,7 +178,10 @@ class PageHeader extends Component {
           </section>
 
           <section className={styles.header__drawer}>
-            <h2>Exchange Market</h2>
+            <h2>
+              Exchange Market
+              <img src={require('@assets/icon_down.svg')} />
+            </h2>
             <a target="_blank" rel="noopener noreferrer" href="" className={styles.header__overlay_item}>
               <span>X-Swap</span>
               <label>Trade Stable Asset with Zero Slippage</label>

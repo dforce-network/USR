@@ -35,18 +35,6 @@ class IndexPage extends PureComponent {
     });
   }
 
-  handleTest = () => {
-    this.props.dispatch({
-      type: 'usr/updateParams',
-      payload: {
-        name: 'walletAddress',
-        value: 'abc'
-      }
-    });
-
-    console.log(this.props.usr);
-  }
-
   render() {
     return (
       <div className={styles.home}>

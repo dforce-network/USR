@@ -23,6 +23,9 @@ body .ant-tabs-tab {
 body .ant-tabs-bar {
   margin: 0;
 }
+body .ant-tabs-nav .ant-tabs-tab-active {
+  font-weight: bold;
+}
 
 body .loader {
   box-sizing: border-box;
