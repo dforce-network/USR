@@ -58,27 +58,24 @@
     }
 
     &_wallet {
-      display: inline-block;
+      // display: inline-block;
       color: #fff;
       width: 131px;
       height: 34px;
       line-height: 34px;
       background: rgba(67,73,118,1);
       border-radius: 4px;
-      position: relative;
-      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-around;
+      // position: relative;
+      // text-align: center;
 
-      &::before {
-        content: "";
+      i {
         display: inline-flex;
         width: 6px;
         height: 6px;
         border-radius: 50%;
-        background: #29B6AF;
-        position: absolute;
-        left: 15px;
-        top: 13px;
-        display: none;
       }
     }
   }

@@ -4,6 +4,8 @@ import { getTransactions } from '@utils';
 export default {
   namespace: 'usr',
   state: {
+    network: 0,
+
     walletLoading: false,
     web3Failure: false,
     web3: null,

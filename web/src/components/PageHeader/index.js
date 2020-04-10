@@ -125,7 +125,14 @@ class PageHeader extends Component {
 
           {
             walletAddress
-              ? <a className={styles.header__menu_wallet}>{ accountHideFormatter(walletAddress) }</a>
+              ?  (
+                <a
+                  className={styles.header__menu_wallet}
+                >
+                  <i style={{ backgroundColor: this.props.usr.network == 1 ? '#29B6AF' : 'orange' }}></i>
+                  { accountHideFormatter(walletAddress) }
+                </a>
+              )
               : <a className={styles.header__menu_wallet} onClick={this.connectWallet}>Connect Wallet</a>
           }
 
