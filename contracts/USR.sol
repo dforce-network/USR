@@ -1,8 +1,6 @@
 pragma solidity 0.5.12;
 
 import './library/ERC20SafeTransfer';
-import './library/IERC20';
-import './library/LibNote';
 import './library/Pausable';
 import './library/SafeMath';
 
@@ -22,7 +20,7 @@ import './library/SafeMath';
    - `getTotalBalance`: user current total balance with benefits
 */
 
-contract USR is LibNote, Pausable, ERC20SafeTransfer {
+contract USR is Pausable, ERC20SafeTransfer {
     using SafeMath for uint;
     // --- Data ---
     bool private initialized;     // flag of initialize data
@@ -183,7 +181,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
      * @dev Savings Rate Accumulation.
      * @return the most recent exchange rate, scaled by 1e27.
      */
-    function drip() public note returns (uint) {
+    function drip() public returns (uint) {
         if (now > lastTriggerTime) {
             exchangeRate = getExchangeRate();
             lastTriggerTime = now;
@@ -196,7 +194,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
      * @param _dst account who will get benefits.
      * @param _pie amount to buy, scaled by 1e18.
      */
-    function join(address _dst, uint _pie) private note whenNotPaused {
+    function join(address _dst, uint _pie) private whenNotPaused {
         require(now == lastTriggerTime, "join: last trigger time not updated.");
         require(doTransferFrom(usdx, msg.sender, address(this), _pie));
         uint _wad = rdivup(_pie, exchangeRate);
@@ -211,7 +209,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
      * @param _src account who will receive benefits.
      * @param _wad amount to burn USR, scaled by 1e18.
      */
-    function exit(address _src, uint _wad) private note whenNotPaused {
+    function exit(address _src, uint _wad) private whenNotPaused {
         require(now == lastTriggerTime, "exit: lastTriggerTime not updated.");
         require(balanceOf[_src] >= _wad, "exit: insufficient balance");
         if (_src != msg.sender && allowance[_src][msg.sender] != uint(-1)) {
@@ -231,7 +229,7 @@ contract USR is LibNote, Pausable, ERC20SafeTransfer {
      * @param _src account who will receive benefits.
      * @param _pie amount to redeem USDx, scaled by 1e18.
      */
-    function draw(address _src, uint _pie) private note whenNotPaused {
+    function draw(address _src, uint _pie) private whenNotPaused {
         require(now == lastTriggerTime, "draw: last trigger time not updated.");
         uint _wad = rdivup(divScale(_pie, BASE.sub(originationFee)), exchangeRate);
         require(balanceOf[_src] >= _wad, "draw: insufficient balance");
