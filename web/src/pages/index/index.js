@@ -44,7 +44,7 @@ class IndexPage extends PureComponent {
       }
     });
 
-    console.log(this.props.usr)
+    console.log(this.props.usr);
   }
 
   render() {

@@ -103,7 +103,7 @@ class OperationPanel extends Component {
   }
 
   __renderDepositForm = () => {
-    const { usdxBalance, receiveUSRValue, exchangeRate } = this.props.usr;
+    const { usdxBalance, receiveUSRValue, exchangeRate, depositLoading } = this.props.usr;
 
     return (
       <Row className={styles.deposit__form}>
@@ -152,6 +152,7 @@ class OperationPanel extends Component {
             block
             onClick={this.handleDeposit}
             className={styles.btn}
+            loading={depositLoading}
           >
             DEPOSIT
           </Button>

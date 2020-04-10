@@ -55,6 +55,19 @@ export default {
         ...state,
         recentTransactions: [...transactions],
       };
-    }
+    },
+    updateBtnLoading(state, action) {
+      if (action.payload.name === 'deposit') {
+        return {
+          ...state,
+          depositLoading: !!action.payload.loading
+        };
+      } else {
+        return {
+          ...state,
+          redeemLoading: !!action.payload.loading
+        };
+      }
+    },
   }
 }

@@ -138,7 +138,20 @@ export async function getData() {
   getInterestRate.bind(this)();
 }
 
+// init browser wallet
 export async function initBrowserWallet(dispatch, prompt = true) {
+  if (!dispatch) {
+    dispatch = (name, value) => {
+      this.props.dispatch({
+        type: 'usr/updateParams',
+        payload: {
+          name,
+          value
+        }
+      })
+    };
+  }
+
   dispatch('walletLoading', true);
   // if (!localStorage.getItem('walletKnown') && !prompt) return;
 
@@ -157,7 +170,7 @@ export async function initBrowserWallet(dispatch, prompt = true) {
 
     window.ethereum.on('accountsChanged', (accounts) => {
       initBrowserWallet.bind(this)();
-    })
+    });
   } else if (window.web3) {
     web3Provider = window.web3.currentProvider;
   } else {
