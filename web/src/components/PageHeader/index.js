@@ -159,15 +159,15 @@ class PageHeader extends Component {
               dForce Stablecoin
               <img src={require('@assets/icon_down.svg')} />
             </h2>
-            <a target="_blank" rel="noopener noreferrer" href="" className={styles.header__overlay_item}>
+            <a target="_blank" rel="noopener noreferrer" href="/" className={styles.header__overlay_item}>
               <span>USDx</span>
               <label>Portal</label>
             </a>
-            <a target="_blank" rel="noopener noreferrer" href="" className={styles.header__overlay_item}>
+            <a target="_blank" rel="noopener noreferrer" href="/" className={styles.header__overlay_item}>
               <span>USR</span>
               <label>Saving and Accuring interest</label>
             </a>
-            <a target="_blank" rel="noopener noreferrer" href="" className={styles.header__overlay_item}>
+            <a target="_blank" rel="noopener noreferrer" href="/" className={styles.header__overlay_item}>
               <span>DIP001</span>
               <label>Collateral lending dashboard</label>
             </a>

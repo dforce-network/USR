@@ -27,6 +27,15 @@ body .ant-tabs-nav .ant-tabs-tab-active {
   font-weight: bold;
 }
 
+body .ant-dropdown-menu-item > a, .ant-dropdown-menu-submenu-title > a {
+  margin: 0;
+}
+body .ant-dropdown-menu-item, body .ant-dropdown-menu-submenu-title {
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
 body .loader {
   box-sizing: border-box;
   display: flex;
