@@ -41,7 +41,11 @@ export function getTransactions() {
       normalArray = [];
     }
   }
-  return normalArray;
+
+  if (normalArray.length) {
+    return normalArray.reverse();
+  }
+  return [];
 }
 
 // save transactions to localStorage

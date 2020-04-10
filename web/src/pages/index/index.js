@@ -33,6 +33,9 @@ class IndexPage extends PureComponent {
     this.props.dispatch({
       type: 'usr/updateRecentTransactions'
     });
+    setTimeout(() => {
+      document.getElementById('page__loader').style.display = 'none';
+    }, 500);
   }
 
   render() {

@@ -29,8 +29,6 @@ export default class Transactions extends Component {
       return <></>;
     }
 
-    recentTransactions.reverse();
-
     return (
       <div className={styles.transactions}>
         <h2>Recent Transactions</h2>
