@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import styles from './index.less';
-import {
-  TwitterCircleFilled
-} from '@ant-design/icons';
+import { message } from 'antd';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 const iconTwitter = require('@assets/icon_twitter.svg');
 const iconTelegram = require('@assets/icon_telegram.svg');
@@ -38,9 +37,30 @@ export default class PageFooter extends Component {
 
         <section className={styles.footer__email}>
           <h2>Contact</h2>
-          <a href="/">contacts@dforce.network</a>
-          <a href="/">bd@dforce.network</a>
-          <a href="/">tech@dforce.network</a>
+          <CopyToClipboard
+            text={'contacts@dforce.network'}
+            onCopy={() => {
+              message.success('Copied', 4);
+            }}
+          >
+            <span>contacts@dforce.network</span>
+          </CopyToClipboard>
+          <CopyToClipboard
+            text={'bd@dforce.network'}
+            onCopy={() => {
+              message.success('Copied', 4);
+            }}
+          >
+            <span>bd@dforce.network</span>
+          </CopyToClipboard>
+          <CopyToClipboard
+            text={'tech@dforce.network'}
+            onCopy={() => {
+              message.success('Copied', 4);
+            }}
+          >
+            <span>tech@dforce.network</span>
+          </CopyToClipboard>
         </section>
       </div>
     )

@@ -14,6 +14,7 @@
     "dva": "^2.4.1",
     "numeral": "^2.0.6",
     "react": "^16.8.6",
+    "react-copy-to-clipboard": "^5.0.2",
     "react-dom": "^16.8.6",
     "toformat": "^2.0.0",
     "web3": "^1.2.6"

@@ -31,13 +31,6 @@ const routes = [
         _title_default: 'dforce-usr',
       },
       {
-        path: '/index/model',
-        exact: true,
-        component: require('../index/model.js').default,
-        _title: 'dforce-usr',
-        _title_default: 'dforce-usr',
-      },
-      {
         component: () =>
           React.createElement(
             require('/Users/limeng/Desktop/project/myproject/USR/web/node_modules/umi-build-dev/lib/plugins/404/NotFound.js')

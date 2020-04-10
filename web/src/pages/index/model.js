@@ -33,8 +33,8 @@ export default {
     // interest rate
     interestRate: 0,
 
-    usdxShowValue: 0,
-    usrShowValue: 0,
+    usdxShowValue: '',
+    usrShowValue: '',
 
     recentTransactions: [],
 
