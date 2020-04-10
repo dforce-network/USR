@@ -255,6 +255,14 @@ export async function mintUSR() {
       this.props.dispatch({
         type: 'usr/updateRecentTransactions'
       });
+
+      this.props.dispatch({
+        type: 'usr/updateBtnLoading',
+        payload: {
+          name: 'deposit',
+          loading: false
+        }
+      });
     });
 }
 
@@ -293,6 +301,14 @@ export async function burnUSR() {
 
       this.props.dispatch({
         type: 'usr/updateRecentTransactions'
+      });
+
+      this.props.dispatch({
+        type: 'usr/updateBtnLoading',
+        payload: {
+          name: 'redeem',
+          loading: false
+        }
       });
     });
 }

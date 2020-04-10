@@ -15,18 +15,25 @@ class OperationPanel extends Component {
 
   // deposit function
   handleDeposit = () => {
-    const { joinAmount, usdxBalance } = this.props.usr;
+    const { joinAmount, shareValue } = this.props.usr;
 
     if (!joinAmount) {
       message.warn('Deposit value should greater than 0!');
       return;
     }
 
-    if (joinAmount.cmp(usdxBalance) > 0) {
-      message.warning('Deposit value should less than ' + formatCurrencyNumber(usdxBalance));
+    if (joinAmount.cmp(shareValue) > 0) {
+      message.warning('Deposit value should less than ' + formatCurrencyNumber(shareValue));
       return;
     }
 
+    this.props.dispatch({
+      type: 'usr/updateBtnLoading',
+      payload: {
+        name: 'deposit',
+        loading: true
+      }
+    });
     mintUSR.bind(this)();
   }
 
@@ -44,6 +51,13 @@ class OperationPanel extends Component {
       return;
     }
 
+    this.props.dispatch({
+      type: 'usr/updateBtnLoading',
+      payload: {
+        name: 'redeem',
+        loading: true
+      }
+    });
     burnUSR.bind(this)();
   }
 
@@ -162,7 +176,7 @@ class OperationPanel extends Component {
   }
 
   __renderRedeemForm = () => {
-    const { usrBalance, receiveUSDxValue, exchangeRate } = this.props.usr;
+    const { usrBalance, receiveUSDxValue, exchangeRate, redeemLoading } = this.props.usr;
 
     return (
       <Row className={styles.deposit__form}>
@@ -210,6 +224,7 @@ class OperationPanel extends Component {
             type="primary"
             className={styles.btn}
             onClick={this.handleRedeem}
+            loading={redeemLoading}
           >
             REDEEM
           </Button>

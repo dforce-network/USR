@@ -10,11 +10,12 @@ export default class Overview extends Component {
       usdxBalance,
       interestRate,
       exchangeRate,
+      totalBalanceValue,
     } = this.props.usr;
 
     return (
       <section className={styles.overview}>
-        <h2>You can withdraw <b>{ formatCurrencyNumber(usdxBalance) }</b> USDx</h2>
+        <h2>You can withdraw <b>{ formatCurrencyNumber(totalBalanceValue) }</b> USDx</h2>
 
         <p>USR balance: { formatCurrencyNumber(usrBalance) }</p>
         <p>1 USR = { exchangeRate } USDx</p>
