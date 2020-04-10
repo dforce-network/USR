@@ -225,6 +225,7 @@ export async function mintUSR() {
       from: walletAddress
     })
     .then(res => {
+      getData.bind(this)();
       let obj = {
         action: 'deposit',
         data: res,
@@ -262,6 +263,8 @@ export async function burnUSR() {
       from: walletAddress
     })
     .then(res => {
+      getData.bind(this)();
+
       let obj = {
         action: 'redeem',
         data: res,
