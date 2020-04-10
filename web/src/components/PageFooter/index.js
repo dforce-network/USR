@@ -11,6 +11,7 @@ const iconReddit = require('@assets/icon_reddit.svg');
 const iconDiscord = require('@assets/icon_discord.svg');
 const iconLinkedin = require('@assets/icon_linkedin.svg');
 const iconYoutube = require('@assets/icon_youtube.svg');
+
 export default class PageFooter extends Component {
   render() {
     return (

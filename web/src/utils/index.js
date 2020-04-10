@@ -21,6 +21,11 @@ export function percentFormatter(v) {
   return `${fixValue}%`;
 }
 
+// format transactions
+export function txFormatter(network, tx) {
+  return network == 1 ?  `https://etherscan.io/tx/${tx}` : `https://rinkeby.etherscan.io/tx/${tx}`;
+}
+
 // format wallet address
 export function accountHideFormatter(account) {
   let newaccount = accountFormatter(account);

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import styles from './index.less';
 import { Button, Menu } from 'antd';
+import { txFormatter } from '@utils';
 
 const depositIcon = require('@assets/icon_deposit.svg');
 const redeemIcon = require('@assets/icon_redeem.svg');
@@ -11,7 +12,7 @@ export default class Transactions extends Component {
   }
 
   render() {
-    const { recentTransactions } = this.props.usr;
+    const { recentTransactions, network } = this.props.usr;
     if (!recentTransactions.length) {
       return <></>;
     }
@@ -35,7 +36,7 @@ export default class Transactions extends Component {
                       { item.time || '-' }  |
                       <a
                         target="_blank"
-                        href={`https://rinkeby.etherscan.io/tx/${item.data.transactionHash}`}
+                        href={ txFormatter(network, item.data.transactionHash) }
                       > Tx-Hash
                       </a>
                     </p>
