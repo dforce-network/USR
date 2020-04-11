@@ -47,19 +47,19 @@ class PageHeader extends Component {
     const stablecoinMenu = (
       <Menu className={styles.header__overlay}>
         <Menu.Item>
-          <a target="_blank" rel="noopener noreferrer" href="" className={styles.header__overlay_item}>
+          <a target="_blank" href="https://usdx.dforce.network/" className={styles.header__overlay_item}>
             <span>USDx</span>
             <label>Portal</label>
           </a>
         </Menu.Item>
         <Menu.Item>
-          <a target="_blank" rel="noopener noreferrer" href="" className={styles.header__overlay_item}>
+          <a target="_blank" href="/" className={styles.header__overlay_item}>
             <span>USR</span>
             <label>Saving and Accuring interest</label>
           </a>
         </Menu.Item>
         <Menu.Item>
-          <a target="_blank" rel="noopener noreferrer" href="" className={styles.header__overlay_item}>
+          <a target="_blank" href="https://dip001.dforce.network" className={styles.header__overlay_item}>
             <span>DIP001</span>
             <label>Collateral lending dashboard</label>
           </a>
@@ -70,7 +70,7 @@ class PageHeader extends Component {
     const lendfMeMenu = (
       <Menu className={styles.header__overlay}>
         <Menu.Item>
-          <a target="_blank" rel="noopener noreferrer" href="" className={styles.header__overlay_item}>
+          <a target="_blank" href="https://lendf.me" className={styles.header__overlay_item}>
             <span>LendfMe</span>
             <label>Lend and Borrow with Incredible Interest</label>
           </a>
@@ -81,7 +81,7 @@ class PageHeader extends Component {
     const swapMenu = (
       <Menu className={styles.header__overlay}>
         <Menu.Item>
-          <a target="_blank" rel="noopener noreferrer" href="" className={styles.header__overlay_item}>
+          <a target="_blank" href="/" className={styles.header__overlay_item}>
             <span>X-Swap</span>
             <label>Trade Stable Asset with Zero Slippage</label>
           </a>
@@ -165,15 +165,15 @@ class PageHeader extends Component {
               dForce Stablecoin
               <img src={require('@assets/icon_down.svg')} />
             </h2>
-            <a target="_blank" rel="noopener noreferrer" href="/" className={styles.header__overlay_item}>
+            <a target="_blank" href="https://usdx.dforce.network" className={styles.header__overlay_item}>
               <span>USDx</span>
               <label>Portal</label>
             </a>
-            <a target="_blank" rel="noopener noreferrer" href="/" className={styles.header__overlay_item}>
+            <a target="_blank" href="/" className={styles.header__overlay_item}>
               <span>USR</span>
               <label>Saving and Accuring interest</label>
             </a>
-            <a target="_blank" rel="noopener noreferrer" href="/" className={styles.header__overlay_item}>
+            <a target="_blank" href="https://dip001.dforce.network" className={styles.header__overlay_item}>
               <span>DIP001</span>
               <label>Collateral lending dashboard</label>
             </a>
@@ -184,7 +184,7 @@ class PageHeader extends Component {
               Yield Market
               <img src={require('@assets/icon_down.svg')} />
             </h2>
-            <a target="_blank" rel="noopener noreferrer" href="" className={styles.header__overlay_item}>
+            <a target="_blank" href="https://lendf.me" className={styles.header__overlay_item}>
               <span>LendfMe</span>
               <label>Lend and Borrow with Incredible Interest</label>
             </a>
@@ -195,7 +195,7 @@ class PageHeader extends Component {
               Exchange Market
               <img src={require('@assets/icon_down.svg')} />
             </h2>
-            <a target="_blank" rel="noopener noreferrer" href="" className={styles.header__overlay_item}>
+            <a target="_blank" href="/" className={styles.header__overlay_item}>
               <span>X-Swap</span>
               <label>Trade Stable Asset with Zero Slippage</label>
             </a>
