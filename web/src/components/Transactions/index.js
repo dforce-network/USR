@@ -12,9 +12,21 @@ export default class Transactions extends Component {
   }
 
   render() {
-    const { recentTransactions, network } = this.props.usr;
+    let { recentTransactions, network } = this.props.usr;
+    // recentTransactions = []
     if (!recentTransactions.length) {
-      return <></>;
+      return (
+        <div className={styles.transactions}>
+          <h2>Recent Transactions</h2>
+
+          <div className={styles.transactions__null}>
+            <section>
+              <img src={require('@assets/no_history.svg')} />
+              <span>No History</span>
+            </section>
+          </div>
+        </div>
+      );
     }
 
     return (
