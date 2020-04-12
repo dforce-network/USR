@@ -26,12 +26,14 @@ export default class Transactions extends Component {
             recentTransactions.map((item, key) => {
               return (
                 <section className={styles.transactions__item} key={key}>
-                  <img
-                    src={item.action === 'deposit' ? depositIcon : redeemIcon}
-                    className={styles.transactions__item_icon}
-                  />
+                  <div className={styles.transactions__item_left}>
+                    <img
+                      src={item.action === 'deposit' ? depositIcon : redeemIcon}
+                      className={styles.transactions__item_icon}
+                    />
+                  </div>
 
-                  <div>
+                  <div className={styles.transactions__item_right}>
                     <p>
                       { item.time || '-' }  |
                       <a
