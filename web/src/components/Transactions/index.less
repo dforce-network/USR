@@ -1,6 +1,5 @@
 .transactions {
   width: 100%;
-  // min-height: 216px;
   background: rgba(255,255,255,1);
   box-shadow: 0px 0px 35px 0px rgba(94,85,126,0.15);
   border-radius: 6px;
@@ -11,6 +10,11 @@
     color: #434976;
     font-size: 16px;
     margin: 24px 0 24px 25px;
+  }
+
+  &__box {
+    height: 340px;
+    overflow-y: scroll;
   }
 
   &__item {
@@ -32,6 +36,7 @@
         a {
           color: #8e86e3;
           font-style: italic;
+          font-weight: bold;
         }
       }
 

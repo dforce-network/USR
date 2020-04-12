@@ -21,7 +21,7 @@ export default class Transactions extends Component {
       <div className={styles.transactions}>
         <h2>Recent Transactions</h2>
 
-        <div>
+        <div className={styles.transactions__box}>
           {
             recentTransactions.map((item, key) => {
               return (
