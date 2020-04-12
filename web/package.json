@@ -12,10 +12,13 @@
     "antd": "^4.0.0",
     "decimal.js-light": "^2.5.0",
     "dva": "^2.4.1",
+    "i18next": "^19.4.1",
+    "i18next-browser-languagedetector": "^4.0.2",
     "numeral": "^2.0.6",
     "react": "^16.8.6",
     "react-copy-to-clipboard": "^5.0.2",
     "react-dom": "^16.8.6",
+    "react-i18next": "^11.3.4",
     "toformat": "^2.0.0",
     "web3": "^1.2.6"
   },

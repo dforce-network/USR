@@ -9,7 +9,7 @@ import { connect } from 'dva';
 import config from '@utils/config';
 import Web3 from 'web3';
 import { initBrowserWallet } from '@utils/web3Utils';
-
+import { Translation } from 'react-i18next';
 const web3 = new Web3(new Web3.providers.HttpProvider(config.defaultWeb3Provider));
 
 @connect(({ usr }) => ({ usr }))

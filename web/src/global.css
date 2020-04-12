@@ -12,12 +12,12 @@ body,div,section,p {
 body .ant-tabs-nav-scroll .ant-tabs-nav {
   width: 100%;
   background: #eeebf9;
-  height: 56px;
+  height: 50px;
 }
 body .ant-tabs-tab {
   width: 50%;
   text-align: center;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
 }
 body .ant-tabs-bar {
