@@ -224,7 +224,7 @@ export async function initBrowserWallet(dispatch, prompt = true) {
   setupContracts.bind(this)(dispatch);
 
   if (!window.localStorage.getItem('approved')) {
-    approval.bind(this)();
+    // approval.bind(this)();
   }
 
   getData.bind(this)();
