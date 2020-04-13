@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Suspense } from 'react';
 import OperationPanel from '@components/OperationPanel';
 import Overview from '@components/Overview';
 import Transactions from '@components/Transactions';
@@ -7,7 +7,10 @@ import { connect } from 'dva';
 import config from '@utils/config';
 import Web3 from 'web3';
 import { initBrowserWallet } from '@utils/web3Utils';
-import { Translation } from 'react-i18next';
+// import { Translation } from 'react-i18next';
+import { useTranslation, withTranslation, Trans, NamespacesConsumer } from 'react-i18next';
+import i18n from '@services/i18n.js';
+
 const web3 = new Web3(new Web3.providers.HttpProvider(config.defaultWeb3Provider));
 
 @connect(({ usr }) => ({ usr }))
@@ -39,6 +42,14 @@ class IndexPage extends PureComponent {
   render() {
     return (
       <div className={styles.home}>
+        <button
+          onClick={e => {
+            i18n.changeLanguage('zh');
+          }}
+        >
+          <Trans i18nKey="title"></Trans>
+        </button>
+
         <div className={styles.home__box}>
           <OperationPanel { ...this.props } />
           <Overview { ...this.props } />

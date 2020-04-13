@@ -5,6 +5,7 @@ import { MenuOutlined } from '@ant-design/icons';
 import { initBrowserWallet } from '@utils/web3Utils';
 import { connect } from 'dva';
 import { accountHideFormatter } from '@utils';
+import { Trans } from 'react-i18next';
 
 const downSvg = require('@assets/icon_xl.svg');
 

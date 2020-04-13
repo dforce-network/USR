@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import styles from './index.less';
-import { message } from 'antd';
+import { message, Dropdown, Menu } from 'antd';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 const iconTwitter = require('@assets/icon_twitter.svg');
@@ -46,7 +46,16 @@ export default class PageFooter extends Component {
               <img src={iconYoutube} alt="youtube" />
             </a>
           </div>
-          <a href="/">English</a>
+
+          <Dropdown
+            overlay={(
+              <Menu style={{ width: '100px' }}>
+                <Menu.Item>中文</Menu.Item>
+              </Menu>
+            )}
+          >
+            <a href="/">English</a>
+          </Dropdown>
         </section>
 
         <section className={styles.footer__email}>

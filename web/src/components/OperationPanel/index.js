@@ -1,14 +1,15 @@
 // operation panel
-import React, { Component } from 'react';
+import React, { Component, Suspense } from 'react';
 import styles from './index.less';
 import { Row, Col, Tabs, Button, Input, message } from 'antd';
-// import { Translation } from 'react-i18next';
-import { formatCurrencyNumber,  } from '@utils';
+import { Translation } from 'react-i18next';
+import { formatCurrencyNumber, SuspenseFallback } from '@utils';
 import { WadDecimal, mintUSR, burnUSR } from '@utils/web3Utils';
 
 const { TabPane } = Tabs;
 const usdxIcon = require('@assets/icon_usdx.svg');
-class OperationPanel extends Component {
+
+export default class OperationPanel extends Component {
   state = {
     selectedPanel: 0
   }
@@ -235,32 +236,32 @@ class OperationPanel extends Component {
 
   render() {
     return (
-      // <Translation>
-      //   {
-      //     t => (
-            <section className={styles.box}>
-              <div className={styles.box__content}>
-                <Tabs
-                  defaultActiveKey="1"
-                  tabBarGutter={0}
-                  tabBarStyle={{
-                    color: '#7a7b9e',
-                  }}
-                >
-                  <TabPane tab="DEPOSIT" key="1">
-                    { this.__renderDepositForm() }
-                  </TabPane>
-                  <TabPane tab="REDEEM" key="2">
-                    { this.__renderRedeemForm() }
-                  </TabPane>
-                </Tabs>
-               </div>
-            </section>
-      //     )
-      //   }
-      // </Translation>
+      <Suspense fallback={ <SuspenseFallback /> }>
+        <Translation>
+          {
+            t => (
+              <section className={styles.box}>
+                <div className={styles.box__content}>
+                  <Tabs
+                    defaultActiveKey="1"
+                    tabBarGutter={0}
+                    tabBarStyle={{
+                      color: '#7a7b9e',
+                    }}
+                  >
+                    <TabPane tab="DEPOSIT" key="1">
+                      { this.__renderDepositForm() }
+                    </TabPane>
+                    <TabPane tab="REDEEM" key="2">
+                      { this.__renderRedeemForm() }
+                    </TabPane>
+                  </Tabs>
+                 </div>
+              </section>
+            )
+          }
+        </Translation>
+      </Suspense>
     );
   }
 }
-
-export default OperationPanel;

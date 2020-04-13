@@ -1,6 +1,7 @@
 // import i18n from '@services/i18n';
-import React, { Component } from 'react';
+import React, { Component, Suspense } from 'react';
 import styles from './index.less';
+import { Translation } from 'react-i18next';
 import PageHeader from '@components/PageHeader';
 import PageFooter from '@components/PageFooter';
 import '@services/i18n';
@@ -8,11 +9,19 @@ import '@services/i18n';
 class BasicLayout extends Component {
   render() {
     return (
-      <div className={styles.usr}>
-        <PageHeader />
-        {this.props.children}
-        <PageFooter />
-      </div>
+      <Suspense fallback={(<b>loading</b>)}>
+        <Translation>
+          {
+            t => (
+              <div className={styles.usr}>
+                <PageHeader />
+                {this.props.children}
+                <PageFooter />
+              </div>
+            )
+          }
+        </Translation>
+      </Suspense>
     );
   }
 }

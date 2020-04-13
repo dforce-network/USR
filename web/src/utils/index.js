@@ -80,3 +80,7 @@ export function saveTransactions(transObj) {
 
   window.localStorage.setItem('__transactions', JSON.stringify(normalArray));
 }
+
+export function SuspenseFallback() {
+  return <b></b>;
+}
