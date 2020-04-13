@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Button, Menu, Dropdown, Drawer } from 'antd';
+import { Menu, Dropdown, Drawer } from 'antd';
 import styles from './index.less';
-import { MenuOutlined, CloseOutlined } from '@ant-design/icons';
+import { MenuOutlined } from '@ant-design/icons';
 import { initBrowserWallet } from '@utils/web3Utils';
 import { connect } from 'dva';
 import { accountHideFormatter } from '@utils';
@@ -47,19 +47,19 @@ class PageHeader extends Component {
     const stablecoinMenu = (
       <Menu className={styles.header__overlay}>
         <Menu.Item>
-          <a target="_blank" href="https://usdx.dforce.network/" className={styles.header__overlay_item}>
+          <a target="_blank" rel="noopener noreferrer" href="https://usdx.dforce.network/" className={styles.header__overlay_item}>
             <span>USDx</span>
             <label>Portal</label>
           </a>
         </Menu.Item>
         <Menu.Item>
-          <a target="_blank" href="/" className={styles.header__overlay_item}>
+          <a target="_blank" rel="noopener noreferrer" href="/" className={styles.header__overlay_item}>
             <span>USR</span>
             <label>Saving and Accuring interest</label>
           </a>
         </Menu.Item>
         <Menu.Item>
-          <a target="_blank" href="https://dip001.dforce.network" className={styles.header__overlay_item}>
+          <a target="_blank" rel="noopener noreferrer" href="https://dip001.dforce.network" className={styles.header__overlay_item}>
             <span>DIP001</span>
             <label>Collateral lending dashboard</label>
           </a>
@@ -70,7 +70,7 @@ class PageHeader extends Component {
     const lendfMeMenu = (
       <Menu className={styles.header__overlay}>
         <Menu.Item>
-          <a target="_blank" href="https://lendf.me" className={styles.header__overlay_item}>
+          <a target="_blank" rel="noopener noreferrer" href="https://lendf.me" className={styles.header__overlay_item}>
             <span>LendfMe</span>
             <label>Lend and Borrow with Incredible Interest</label>
           </a>
@@ -81,7 +81,7 @@ class PageHeader extends Component {
     const swapMenu = (
       <Menu className={styles.header__overlay}>
         <Menu.Item>
-          <a target="_blank" href="/" className={styles.header__overlay_item}>
+          <a target="_blank" rel="noopener noreferrer" href="/" className={styles.header__overlay_item}>
             <span>X-Swap</span>
             <label>Trade Stable Asset with Zero Slippage</label>
           </a>
@@ -92,7 +92,7 @@ class PageHeader extends Component {
     return (
       <div className={styles.header}>
         <a href="/" className={styles.header__logo}>
-          <img src={require('@assets/logo.svg')} />
+          <img src={require('@assets/logo.svg')} alt="logo" />
         </a>
 
         <MenuOutlined
@@ -105,21 +105,21 @@ class PageHeader extends Component {
           <Dropdown overlay={stablecoinMenu}>
             <span className={styles.header__menu_item}>
               <label>dForce Stablecoin</label>
-              <img src={downSvg} />
+              <img src={downSvg} alt="down" />
             </span>
           </Dropdown>
 
           <Dropdown overlay={lendfMeMenu}>
             <span className={styles.header__menu_item}>
               <label>Yield Market</label>
-              <img src={downSvg} />
+              <img src={downSvg} alt="down" />
             </span>
           </Dropdown>
 
           <Dropdown overlay={swapMenu}>
             <span className={styles.header__menu_item}>
               <label>Exchange Market</label>
-              <img src={downSvg} />
+              <img src={downSvg} alt="down" />
             </span>
           </Dropdown>
 
@@ -148,10 +148,10 @@ class PageHeader extends Component {
           title={(
             <section className={styles.header}>
               <a href="/" className={styles.header__logo}>
-                <img src={require('@assets/logo.svg')} />
+                <img src={require('@assets/logo.svg')} alt="logo" />
               </a>
 
-              <img className={styles.header__close} onClick={this.onClose} src={require('@assets/icon_close.svg')} />
+              <img className={styles.header__close} alt="close" onClick={this.onClose} src={require('@assets/icon_close.svg')} />
             </section>
           )}
           placement='top'
@@ -163,17 +163,17 @@ class PageHeader extends Component {
           <section className={styles.header__drawer}>
             <h2>
               dForce Stablecoin
-              <img src={require('@assets/icon_down.svg')} />
+              <img src={require('@assets/icon_down.svg')} alt="down" />
             </h2>
-            <a target="_blank" href="https://usdx.dforce.network" className={styles.header__overlay_item}>
+            <a target="_blank" rel="noopener noreferrer" href="https://usdx.dforce.network" className={styles.header__overlay_item}>
               <span>USDx</span>
               <label>Portal</label>
             </a>
-            <a target="_blank" href="/" className={styles.header__overlay_item}>
+            <a target="_blank" rel="noopener noreferrer" href="/" className={styles.header__overlay_item}>
               <span>USR</span>
               <label>Saving and Accuring interest</label>
             </a>
-            <a target="_blank" href="https://dip001.dforce.network" className={styles.header__overlay_item}>
+            <a target="_blank" rel="noopener noreferrer" href="https://dip001.dforce.network" className={styles.header__overlay_item}>
               <span>DIP001</span>
               <label>Collateral lending dashboard</label>
             </a>
@@ -182,9 +182,9 @@ class PageHeader extends Component {
           <section className={styles.header__drawer}>
             <h2>
               Yield Market
-              <img src={require('@assets/icon_down.svg')} />
+              <img src={require('@assets/icon_down.svg')} alt="down" />
             </h2>
-            <a target="_blank" href="https://lendf.me" className={styles.header__overlay_item}>
+            <a target="_blank" rel="noopener noreferrer" href="https://lendf.me" className={styles.header__overlay_item}>
               <span>LendfMe</span>
               <label>Lend and Borrow with Incredible Interest</label>
             </a>
@@ -193,7 +193,7 @@ class PageHeader extends Component {
           <section className={styles.header__drawer}>
             <h2>
               Exchange Market
-              <img src={require('@assets/icon_down.svg')} />
+              <img src={require('@assets/icon_down.svg')} alt="down" />
             </h2>
             <a target="_blank" href="/" className={styles.header__overlay_item}>
               <span>X-Swap</span>

@@ -1,6 +1,4 @@
 import React, { PureComponent } from 'react';
-import { Button, Row, Col } from 'antd';
-// import { Translation } from 'react-i18next';
 import OperationPanel from '@components/OperationPanel';
 import Overview from '@components/Overview';
 import Transactions from '@components/Transactions';

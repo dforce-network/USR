@@ -64,9 +64,12 @@ export async function getUSRBalance() {
 
   if (!usrObj || !walletAddress) return;
 
+  console.log(usrObj.methods)
   const usrBalanceRaw = await usrObj.methods.balanceOf(walletAddress).call();
   const usrBalanceDecimal = new WadDecimal(usrBalanceRaw).div('1e18');
   const usrBalance = toFixed(parseFloat(web3.utils.fromWei(usrBalanceRaw)), 5);
+
+  console.log(usrBalanceRaw)
 
   // save usr balance
   dispatch({
@@ -78,15 +81,9 @@ export async function getUSRBalance() {
   });
 }
 
-// get recent transactions
-export async function getRecentTransactions() {
-  const { web3, walletAddress } = this.props.usr;
-  let result = await web3.eth.getTransactionCount(walletAddress);
-}
-
 // get exchange rate
 export async function getExchangeRate() {
-  const { web3, usrObj } = this.props.usr;
+  const { usrObj } = this.props.usr;
   const exchangeRateRaw = await usrObj.methods.getExchangeRate().call();
   const exchangeRateDecimal = new WadDecimal(exchangeRateRaw).div('1e27');
   const exchangeRate = exchangeRateDecimal.toFixed();
@@ -99,7 +96,7 @@ export async function getExchangeRate() {
 
 // get interest rate
 export async function getInterestRate() {
-  const { web3, usrObj } = this.props.usr;
+  const { usrObj } = this.props.usr;
   // console.log(usrObj.methods)
   const interestRateRaw = await usrObj.methods.interestRate().call();
   const interestRateDecimal = new WadDecimal(interestRateRaw).div('1e27');

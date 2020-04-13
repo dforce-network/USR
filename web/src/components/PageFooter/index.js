@@ -24,13 +24,27 @@ export default class PageFooter extends Component {
         <section className={styles.footer__community}>
           <h2>Community</h2>
           <div>
-            <a href="https://twitter.com/dForcenet" target="_blank"><img src={iconTwitter} /></a>
-            <a href="https://t.me/dforcenet" target="_blank"><img src={iconTelegram} /></a>
-            <a href="https://medium.com/dforcenet" target="_blank"><img src={iconMedium} /></a>
-            <a href="https://www.reddit.com/r/dForceNetwork" target="_blank"><img src={iconReddit} /></a>
-            <a href="https://discord.gg/Gbtd3MR" target="_blank"><img src={iconDiscord} /></a>
-            <a href="https://www.linkedin.com/company/dforce-network" target="_blank"><img src={iconLinkedin} /></a>
-            <a href="https://www.youtube.com/channel/UCM6Vgoc-BhFGG11ZndUr6Ow" target="_blank"><img src={iconYoutube} /></a>
+            <a href="https://twitter.com/dForcenet" target="_blank">
+              <img src={iconTwitter} alt="twitter" />
+            </a>
+            <a href="https://t.me/dforcenet" target="_blank">
+              <img src={iconTelegram} alt="telegram" />
+            </a>
+            <a href="https://medium.com/dforcenet" target="_blank">
+              <img src={iconMedium} alt="medium" />
+            </a>
+            <a href="https://www.reddit.com/r/dForceNetwork" target="_blank">
+              <img src={iconReddit} alt="reddit" />
+            </a>
+            <a href="https://discord.gg/Gbtd3MR" target="_blank">
+              <img src={iconDiscord} alt="discord" />
+            </a>
+            <a href="https://www.linkedin.com/company/dforce-network" target="_blank">
+              <img src={iconLinkedin} alt="linkedin" />
+            </a>
+            <a href="https://www.youtube.com/channel/UCM6Vgoc-BhFGG11ZndUr6Ow" target="_blank">
+              <img src={iconYoutube} alt="youtube" />
+            </a>
           </div>
           <a href="/">English</a>
         </section>

@@ -1,7 +1,7 @@
 // operation panel
 import React, { Component } from 'react';
 import styles from './index.less';
-import { Row, Col, Tabs, Button, Form, Input, message } from 'antd';
+import { Row, Col, Tabs, Button, Input, message } from 'antd';
 // import { Translation } from 'react-i18next';
 import { formatCurrencyNumber,  } from '@utils';
 import { WadDecimal, mintUSR, burnUSR } from '@utils/web3Utils';
