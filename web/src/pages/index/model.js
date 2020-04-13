@@ -45,7 +45,9 @@ export default {
     totalBalanceValue: 0,
 
     depositBalanceEnough: true,
-    redeemBalanceEnough: true
+    redeemBalanceEnough: true,
+
+    allowanceResult: 0
   },
   reducers: {
     updateParams(state, action) {

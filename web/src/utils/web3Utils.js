@@ -151,6 +151,7 @@ export async function getData() {
   getInterestRate.bind(this)();
   getShare.bind(this)();
   getTotalBalanceOfUSDx.bind(this)();
+  allowance.bind(this)();
 }
 
 // approval
@@ -162,6 +163,20 @@ export async function approval() {
       window.localStorage.setItem('approved', 'true');
     }
   );
+}
+
+// get allowance data
+export async function allowance() {
+  const { usdxObj, usrObj, walletAddress } = this.props.usr;
+  const allowanceResult = await usdxObj.methods.allowance(walletAddress, config.USR).call();
+  console.log('allowanceResult', allowanceResult)
+
+  this.props.dispatch({
+    type: 'usr/updateMultiParams',
+    payload: {
+      allowanceResult: +allowanceResult
+    }
+  });
 }
 
 // init browser wallet
@@ -223,11 +238,37 @@ export async function initBrowserWallet(dispatch, prompt = true) {
 
   setupContracts.bind(this)(dispatch);
 
-  if (!window.localStorage.getItem('approved')) {
-    // approval.bind(this)();
-  }
-
   getData.bind(this)();
+}
+
+export function mintUSRCallback(reject, reHash, receiveUSRValue, storeJoinAmount) {
+  if (reject && reject.message) {
+    message.error(reject.message);
+  }
+  if (reHash) {
+    let transObj = {
+      action: 'deposit',
+      data: { transactionHash: reHash },
+      usr: receiveUSRValue,
+      usdx: storeJoinAmount,
+      time: timeFormatter(new Date()),
+      status: 'init'
+    };
+
+    saveTransactions(transObj);
+
+    this.props.dispatch({
+      type: 'usr/updateRecentTransactions'
+    });
+
+    this.props.dispatch({
+      type: 'usr/updateBtnDisable',
+      payload: {
+        name: 'deposit',
+        disable: false
+      }
+    });
+  }
 }
 
 // transfer usdx
@@ -239,59 +280,64 @@ export async function mintUSR() {
     joinAmount,
     walletAddress,
     receiveUSRValue,
+    allowanceResult
   } = this.props.usr;
 
   let storeJoinAmount = joinAmount.toFixed();
 
   joinAmount = joinAmount.mul(10**18);
 
-  return usrObj.methods
-    .mint(walletAddress, joinAmount.toFixed())
-    .send(
-      {
-        from: walletAddress,
-        gas: 1000000
-      },
-      (reject, reHash) => {
-        if (reject && reject.message) {
-          message.error(reject.message);
+
+  if (allowanceResult) {
+    usrObj.methods
+      .mint(walletAddress, joinAmount.toFixed())
+      .send(
+        {
+          from: walletAddress,
+          gas: 1000000
+        },
+        (reject, reHash) => {
+          mintUSRCallback.bind(this)(reject, reHash, receiveUSRValue, storeJoinAmount);
         }
-        if (reHash) {
-          let transObj = {
-            action: 'deposit',
-            data: { transactionHash: reHash },
-            usr: receiveUSRValue,
-            usdx: storeJoinAmount,
-            time: timeFormatter(new Date()),
-            status: 'init'
-          };
+      )
+      .then(res => {
+        getData.bind(this)();
 
-          saveTransactions(transObj);
+        // set the status of transaction
+        updateTransactionStatus(res.transactionHash);
 
-          this.props.dispatch({
-            type: 'usr/updateRecentTransactions'
-          });
-
-          this.props.dispatch({
-            type: 'usr/updateBtnDisable',
-            payload: {
-              name: 'deposit',
-              disable: false
-            }
-          });
-        }
-      }
-    )
-    .then(res => {
-      getData.bind(this)();
-
-      // set the status of transaction
-      updateTransactionStatus(res.transactionHash);
-
-      this.props.dispatch({
-        type: 'usr/updateRecentTransactions'
+        this.props.dispatch({
+          type: 'usr/updateRecentTransactions'
+        });
       });
-    });
+  } else {
+    usdxObj.methods.approve(usrObj.options.address, '-1')
+      .send({ from: walletAddress })
+      .then(() => {
+        usrObj.methods
+          .mint(walletAddress, joinAmount.toFixed())
+          .send(
+            {
+              from: walletAddress,
+              gas: 1000000
+            },
+            (reject, reHash) => {
+              mintUSRCallback.bind(this)(reject, reHash, receiveUSRValue, storeJoinAmount);
+            }
+          )
+          .then(res => {
+            getData.bind(this)();
+
+            // set the status of transaction
+            updateTransactionStatus(res.transactionHash);
+
+            this.props.dispatch({
+              type: 'usr/updateRecentTransactions'
+            });
+          });
+      }
+    );
+  }
 }
 
 // transfer usr
