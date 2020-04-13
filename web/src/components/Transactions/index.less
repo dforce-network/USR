@@ -1,9 +1,9 @@
 .transactions {
-  width: 100%;
+  width: 882px;
   background: rgba(255,255,255,1);
   box-shadow: 0px 0px 35px 0px rgba(94,85,126,0.15);
   border-radius: 6px;
-  margin: 18px 0 50px;
+  margin: 18px auto 50px;
   overflow: hidden;
 
   h2 {
@@ -36,7 +36,7 @@
   }
 
   &__box {
-    height: 290px;
+    max-height: 290px;
     overflow-y: scroll;
   }
 
@@ -103,6 +103,7 @@
 
 @media screen and (max-width: 768px) {
   .transactions {
+    width: 100%;
     margin: 18px 0;
     h2 {
       font-size: 15px;

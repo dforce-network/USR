@@ -14,7 +14,7 @@ export default class Transactions extends Component {
 
   render() {
     let { recentTransactions, network } = this.props.usr;
-    // recentTransactions = []
+
     if (!recentTransactions.length) {
       return (
         <Suspense fallback={ <SuspenseFallback /> }>

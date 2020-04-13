@@ -43,18 +43,6 @@ class IndexPage extends PureComponent {
   render() {
     return (
       <div className={styles.home}>
-      {
-        /*
-        <button
-          onClick={e => {
-            i18n.changeLanguage('zh');
-          }}
-        >
-          <Trans i18nKey="title"></Trans>
-        </button>
-        */
-      }
-
         <PageHeader { ...this.props } />
         <div className={styles.home__box}>
           <OperationPanel { ...this.props } />
