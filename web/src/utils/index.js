@@ -55,9 +55,29 @@ export function getTransactions() {
   }
 
   if (normalArray.length) {
-    return normalArray.reverse();
+    return normalArray;
   }
   return [];
+}
+
+export function updateTransactionStatus(hash) {
+  let transactions = getTransactions();
+  let filterResult = [];
+  try {
+    filterResult = transactions.filter(item => {
+      if (item.data && item.data.transactionHash) {
+        return item.data.transactionHash.toLowerCase() === hash.toLowerCase();
+      }
+    });
+  } catch {
+    filterResult = [];
+  }
+
+  if (filterResult.length) {
+    filterResult[0].status = 'finished';
+  }
+
+  window.localStorage.setItem('__transactions', JSON.stringify(transactions));
 }
 
 // save transactions to localStorage
@@ -75,7 +95,7 @@ export function saveTransactions(transObj) {
   }
 
   if (normalArray) {
-    normalArray.push(transObj);
+    normalArray.unshift(transObj);
   }
 
   window.localStorage.setItem('__transactions', JSON.stringify(normalArray));

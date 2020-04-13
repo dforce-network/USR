@@ -61,8 +61,8 @@
   },
   "transactions": {
     "title": "最近记录",
-    "deposit": "取回 {{usr}} USR, 收到 {{usdx}} USDx",
-    "redeem": "存入 {{usr}} USR, 收到 {{usdx}} USDx",
+    "deposit": "存入 {{usr}} USDx, 收到 {{usdx}} USR",
+    "redeem": "取回 {{usr}} USR, 收到 {{usdx}} USDx",
     "tx": "Tx-Hash",
     "noHistory": "没有数据"
   },

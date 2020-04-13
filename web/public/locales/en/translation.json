@@ -61,7 +61,7 @@
   },
   "transactions": {
     "title": "Recent Transactions",
-    "deposit": "Redeem {{usr}} USR, Receive {{usdx}} USDx",
+    "deposit": "Deposit {{usdx}} USDx, Receive {{usr}} USR",
     "redeem": "Redeem {{usr}} USR, Receive {{usdx}} USDx",
     "tx": "Tx-Hash",
     "noHistory": "No History"

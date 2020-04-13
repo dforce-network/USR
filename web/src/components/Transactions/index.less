@@ -70,6 +70,11 @@
       width: 28px;
     }
 
+    &_icon_loading {
+      animation: icon-loading .8s linear infinite;
+      width: 28px;
+    }
+
     &_right {
       margin-left: 15px;
 
@@ -99,6 +104,23 @@
     }
   }
 
+}
+
+@-webkit-keyframes icon-loading {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes icon-loading {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media screen and (max-width: 768px) {

@@ -2,7 +2,7 @@ import Web3 from 'web3';
 import config from './config';
 import USRABI from '../abi/USR.abi.json';
 import USDxABI from '../abi/USDx.abi.json';
-import { saveTransactions, timeFormatter } from './index';
+import { saveTransactions, updateTransactionStatus, timeFormatter } from './index';
 
 let Decimal = require('decimal.js-light');
 Decimal = require('toformat')(Decimal);
@@ -64,7 +64,6 @@ export async function getUSRBalance() {
 
   if (!usrObj || !walletAddress) return;
 
-  console.log(usrObj.methods)
   const usrBalanceRaw = await usrObj.methods.balanceOf(walletAddress).call();
   const usrBalanceDecimal = new WadDecimal(usrBalanceRaw).div('1e18');
   const usrBalance = toFixed(parseFloat(web3.utils.fromWei(usrBalanceRaw)), 5);
@@ -231,34 +230,48 @@ export async function mintUSR() {
   // return usdxObj.methods.approve(usrObj.options.address, '-1')
   //   .send({ from: walletAddress })
   //   .then(() => {
+  // });
 
-    // });
   return usrObj.methods
     .mint(walletAddress, joinAmount.toFixed())
-    .send({
-      from: walletAddress
-    })
+    .send(
+      {
+        from: walletAddress
+      },
+      (reject, reHash) => {
+        console.log(reHash);
+        let transObj = {
+          action: 'deposit',
+          data: { transactionHash: reHash },
+          usr: receiveUSRValue,
+          usdx: storeJoinAmount,
+          time: timeFormatter(new Date()),
+          status: 'init'
+        };
+
+        saveTransactions(transObj);
+
+        this.props.dispatch({
+          type: 'usr/updateRecentTransactions'
+        });
+
+        this.props.dispatch({
+          type: 'usr/updateBtnDisable',
+          payload: {
+            name: 'deposit',
+            disable: false
+          }
+        });
+      }
+    )
     .then(res => {
       getData.bind(this)();
-      let obj = {
-        action: 'deposit',
-        data: res,
-        usr: receiveUSRValue,
-        usdx: storeJoinAmount,
-        time: timeFormatter(new Date())
-      };
-      saveTransactions(obj);
+
+      // set the status of transaction
+      updateTransactionStatus(res.transactionHash);
 
       this.props.dispatch({
         type: 'usr/updateRecentTransactions'
-      });
-
-      this.props.dispatch({
-        type: 'usr/updateBtnLoading',
-        payload: {
-          name: 'deposit',
-          loading: false
-        }
       });
     });
 }
@@ -281,31 +294,44 @@ export async function burnUSR() {
 
   return usrObj.methods
     .burn(walletAddress, exitAmount.toFixed())
-    .send({
-      from: walletAddress
-    })
+    .send(
+      {
+        from: walletAddress
+      },
+      (reject, reHash) => {
+        console.log(reHash);
+        let transObj = {
+          action: 'redeem',
+          data: { transactionHash: reHash },
+          usr: storeExitAmount,
+          usdx: receiveUSDxValue,
+          time: timeFormatter(new Date()),
+          status: 'init'
+        };
+
+        saveTransactions(transObj);
+
+        this.props.dispatch({
+          type: 'usr/updateRecentTransactions'
+        });
+
+        this.props.dispatch({
+          type: 'usr/updateBtnDisable',
+          payload: {
+            name: 'redeem',
+            disable: false
+          }
+        });
+      }
+    )
     .then(res => {
       getData.bind(this)();
 
-      let obj = {
-        action: 'redeem',
-        data: res,
-        usr: storeExitAmount,
-        usdx: receiveUSDxValue,
-        time: timeFormatter(new Date())
-      };
-      saveTransactions(obj);
+      // set the status of transaction
+      updateTransactionStatus(res.transactionHash);
 
       this.props.dispatch({
         type: 'usr/updateRecentTransactions'
-      });
-
-      this.props.dispatch({
-        type: 'usr/updateBtnLoading',
-        payload: {
-          name: 'redeem',
-          loading: false
-        }
       });
     });
 }

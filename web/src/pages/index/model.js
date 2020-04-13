@@ -24,6 +24,9 @@ export default {
     depositLoading: false,
     redeemLoading: false,
 
+    depositDisable: false,
+    redeemDisable: false,
+
     // how many usr you will receive
     receiveUSRValue: 0,
     receiveUSDxValue: 0,
@@ -61,18 +64,20 @@ export default {
         recentTransactions: [...transactions],
       };
     },
-    updateBtnLoading(state, action) {
+    updateBtnDisable(state, action) {
       if (action.payload.name === 'deposit') {
         return {
           ...state,
-          depositLoading: !!action.payload.loading
+          usdxShowValue: '',
+          depositDisable: !!action.payload.disable
         };
       } else {
         return {
           ...state,
-          redeemLoading: !!action.payload.loading
+          usrShowValue: '',
+          redeemDisable: !!action.payload.disable
         };
       }
-    },
+    }
   }
 }

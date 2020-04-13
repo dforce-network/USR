@@ -29,10 +29,10 @@ export default class OperationPanel extends Component {
     }
 
     this.props.dispatch({
-      type: 'usr/updateBtnLoading',
+      type: 'usr/updateBtnDisable',
       payload: {
         name: 'deposit',
-        loading: true
+        disable: true
       }
     });
     mintUSR.bind(this)();
@@ -53,10 +53,10 @@ export default class OperationPanel extends Component {
     }
 
     this.props.dispatch({
-      type: 'usr/updateBtnLoading',
+      type: 'usr/updateBtnDisable',
       payload: {
         name: 'redeem',
-        loading: true
+        disable: true
       }
     });
     burnUSR.bind(this)();
@@ -166,11 +166,10 @@ export default class OperationPanel extends Component {
                 <Col span={24}>
                   <Button
                     type="primary"
-                    disabled={this.props.usr.joinAmount <= 0}
+                    disabled={this.props.usr.joinAmount <= 0 || this.props.usr.depositDisable}
                     block
                     onClick={this.handleDeposit}
                     className={styles.btn}
-                    loading={depositLoading}
                   >
                     { t('operation.deposit.btnNormal') }
                   </Button>

@@ -5,6 +5,7 @@ import { txFormatter, SuspenseFallback } from '@utils';
 import { Translation } from 'react-i18next';
 
 const depositIcon = require('@assets/icon_deposit.svg');
+const loadingIcon = require('@assets/icon_loading.svg');
 const redeemIcon = require('@assets/icon_redeem.svg');
 
 export default class Transactions extends Component {
@@ -52,10 +53,17 @@ export default class Transactions extends Component {
                       return (
                         <section className={styles.transactions__item} key={key}>
                           <div className={styles.transactions__item_left}>
-                            <img
-                              src={item.action === 'deposit' ? depositIcon : redeemIcon}
-                              className={styles.transactions__item_icon}
-                            />
+                            {
+                              item.status === 'init'
+                                ? <img
+                                    src={loadingIcon}
+                                    className={styles.transactions__item_icon_loading}
+                                  />
+                                : <img
+                                    src={item.action === 'deposit' ? depositIcon : redeemIcon}
+                                    className={styles.transactions__item_icon}
+                                  />
+                            }
                           </div>
 
                           <div className={styles.transactions__item_right}>
