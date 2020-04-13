@@ -151,6 +151,17 @@ export async function getData() {
   getTotalBalanceOfUSDx.bind(this)();
 }
 
+// approval
+export async function approval() {
+  const { usdxObj, usrObj, walletAddress } = this.props.usr;
+  return usdxObj.methods.approve(usrObj.options.address, '-1')
+    .send({ from: walletAddress })
+    .then(() => {
+      window.localStorage.setItem('approved', 'true');
+    }
+  );
+}
+
 // init browser wallet
 export async function initBrowserWallet(dispatch, prompt = true) {
   if (!dispatch) {
@@ -209,6 +220,11 @@ export async function initBrowserWallet(dispatch, prompt = true) {
   dispatch('walletType', walletType);
 
   setupContracts.bind(this)(dispatch);
+
+  if (!window.localStorage.getItem('approved')) {
+    approval.bind(this)();
+  }
+
   getData.bind(this)();
 }
 
@@ -227,16 +243,12 @@ export async function mintUSR() {
 
   joinAmount = joinAmount.mul(10**18);
 
-  // return usdxObj.methods.approve(usrObj.options.address, '-1')
-  //   .send({ from: walletAddress })
-  //   .then(() => {
-  // });
-
   return usrObj.methods
     .mint(walletAddress, joinAmount.toFixed())
     .send(
       {
-        from: walletAddress
+        from: walletAddress,
+        gas: 1000000
       },
       (reject, reHash) => {
         console.log(reHash);

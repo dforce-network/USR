@@ -42,7 +42,10 @@ export default {
     recentTransactions: [],
 
     shareValue: 0,
-    totalBalanceValue: 0
+    totalBalanceValue: 0,
+
+    depositBalanceEnough: true,
+    redeemBalanceEnough: true
   },
   reducers: {
     updateParams(state, action) {

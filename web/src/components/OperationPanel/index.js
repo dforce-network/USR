@@ -133,7 +133,7 @@ export default class OperationPanel extends Component {
   }
 
   __renderDepositForm = () => {
-    const { usdxBalance, receiveUSRValue, exchangeRate, depositLoading, shareValue} = this.props.usr;
+    const { usdxBalance, receiveUSRValue, exchangeRate, depositLoading, shareValue, depositBalanceEnough } = this.props.usr;
 
     return (
       <Suspense fallback={ <SuspenseFallback /> }>
@@ -179,6 +179,12 @@ export default class OperationPanel extends Component {
                               notChange: true
                             }
                           });
+                          this.props.dispatch({
+                            type: 'usr/updateMultiParams',
+                            payload: {
+                              depositBalanceEnough: false
+                            }
+                          });
                         } else {
                           this.props.dispatch({
                             type: 'usr/updateMultiParams',
@@ -186,6 +192,7 @@ export default class OperationPanel extends Component {
                               joinAmount,
                               depositDisable: false,
                               usdxShowValue: e.target.value,
+                              depositBalanceEnough: true,
                               receiveUSRValue: this.formatDecimalValue(joinAmount * exchangeRate)
                             }
                           });
@@ -205,7 +212,9 @@ export default class OperationPanel extends Component {
                     onClick={this.handleDeposit}
                     className={styles.btn}
                   >
-                    { t('operation.deposit.btnNormal') }
+                    {
+                       t(depositBalanceEnough ? 'operation.deposit.btnNormal' : 'operation.deposit.btnInsufficientBalance')
+                    }
                   </Button>
                 </Col>
               </Row>
@@ -217,7 +226,7 @@ export default class OperationPanel extends Component {
   }
 
   __renderRedeemForm = () => {
-    const { usrBalance, receiveUSDxValue, exchangeRate, redeemLoading } = this.props.usr;
+    const { usrBalance, receiveUSDxValue, exchangeRate, redeemLoading, redeemBalanceEnough } = this.props.usr;
 
     return (
       <Suspense fallback={ <SuspenseFallback /> }>
@@ -262,6 +271,12 @@ export default class OperationPanel extends Component {
                               notChange: true
                             }
                           });
+                          this.props.dispatch({
+                            type: 'usr/updateMultiParams',
+                            payload: {
+                              redeemBalanceEnough: false
+                            }
+                          });
                         } else {
                           this.props.dispatch({
                             type: 'usr/updateMultiParams',
@@ -269,6 +284,7 @@ export default class OperationPanel extends Component {
                               exitAmount,
                               redeemDisable: false,
                               usrShowValue: e.target.value,
+                              redeemBalanceEnough: true,
                               receiveUSDxValue: this.formatDecimalValue(exitAmount / exchangeRate)
                             }
                           });
@@ -290,7 +306,7 @@ export default class OperationPanel extends Component {
                     onClick={this.handleRedeem}
                     loading={redeemLoading}
                   >
-                    { t('operation.redeem.btnNormal') }
+                    { t(redeemBalanceEnough ? 'operation.redeem.btnNormal' : 'operation.redeem.btnInsufficientBalance') }
                   </Button>
                 </Col>
               </Row>

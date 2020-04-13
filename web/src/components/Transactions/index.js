@@ -1,7 +1,7 @@
 import React, { Component, Suspense } from 'react';
 import styles from './index.less';
 import { Button, Menu } from 'antd';
-import { txFormatter, SuspenseFallback } from '@utils';
+import { txFormatter, transactionValueFormatter, SuspenseFallback } from '@utils';
 import { Translation } from 'react-i18next';
 
 const depositIcon = require('@assets/icon_deposit.svg');
@@ -77,8 +77,22 @@ export default class Transactions extends Component {
                             </p>
                             {
                               item.action === 'deposit'
-                                ? <label>{ t('transactions.deposit', { usdx: item.usdx, usr: item.usr }) }</label>
-                                : <label>{ t('transactions.redeem', { usdx: item.usdx, usr: item.usr }) }</label>
+                                ? <label>
+                                  {
+                                    t('transactions.deposit', {
+                                      usdx: transactionValueFormatter(item.usdx),
+                                      usr: transactionValueFormatter(item.usr)
+                                    })
+                                  }
+                                  </label>
+                                : <label>
+                                  {
+                                    t('transactions.redeem', {
+                                      usdx: transactionValueFormatter(item.usdx),
+                                      usr: transactionValueFormatter(item.usr)
+                                    })
+                                  }
+                                  </label>
                             }
                           </div>
                         </section>

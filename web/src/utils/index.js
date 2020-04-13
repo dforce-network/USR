@@ -21,6 +21,13 @@ export function percentFormatter(v) {
   return `${fixValue}%`;
 }
 
+// format usr/usdx
+export function transactionValueFormatter(v) {
+  if (!v) return 0;
+  let vStr = parseFloat(v).toFixed(4);
+  return parseFloat(vStr);
+}
+
 // format transactions
 export function txFormatter(network, tx) {
   return network == 1 ?  `https://etherscan.io/tx/${tx}` : `https://rinkeby.etherscan.io/tx/${tx}`;
