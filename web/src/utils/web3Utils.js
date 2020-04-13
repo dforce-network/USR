@@ -85,7 +85,7 @@ export async function getExchangeRate() {
   const { usrObj } = this.props.usr;
   const exchangeRateRaw = await usrObj.methods.getExchangeRate().call();
   const exchangeRateDecimal = new WadDecimal(exchangeRateRaw).div('1e27');
-  const exchangeRate = exchangeRateDecimal.toFixed();
+  const exchangeRate = exchangeRateDecimal.toFixed(5);
 
   this.props.dispatch({
     type: 'usr/updateMultiParams',
