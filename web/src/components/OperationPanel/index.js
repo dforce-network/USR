@@ -18,57 +18,69 @@ export default class OperationPanel extends Component {
   handleDeposit = () => {
     const { joinAmount, shareValue } = this.props.usr;
 
-    if (!joinAmount) {
-      message.warn('Deposit value should greater than 0!');
-      return;
-    }
+    // if (!joinAmount) {
+    //   message.warn('Deposit value should greater than 0!');
+    //   return;
+    // }
+    //
+    // if (joinAmount.cmp(shareValue) > 0) {
+    //   message.warning('Deposit value should less than ' + formatCurrencyNumber(shareValue));
+    //   return;
+    // }
 
-    if (joinAmount.cmp(shareValue) > 0) {
-      message.warning('Deposit value should less than ' + formatCurrencyNumber(shareValue));
-      return;
+    if (joinAmount) {
+      this.props.dispatch({
+        type: 'usr/updateBtnDisable',
+        payload: {
+          name: 'deposit',
+          disable: true
+        }
+      });
+      mintUSR.bind(this)();
     }
-
-    this.props.dispatch({
-      type: 'usr/updateBtnDisable',
-      payload: {
-        name: 'deposit',
-        disable: true
-      }
-    });
-    mintUSR.bind(this)();
   }
 
   // redeem function
   handleRedeem = () => {
     const { exitAmount, usrBalance } = this.props.usr;
 
-    if (!exitAmount) {
-      message.warn('Redeem value should greater than 0!');
-      return;
-    }
+    // if (!exitAmount) {
+    //   message.warn('Redeem value should greater than 0!');
+    //   return;
+    // }
+    //
+    // if (exitAmount.cmp(usrBalance) > 0) {
+    //   message.warning('Redeem value should less than ' + formatCurrencyNumber(usrBalance));
+    //   return;
+    // }
 
-    if (exitAmount.cmp(usrBalance) > 0) {
-      message.warning('Redeem value should less than ' + formatCurrencyNumber(usrBalance));
-      return;
+    if (exitAmount) {
+      this.props.dispatch({
+        type: 'usr/updateBtnDisable',
+        payload: {
+          name: 'redeem',
+          disable: true
+        }
+      });
+      burnUSR.bind(this)();
     }
-
-    this.props.dispatch({
-      type: 'usr/updateBtnDisable',
-      payload: {
-        name: 'redeem',
-        disable: true
-      }
-    });
-    burnUSR.bind(this)();
   }
 
   // max btn event
   handleMaxEvent = tag => {
-    let { usdxBalance, usrBalance, exchangeRate, receiveUSRValue, receiveUSDxValue } = this.props.usr;
+    let {
+      usdxBalance,
+      usrBalance,
+      exchangeRate,
+      receiveUSRValue,
+      receiveUSDxValue,
+      shareValue
+    } = this.props.usr;
 
     if (tag === 'join') {
       // join
       let usdxShowValue = 0;
+      let joinAmount = this.formatDecimalValue(usdxBalance || 0);
 
       if (usdxBalance) {
         usdxShowValue = parseFloat(usdxBalance).toFixed(2);
@@ -80,12 +92,14 @@ export default class OperationPanel extends Component {
         payload: {
           usdxShowValue,
           receiveUSRValue,
-          joinAmount: this.formatDecimalValue(usdxBalance)
+          joinAmount,
+          depositDisable: joinAmount.cmp(shareValue) > 0
         }
       });
     } else {
       // exit
       let usrShowValue = 0;
+      let exitAmount = this.formatDecimalValue(usrBalance || 0);
 
       if (usrBalance) {
         usrShowValue = parseFloat(usrBalance).toFixed(2);
@@ -97,7 +111,8 @@ export default class OperationPanel extends Component {
         payload: {
           usrShowValue,
           receiveUSDxValue,
-          exitAmount: this.formatDecimalValue(usrBalance)
+          exitAmount,
+          redeemDisable: exitAmount.cmp(usrBalance) > 0
         }
       });
     }
@@ -118,7 +133,7 @@ export default class OperationPanel extends Component {
   }
 
   __renderDepositForm = () => {
-    const { usdxBalance, receiveUSRValue, exchangeRate, depositLoading } = this.props.usr;
+    const { usdxBalance, receiveUSRValue, exchangeRate, depositLoading, shareValue} = this.props.usr;
 
     return (
       <Suspense fallback={ <SuspenseFallback /> }>
@@ -151,11 +166,30 @@ export default class OperationPanel extends Component {
                         this.props.dispatch({
                           type: 'usr/updateMultiParams',
                           payload: {
-                            joinAmount,
-                            usdxShowValue: e.target.value,
-                            receiveUSRValue: this.formatDecimalValue(joinAmount * exchangeRate)
+                            usdxShowValue: e.target.value
                           }
                         });
+
+                        if (joinAmount.cmp(shareValue) > 0) {
+                          this.props.dispatch({
+                            type: 'usr/updateBtnDisable',
+                            payload: {
+                              name: 'deposit',
+                              disable: true,
+                              notChange: true
+                            }
+                          });
+                        } else {
+                          this.props.dispatch({
+                            type: 'usr/updateMultiParams',
+                            payload: {
+                              joinAmount,
+                              depositDisable: false,
+                              usdxShowValue: e.target.value,
+                              receiveUSRValue: this.formatDecimalValue(joinAmount * exchangeRate)
+                            }
+                          });
+                        }
                       }}
                     />
                     <a onClick={e => this.handleMaxEvent('join')}>{ t('operation.deposit.max') }</a>
@@ -215,11 +249,30 @@ export default class OperationPanel extends Component {
                         this.props.dispatch({
                           type: 'usr/updateMultiParams',
                           payload: {
-                            exitAmount,
-                            usrShowValue: e.target.value,
-                            receiveUSDxValue: this.formatDecimalValue(exitAmount / exchangeRate)
+                            usrShowValue: e.target.value
                           }
                         });
+
+                        if (exitAmount.cmp(usrBalance) > 0) {
+                          this.props.dispatch({
+                            type: 'usr/updateBtnDisable',
+                            payload: {
+                              name: 'redeem',
+                              disable: true,
+                              notChange: true
+                            }
+                          });
+                        } else {
+                          this.props.dispatch({
+                            type: 'usr/updateMultiParams',
+                            payload: {
+                              exitAmount,
+                              redeemDisable: false,
+                              usrShowValue: e.target.value,
+                              receiveUSDxValue: this.formatDecimalValue(exitAmount / exchangeRate)
+                            }
+                          });
+                        }
                       }}
                     />
                     <a onClick={e => this.handleMaxEvent('exit')}>{ t('operation.redeem.max') }</a>
@@ -230,7 +283,7 @@ export default class OperationPanel extends Component {
 
                 <Col span={24}>
                   <Button
-                    disabled={this.props.usr.exitAmount <= 0}
+                    disabled={this.props.usr.exitAmount <= 0 || this.props.usr.redeemDisable}
                     block
                     type="primary"
                     className={styles.btn}

@@ -66,15 +66,29 @@ export default {
     },
     updateBtnDisable(state, action) {
       if (action.payload.name === 'deposit') {
+        if (action.payload.notChange) {
+          return {
+            ...state,
+            depositDisable: !!action.payload.disable
+          };
+        }
         return {
           ...state,
           usdxShowValue: '',
+          receiveUSRValue: 0,
           depositDisable: !!action.payload.disable
         };
       } else {
+        if (action.payload.notChange) {
+          return {
+            ...state,
+            redeemDisable: !!action.payload.disable
+          };
+        }
         return {
           ...state,
           usrShowValue: '',
+          receiveUSDxValue: 0,
           redeemDisable: !!action.payload.disable
         };
       }

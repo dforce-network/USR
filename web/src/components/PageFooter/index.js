@@ -23,6 +23,8 @@ export default class PageFooter extends Component {
   render() {
     let currentLanguage = i18next.language;
 
+    console.log(currentLanguage);
+
     return (
       <Suspense fallback={ <SuspenseFallback /> }>
         <Translation>
