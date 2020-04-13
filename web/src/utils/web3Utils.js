@@ -240,28 +240,30 @@ export async function mintUSR() {
       },
       (reject, reHash) => {
         console.log(reHash);
-        let transObj = {
-          action: 'deposit',
-          data: { transactionHash: reHash },
-          usr: receiveUSRValue,
-          usdx: storeJoinAmount,
-          time: timeFormatter(new Date()),
-          status: 'init'
-        };
+        if (reHash) {
+          let transObj = {
+            action: 'deposit',
+            data: { transactionHash: reHash },
+            usr: receiveUSRValue,
+            usdx: storeJoinAmount,
+            time: timeFormatter(new Date()),
+            status: 'init'
+          };
 
-        saveTransactions(transObj);
+          saveTransactions(transObj);
 
-        this.props.dispatch({
-          type: 'usr/updateRecentTransactions'
-        });
+          this.props.dispatch({
+            type: 'usr/updateRecentTransactions'
+          });
 
-        this.props.dispatch({
-          type: 'usr/updateBtnDisable',
-          payload: {
-            name: 'deposit',
-            disable: false
-          }
-        });
+          this.props.dispatch({
+            type: 'usr/updateBtnDisable',
+            payload: {
+              name: 'deposit',
+              disable: false
+            }
+          });
+        }
       }
     )
     .then(res => {
@@ -300,28 +302,30 @@ export async function burnUSR() {
       },
       (reject, reHash) => {
         console.log(reHash);
-        let transObj = {
-          action: 'redeem',
-          data: { transactionHash: reHash },
-          usr: storeExitAmount,
-          usdx: receiveUSDxValue,
-          time: timeFormatter(new Date()),
-          status: 'init'
-        };
+        if (reHash) {
+          let transObj = {
+            action: 'redeem',
+            data: { transactionHash: reHash },
+            usr: storeExitAmount,
+            usdx: receiveUSDxValue,
+            time: timeFormatter(new Date()),
+            status: 'init'
+          };
 
-        saveTransactions(transObj);
+          saveTransactions(transObj);
 
-        this.props.dispatch({
-          type: 'usr/updateRecentTransactions'
-        });
+          this.props.dispatch({
+            type: 'usr/updateRecentTransactions'
+          });
 
-        this.props.dispatch({
-          type: 'usr/updateBtnDisable',
-          payload: {
-            name: 'redeem',
-            disable: false
-          }
-        });
+          this.props.dispatch({
+            type: 'usr/updateBtnDisable',
+            payload: {
+              name: 'redeem',
+              disable: false
+            }
+          });
+        }
       }
     )
     .then(res => {
