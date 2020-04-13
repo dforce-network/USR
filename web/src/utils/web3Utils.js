@@ -2,6 +2,7 @@ import Web3 from 'web3';
 import config from './config';
 import USRABI from '../abi/USR.abi.json';
 import USDxABI from '../abi/USDx.abi.json';
+import { message } from 'antd';
 import { saveTransactions, updateTransactionStatus, timeFormatter } from './index';
 
 let Decimal = require('decimal.js-light');
@@ -172,7 +173,7 @@ export async function initBrowserWallet(dispatch, prompt = true) {
           name,
           value
         }
-      })
+      });
     };
   }
 
@@ -251,7 +252,9 @@ export async function mintUSR() {
         gas: 1000000
       },
       (reject, reHash) => {
-        console.log(reHash);
+        if (reject && reject.message) {
+          message.error(reject.message);
+        }
         if (reHash) {
           let transObj = {
             action: 'deposit',
@@ -313,7 +316,9 @@ export async function burnUSR() {
         from: walletAddress
       },
       (reject, reHash) => {
-        console.log(reHash);
+        if (reject && reject.message) {
+          message.error(reject.message);
+        }
         if (reHash) {
           let transObj = {
             action: 'redeem',

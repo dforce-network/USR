@@ -93,7 +93,8 @@ export default class OperationPanel extends Component {
           usdxShowValue,
           receiveUSRValue,
           joinAmount,
-          depositDisable: joinAmount.cmp(shareValue) > 0
+          depositDisable: joinAmount.cmp(shareValue) > 0,
+          depositBalanceEnough: !(joinAmount.cmp(shareValue) > 0)
         }
       });
     } else {
@@ -112,7 +113,8 @@ export default class OperationPanel extends Component {
           usrShowValue,
           receiveUSDxValue,
           exitAmount,
-          redeemDisable: exitAmount.cmp(usrBalance) > 0
+          redeemDisable: exitAmount.cmp(usrBalance) > 0,
+          redeemBalanceEnough: !(exitAmount.cmp(usrBalance) > 0)
         }
       });
     }
