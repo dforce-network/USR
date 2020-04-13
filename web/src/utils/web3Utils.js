@@ -98,10 +98,11 @@ export async function getExchangeRate() {
 export async function getInterestRate() {
   const { usrObj } = this.props.usr;
   // console.log(usrObj.methods)
-  const interestRateRaw = await usrObj.methods.interestRate().call();
+  const interestRateRaw = await usrObj.methods.getFixedInterestRate(3600 * 24 * 365).call();
   const interestRateDecimal = new WadDecimal(interestRateRaw).div('1e27');
   const interestRate = interestRateDecimal.toFixed();
 
+  console.log('interest', interestRateRaw);
   this.props.dispatch({
     type: 'usr/updateMultiParams',
     payload: { interestRate }
@@ -127,7 +128,7 @@ export async function getShare() {
   const { web3, usrObj } = this.props.usr;
   const shareRaw = await usrObj.methods.share().call();
   const shareValue = toFixed(parseFloat(web3.utils.fromWei(shareRaw)), 5);
-  console.log(shareValue)
+  console.log('share', shareValue);
 
   this.props.dispatch({
     type: 'usr/updateMultiParams',
