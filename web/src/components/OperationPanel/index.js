@@ -2,7 +2,7 @@
 import React, { Component, Suspense } from 'react';
 import styles from './index.less';
 import { Row, Col, Tabs, Button, Input, message } from 'antd';
-import { Translation } from 'react-i18next';
+import { Translation, Trans } from 'react-i18next';
 import { formatCurrencyNumber, SuspenseFallback } from '@utils';
 import { WadDecimal, mintUSR, burnUSR } from '@utils/web3Utils';
 
@@ -121,58 +121,65 @@ export default class OperationPanel extends Component {
     const { usdxBalance, receiveUSRValue, exchangeRate, depositLoading } = this.props.usr;
 
     return (
-      <Row className={styles.deposit__form}>
-        <Col className={styles.usdx} span={24}>
-          <span>
-            <img src={usdxIcon} />
-            USDx
-          </span>
-          <label>{ formatCurrencyNumber(usdxBalance) }</label>
-        </Col>
+      <Suspense fallback={ <SuspenseFallback /> }>
+        <Translation>
+          {
+            t => (
+              <Row className={styles.deposit__form}>
+                <Col className={styles.usdx} span={24}>
+                  <span>
+                    <img src={usdxIcon} />
+                    USDx
+                  </span>
+                  <label>{ formatCurrencyNumber(usdxBalance) }</label>
+                </Col>
 
-        <Col className={styles.input} span={24}>
-          <div className={styles.input__text}>
-            <Input
-              type="number"
-              min="0"
-              step="1"
-              value={this.props.usr.usdxShowValue}
-              placeholder="Amount in USDx"
-              onFocus={e => {
-                e.target.select();
-              }}
-              onChange={e => {
-                let joinAmount = this.formatDecimalValue(e.target.value);
+                <Col className={styles.input} span={24}>
+                  <div className={styles.input__text}>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={this.props.usr.usdxShowValue}
+                      placeholder={ t('operation.deposit.placeholder') }
+                      onFocus={e => {
+                        e.target.select();
+                      }}
+                      onChange={e => {
+                        let joinAmount = this.formatDecimalValue(e.target.value);
 
-                this.props.dispatch({
-                  type: 'usr/updateMultiParams',
-                  payload: {
-                    joinAmount,
-                    usdxShowValue: e.target.value,
-                    receiveUSRValue: this.formatDecimalValue(joinAmount * exchangeRate)
-                  }
-                });
-              }}
-            />
-            <a onClick={e => this.handleMaxEvent('join')}>MAX</a>
-          </div>
+                        this.props.dispatch({
+                          type: 'usr/updateMultiParams',
+                          payload: {
+                            joinAmount,
+                            usdxShowValue: e.target.value,
+                            receiveUSRValue: this.formatDecimalValue(joinAmount * exchangeRate)
+                          }
+                        });
+                      }}
+                    />
+                    <a onClick={e => this.handleMaxEvent('join')}>{ t('operation.deposit.max') }</a>
+                  </div>
+                  <p>{ t('operation.deposit.tip') } <b>{ formatCurrencyNumber(receiveUSRValue) }</b> USR</p>
+                </Col>
 
-          <p>You will receive approximately <b>{ formatCurrencyNumber(receiveUSRValue) }</b> USR</p>
-        </Col>
-
-        <Col span={24}>
-          <Button
-            type="primary"
-            disabled={this.props.usr.joinAmount <= 0}
-            block
-            onClick={this.handleDeposit}
-            className={styles.btn}
-            loading={depositLoading}
-          >
-            DEPOSIT
-          </Button>
-        </Col>
-      </Row>
+                <Col span={24}>
+                  <Button
+                    type="primary"
+                    disabled={this.props.usr.joinAmount <= 0}
+                    block
+                    onClick={this.handleDeposit}
+                    className={styles.btn}
+                    loading={depositLoading}
+                  >
+                    { t('operation.deposit.btnNormal') }
+                  </Button>
+                </Col>
+              </Row>
+            )
+          }
+        </Translation>
+      </Suspense>
     );
   }
 
@@ -180,57 +187,65 @@ export default class OperationPanel extends Component {
     const { usrBalance, receiveUSDxValue, exchangeRate, redeemLoading } = this.props.usr;
 
     return (
-      <Row className={styles.deposit__form}>
-        <Col className={styles.usdx} span={24}>
-          <span>
-            USR
-          </span>
-          <label>{ formatCurrencyNumber(usrBalance) }</label>
-        </Col>
+      <Suspense fallback={ <SuspenseFallback /> }>
+        <Translation>
+          {
+            t => (
+              <Row className={styles.deposit__form}>
+                <Col className={styles.usdx} span={24}>
+                  <span>
+                    USR
+                  </span>
+                  <label>{ formatCurrencyNumber(usrBalance) }</label>
+                </Col>
 
-        <Col className={styles.input} span={24}>
-          <div className={styles.input__text}>
-            <Input
-              type="number"
-              min="0"
-              step="1"
-              value={this.props.usr.usrShowValue}
-              placeholder="Amount in USR"
-              onFocus={e => {
-                e.target.select();
-              }}
-              onChange={e => {
-                let exitAmount = this.formatDecimalValue(e.target.value);
+                <Col className={styles.input} span={24}>
+                  <div className={styles.input__text}>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={this.props.usr.usrShowValue}
+                      placeholder={ t('operation.redeem.placeholder') }
+                      onFocus={e => {
+                        e.target.select();
+                      }}
+                      onChange={e => {
+                        let exitAmount = this.formatDecimalValue(e.target.value);
 
-                this.props.dispatch({
-                  type: 'usr/updateMultiParams',
-                  payload: {
-                    exitAmount,
-                    usrShowValue: e.target.value,
-                    receiveUSDxValue: this.formatDecimalValue(exitAmount / exchangeRate)
-                  }
-                });
-              }}
-            />
-            <a onClick={e => this.handleMaxEvent('exit')}>MAX</a>
-          </div>
+                        this.props.dispatch({
+                          type: 'usr/updateMultiParams',
+                          payload: {
+                            exitAmount,
+                            usrShowValue: e.target.value,
+                            receiveUSDxValue: this.formatDecimalValue(exitAmount / exchangeRate)
+                          }
+                        });
+                      }}
+                    />
+                    <a onClick={e => this.handleMaxEvent('exit')}>{ t('operation.redeem.max') }</a>
+                  </div>
 
-          <p>You will receive at least <b>{ formatCurrencyNumber(receiveUSDxValue) }</b> USDx</p>
-        </Col>
+                  <p>{ t('operation.redeem.tip') } <b>{ formatCurrencyNumber(receiveUSDxValue) }</b> USDx</p>
+                </Col>
 
-        <Col span={24}>
-          <Button
-            disabled={this.props.usr.exitAmount <= 0}
-            block
-            type="primary"
-            className={styles.btn}
-            onClick={this.handleRedeem}
-            loading={redeemLoading}
-          >
-            REDEEM
-          </Button>
-        </Col>
-      </Row>
+                <Col span={24}>
+                  <Button
+                    disabled={this.props.usr.exitAmount <= 0}
+                    block
+                    type="primary"
+                    className={styles.btn}
+                    onClick={this.handleRedeem}
+                    loading={redeemLoading}
+                  >
+                    { t('operation.redeem.btnNormal') }
+                  </Button>
+                </Col>
+              </Row>
+            )
+          }
+        </Translation>
+      </Suspense>
     );
   }
 
@@ -249,10 +264,10 @@ export default class OperationPanel extends Component {
                       color: '#7a7b9e',
                     }}
                   >
-                    <TabPane tab="DEPOSIT" key="1">
+                    <TabPane tab={ t('operation.deposit.title') } key="1">
                       { this.__renderDepositForm() }
                     </TabPane>
-                    <TabPane tab="REDEEM" key="2">
+                    <TabPane tab={ t('operation.redeem.title') } key="2">
                       { this.__renderRedeemForm() }
                     </TabPane>
                   </Tabs>

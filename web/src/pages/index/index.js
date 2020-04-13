@@ -1,4 +1,5 @@
 import React, { PureComponent, Suspense } from 'react';
+import PageHeader from '@components/PageHeader';
 import OperationPanel from '@components/OperationPanel';
 import Overview from '@components/Overview';
 import Transactions from '@components/Transactions';
@@ -54,7 +55,7 @@ class IndexPage extends PureComponent {
         */
       }
 
-
+        <PageHeader { ...this.props } />
         <div className={styles.home__box}>
           <OperationPanel { ...this.props } />
           <Overview { ...this.props } />

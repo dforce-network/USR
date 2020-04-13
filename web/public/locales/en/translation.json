@@ -2,6 +2,7 @@
   "title": "dForce USR",
   "menu": {
     "dForceStablecoin": {
+      "title": "dForce Stablecoin",
       "usdx": {
         "title": "USDx",
         "label": "Portal"
@@ -16,40 +17,45 @@
       }
     },
     "yieldMarket": {
+      "title": "Yield Market",
       "lendfMe": {
         "title": "LendfMe",
         "label": "Lend and Borrow with Incredible Interest"
       }
     },
     "exchangeMarket": {
+      "title": "Exchange Market",
       "xswap": {
         "title": "X-Swap",
         "label": "Trade Stable Asset with Zero Slippage"
       }
-    }
+    },
+    "connectWallet": "Connect Wallet"
   },
   "operation": {
     "deposit": {
       "title": "DEPOSIT",
       "placeholder": "Amount in USDx",
-      "tip": "You will receive approximately <1></1> USR",
+      "tip": "You will receive approximately",
       "btnNormal": "DEPOSIT",
       "btnInsufficientBalance": "INSUFFICIENT BALANCE",
       "notNull": "Deposit value should greater than 0!",
-      "lessThan": "Deposit value should less than {{ value }}"
+      "lessThan": "Deposit value should less than {{ value }}",
+      "max": "MAX"
     },
     "redeem": {
       "title": "REDEEM",
       "placeholder": "Amount in USR",
-      "tip": "You will receive at least <1></1> USDx",
+      "tip": "You will receive at least",
       "btnNormal": "REDEEM",
       "notNull": "Redeem value should greater than 0!",
       "lessThan": "Redeem value should less than {{ value }}",
       "btnInsufficientBalance": "INSUFFICIENT BALANCE",
+      "max": "MAX"
     }
   },
   "overview": {
-    "title": "You can withdraw <1></1> USDx",
+    "title": "You can withdraw",
     "balance": "USR balance:",
     "annualRate": "USDx Annual Rate:"
   },
@@ -57,7 +63,8 @@
     "title": "Recent Transactions",
     "deposit": "Redeem {{usr}} USR, Receive {{usdx}} USDx",
     "redeem": "Redeem {{usr}} USR, Receive {{usdx}} USDx",
-    "tx": "Tx-Hash"
+    "tx": "Tx-Hash",
+    "noHistory": "No History"
   },
   "footer": {
     "resource": {
@@ -68,10 +75,11 @@
     "community": {
       "title": "Community",
       "english": "English",
-      "chinese": "中文"
+      "chinese": "简体中文"
     },
     "contact": {
       "title": "Contact"
-    }
+    },
+    "copied": "Copied!"
   }
 }

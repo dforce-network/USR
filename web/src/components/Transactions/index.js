@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
+import React, { Component, Suspense } from 'react';
 import styles from './index.less';
 import { Button, Menu } from 'antd';
-import { txFormatter } from '@utils';
+import { txFormatter, SuspenseFallback } from '@utils';
+import { Translation } from 'react-i18next';
 
 const depositIcon = require('@assets/icon_deposit.svg');
 const redeemIcon = require('@assets/icon_redeem.svg');
@@ -16,56 +17,72 @@ export default class Transactions extends Component {
     // recentTransactions = []
     if (!recentTransactions.length) {
       return (
-        <div className={styles.transactions}>
-          <h2>Recent Transactions</h2>
+        <Suspense fallback={ <SuspenseFallback /> }>
+          <Translation>
+            {
+              t => (
+                <div className={styles.transactions}>
+                  <h2>{ t('transactions.title') }</h2>
 
-          <div className={styles.transactions__null}>
-            <section>
-              <img src={require('@assets/no_history.svg')} />
-              <span>No History</span>
-            </section>
-          </div>
-        </div>
+                  <div className={styles.transactions__null}>
+                    <section>
+                      <img src={require('@assets/no_history.svg')} />
+                      <span>{ t('transactions.noHistory') }</span>
+                    </section>
+                  </div>
+                </div>
+              )
+            }
+          </Translation>
+        </Suspense>
       );
     }
 
     return (
-      <div className={styles.transactions}>
-        <h2>Recent Transactions</h2>
-
-        <div className={styles.transactions__box}>
+      <Suspense fallback={ <SuspenseFallback /> }>
+        <Translation>
           {
-            recentTransactions.map((item, key) => {
-              return (
-                <section className={styles.transactions__item} key={key}>
-                  <div className={styles.transactions__item_left}>
-                    <img
-                      src={item.action === 'deposit' ? depositIcon : redeemIcon}
-                      className={styles.transactions__item_icon}
-                    />
-                  </div>
+            t => (
+              <div className={styles.transactions}>
+                <h2>{ t('transactions.title') }</h2>
 
-                  <div className={styles.transactions__item_right}>
-                    <p>
-                      { item.time || '-' }  |
-                      <a
-                        target="_blank"
-                        href={ txFormatter(network, item.data.transactionHash) }
-                      > Tx-Hash
-                      </a>
-                    </p>
-                    {
-                      item.action === 'deposit'
-                        ? <label>Deposit { item.usdx } USDx, Receive { item.usr } USR</label>
-                        : <label>Redeem { item.usr } USR, Receive { item.usdx } USDx</label>
-                    }
-                  </div>
-                </section>
-              );
-            })
+                <div className={styles.transactions__box}>
+                  {
+                    recentTransactions.map((item, key) => {
+                      return (
+                        <section className={styles.transactions__item} key={key}>
+                          <div className={styles.transactions__item_left}>
+                            <img
+                              src={item.action === 'deposit' ? depositIcon : redeemIcon}
+                              className={styles.transactions__item_icon}
+                            />
+                          </div>
+
+                          <div className={styles.transactions__item_right}>
+                            <p>
+                              { item.time || '-' }  |
+                              <a
+                                target="_blank"
+                                href={ txFormatter(network, item.data.transactionHash) }
+                              > Tx-Hash
+                              </a>
+                            </p>
+                            {
+                              item.action === 'deposit'
+                                ? <label>{ t('transactions.deposit', { usdx: item.usdx, usr: item.usr }) }</label>
+                                : <label>{ t('transactions.redeem', { usdx: item.usdx, usr: item.usr }) }</label>
+                            }
+                          </div>
+                        </section>
+                      );
+                    })
+                  }
+                </div>
+              </div>
+            )
           }
-        </div>
-      </div>
+        </Translation>
+      </Suspense>
     )
   };
 }

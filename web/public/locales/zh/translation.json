@@ -2,6 +2,7 @@
   "title": "dForce USR",
   "menu": {
     "dForceStablecoin": {
+      "title": "dForce Stablecoin",
       "usdx": {
         "title": "USDx",
         "label": "Portal"
@@ -16,62 +17,69 @@
       }
     },
     "yieldMarket": {
+      "title": "Yield Market",
       "lendfMe": {
         "title": "LendfMe",
         "label": "Lend and Borrow with Incredible Interest"
       }
     },
     "exchangeMarket": {
+      "title": "Exchange Market",
       "xswap": {
         "title": "X-Swap",
         "label": "Trade Stable Asset with Zero Slippage"
       }
-    }
+    },
+    "connectWallet": "连接钱包"
   },
   "operation": {
     "deposit": {
-      "title": "DEPOSIT",
-      "placeholder": "Amount in USDx",
-      "tip": "You will receive approximately <1></1> USR",
-      "btnNormal": "DEPOSIT",
+      "title": "存入",
+      "placeholder": "输入数量",
+      "tip": "你会收到",
+      "btnNormal": "存入",
       "btnInsufficientBalance": "余额不足",
-      "notNull": "抵押金额不能小于 0!",
-      "lessThan": "最大抵押金额不能超过 {{ value }}"
+      "notNull": "存入金额不能小于 0!",
+      "lessThan": "最大存入金额不能超过 {{ value }}",
+      "max": "最大值"
     },
     "redeem": {
-      "title": "REDEEM",
-      "placeholder": "Amount in USR",
-      "tip": "You will receive at least <1></1> USDx",
-      "btnNormal": "REDEEM",
-      "notNull": "Redeem value should greater than 0!",
-      "lessThan": "Redeem value should less than {{ value }}",
-      "btnInsufficientBalance": "余额不足"
+      "title": "取回",
+      "placeholder": "输入数量",
+      "tip": "你会收到",
+      "btnNormal": "取回",
+      "notNull": "取回数量不能小于 0!",
+      "lessThan": "最大取回数量不能超过 {{ value }}",
+      "btnInsufficientBalance": "余额不足",
+      "max": "最大值"
     }
   },
   "overview": {
-    "title": "You can withdraw <1></1> USDx",
-    "balance": "USR balance:",
+    "title": "你会取回",
+    "balance": "USR 余额:",
     "annualRate": "USDx Annual Rate:"
   },
   "transactions": {
-    "title": "Recent Transactions",
-    "deposit": "Redeem {{usr}} USR, Receive {{usdx}} USDx",
-    "redeem": "Redeem {{usr}} USR, Receive {{usdx}} USDx",
-    "tx": "Tx-Hash"
+    "title": "最近记录",
+    "deposit": "取回 {{usr}} USR, 收到 {{usdx}} USDx",
+    "redeem": "存入 {{usr}} USR, 收到 {{usdx}} USDx",
+    "tx": "Tx-Hash",
+    "noHistory": "没有数据"
   },
   "footer": {
     "resource": {
-      "title": "Resource",
+      "title": "开发者",
       "github": "GitHub",
       "faq": "FAQ"
     },
     "community": {
-      "title": "Community",
-      "english": "英文",
-      "chinese": "Chinese"
+      "title": "社区",
+      "english": "English",
+      "chinese": "简体中文"
     },
     "contact": {
-      "title": "Contact"
-    }
+      "title": "联系我们"
+    },
+    "copied": "复制成功！"
   }
 }

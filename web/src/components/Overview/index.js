@@ -1,26 +1,34 @@
 // operation panel
-import React, { Component } from 'react';
+import React, { Component, Suspense } from 'react';
 import styles from './index.less';
-import { formatCurrencyNumber, percentFormatter } from '@utils';
+import { formatCurrencyNumber, percentFormatter, SuspenseFallback } from '@utils';
+import { Translation } from 'react-i18next';
 
 export default class Overview extends Component {
   render() {
     const {
       usrBalance,
-      usdxBalance,
       interestRate,
       exchangeRate,
       totalBalanceValue,
     } = this.props.usr;
 
     return (
-      <section className={styles.overview}>
-        <h2>You can withdraw <b>{ formatCurrencyNumber(totalBalanceValue) }</b> USDx</h2>
+      <Suspense fallback={ <SuspenseFallback /> }>
+        <Translation>
+          {
+            t => (
+              <section className={styles.overview}>
+                <h2>{ t('overview.title') } <b>{ formatCurrencyNumber(totalBalanceValue) }</b> USDx</h2>
 
-        <p>USR balance: { formatCurrencyNumber(usrBalance) }</p>
-        <p>1 USR = { exchangeRate } USDx</p>
-        <p>USDx Annual Rate: { percentFormatter(interestRate) }</p>
-      </section>
+                <p>{ t('overview.balance') } { formatCurrencyNumber(usrBalance) }</p>
+                <p>1 USR = { exchangeRate } USDx</p>
+                <p>{ t('overview.annualRate') } { percentFormatter(interestRate) }</p>
+              </section>
+            )
+          }
+        </Translation>
+      </Suspense>
     );
   }
 }
