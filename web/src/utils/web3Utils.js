@@ -312,31 +312,31 @@ export async function mintUSR() {
       });
   } else {
     usdxObj.methods.approve(usrObj.options.address, '-1')
-      .send({ from: walletAddress })
-      .then(() => {
-        usrObj.methods
-          .mint(walletAddress, joinAmount.toFixed())
-          .send(
-            {
-              from: walletAddress,
-              gas: 1000000
-            },
-            (reject, reHash) => {
-              mintUSRCallback.bind(this)(reject, reHash, receiveUSRValue, storeJoinAmount);
-            }
-          )
-          .then(res => {
-            getData.bind(this)();
+      .send({ from: walletAddress }, (sendReject, sendHash) => {
+        if (sendHash) {
+          usrObj.methods
+            .mint(walletAddress, joinAmount.toFixed())
+            .send(
+              {
+                from: walletAddress,
+                gas: 1000000
+              },
+              (reject, reHash) => {
+                mintUSRCallback.bind(this)(reject, reHash, receiveUSRValue, storeJoinAmount);
+              }
+            )
+            .then(res => {
+              getData.bind(this)();
 
-            // set the status of transaction
-            updateTransactionStatus(res.transactionHash);
+              // set the status of transaction
+              updateTransactionStatus(res.transactionHash);
 
-            this.props.dispatch({
-              type: 'usr/updateRecentTransactions'
+              this.props.dispatch({
+                type: 'usr/updateRecentTransactions'
+              });
             });
-          });
-      }
-    );
+        }
+      });
   }
 }
 
