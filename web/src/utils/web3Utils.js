@@ -86,7 +86,7 @@ export async function getExchangeRate() {
   const { usrObj } = this.props.usr;
   const exchangeRateRaw = await usrObj.methods.getExchangeRate().call();
   const exchangeRateDecimal = new WadDecimal(exchangeRateRaw).div('1e27');
-  const exchangeRate = exchangeRateDecimal.toFixed(5);
+  const exchangeRate = exchangeRateDecimal.toFixed(8);
 
   this.props.dispatch({
     type: 'usr/updateMultiParams',
@@ -99,9 +99,10 @@ export async function getInterestRate() {
   const { usrObj } = this.props.usr;
   // console.log(usrObj.methods)
   const interestRateRaw = await usrObj.methods.getFixedInterestRate(3600 * 24 * 365).call();
-  const interestRateDecimal = new WadDecimal(interestRateRaw).div('1e27');
+  const interestRateDecimal = new WadDecimal(interestRateRaw - 1e27).div('1e27');
   const interestRate = interestRateDecimal.toFixed();
 
+  console.log('interestRateDecimal', interestRateDecimal);
   console.log('interest', interestRateRaw);
   this.props.dispatch({
     type: 'usr/updateMultiParams',

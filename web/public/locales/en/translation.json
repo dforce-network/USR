@@ -20,14 +20,14 @@
       "title": "Yield Market",
       "lendfMe": {
         "title": "LendfMe",
-        "label": "Lend and Borrow with Incredible Interest"
+        "label": "Lend and Borrow"
       }
     },
     "exchangeMarket": {
       "title": "Exchange Market",
       "xswap": {
         "title": "X-Swap",
-        "label": "Trade Stable Asset with Zero Slippage"
+        "label": "Instant Swap/dForce Instant Swap of Stable Assets"
       }
     },
     "connectWallet": "Connect Wallet"

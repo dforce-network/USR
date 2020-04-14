@@ -23,8 +23,6 @@ export default class PageFooter extends Component {
   render() {
     let currentLanguage = i18next.language;
 
-    console.log(currentLanguage);
-
     return (
       <Suspense fallback={ <SuspenseFallback /> }>
         <Translation>
@@ -34,7 +32,7 @@ export default class PageFooter extends Component {
                 <section className={styles.footer__link}>
                   <h2>{ t('footer.resource.title') }</h2>
                   <a href="https://github.com/dforce-network/USR">{ t('footer.resource.github') }</a>
-                  <a href="/">{ t('footer.resource.faq') }</a>
+                  <a href="https://github.com/dforce-network/USR">{ t('footer.resource.faq') }</a>
                 </section>
 
                 <section className={styles.footer__community}>
