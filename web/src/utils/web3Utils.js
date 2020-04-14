@@ -102,8 +102,6 @@ export async function getInterestRate() {
   const interestRateDecimal = new WadDecimal(interestRateRaw - 1e27).div('1e27');
   const interestRate = interestRateDecimal.toFixed();
 
-  console.log('interestRateDecimal', interestRateDecimal);
-  console.log('interest', interestRateRaw);
   this.props.dispatch({
     type: 'usr/updateMultiParams',
     payload: { interestRate }
@@ -115,7 +113,6 @@ export async function getTotalBalanceOfUSDx() {
   const { web3, usrObj, walletAddress } = this.props.usr;
   const totalBalanceRaw = await usrObj.methods.getTotalBalance(walletAddress).call();
   const totalBalanceValue = toFixed(parseFloat(web3.utils.fromWei(totalBalanceRaw)), 5);
-  console.log(totalBalanceValue);
 
   this.props.dispatch({
     type: 'usr/updateMultiParams',
@@ -129,7 +126,6 @@ export async function getShare() {
   const { web3, usrObj } = this.props.usr;
   const shareRaw = await usrObj.methods.share().call();
   const shareValue = toFixed(parseFloat(web3.utils.fromWei(shareRaw)), 5);
-  console.log('share', shareValue);
 
   this.props.dispatch({
     type: 'usr/updateMultiParams',
@@ -170,7 +166,6 @@ export async function approval() {
 export async function allowance() {
   const { usdxObj, usrObj, walletAddress } = this.props.usr;
   const allowanceResult = await usdxObj.methods.allowance(walletAddress, config.USR).call();
-  console.log('allowanceResult', allowanceResult)
 
   this.props.dispatch({
     type: 'usr/updateMultiParams',

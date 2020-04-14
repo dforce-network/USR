@@ -9,10 +9,6 @@ const loadingIcon = require('@assets/icon_loading.svg');
 const redeemIcon = require('@assets/icon_redeem.svg');
 
 export default class Transactions extends Component {
-  state = {
-    anchorEl: null,
-  }
-
   render() {
     let { recentTransactions, network } = this.props.usr;
 

@@ -51,6 +51,7 @@
       "notNull": "Redeem value should greater than 0!",
       "lessThan": "Redeem value should less than {{ value }}",
       "btnInsufficientBalance": "INSUFFICIENT BALANCE",
+      "btnInsufficientLiquidity": "INSUFFICIENT LIQUIDITY",
       "max": "MAX"
     }
   },

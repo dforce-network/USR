@@ -135,8 +135,10 @@ export default class OperationPanel extends Component {
   }
 
   __renderDepositForm = () => {
-    const { usdxBalance, receiveUSRValue, exchangeRate, depositLoading, shareValue, depositBalanceEnough } = this.props.usr;
+    const { usdxBalance, receiveUSRValue, exchangeRate, shareValue, depositBalanceEnough } = this.props.usr;
 
+    // console.log('********shareValue:', shareValue);
+    // console.log('********usdxBalance:', usdxBalance);
     return (
       <Suspense fallback={ <SuspenseFallback /> }>
         <Translation>
@@ -164,6 +166,7 @@ export default class OperationPanel extends Component {
                       }}
                       onChange={e => {
                         let joinAmount = this.formatDecimalValue(e.target.value);
+                        let compareNum = shareValue > usdxBalance ? usdxBalance : shareValue;
 
                         this.props.dispatch({
                           type: 'usr/updateMultiParams',
@@ -172,7 +175,8 @@ export default class OperationPanel extends Component {
                           }
                         });
 
-                        if (joinAmount.cmp(shareValue) > 0) {
+                        // shareValue  usdxBalance
+                        if (joinAmount.cmp(compareNum) > 0) {
                           this.props.dispatch({
                             type: 'usr/updateBtnDisable',
                             payload: {
@@ -228,8 +232,10 @@ export default class OperationPanel extends Component {
   }
 
   __renderRedeemForm = () => {
-    const { usrBalance, receiveUSDxValue, exchangeRate, redeemLoading, redeemBalanceEnough } = this.props.usr;
+    const { usrBalance, receiveUSDxValue, exchangeRate, totalBalanceValue, redeemBalanceEnough } = this.props.usr;
 
+    console.log('********usrBalance:', usrBalance);
+    console.log('********totalBalanceValue:', totalBalanceValue);
     return (
       <Suspense fallback={ <SuspenseFallback /> }>
         <Translation>
@@ -255,7 +261,9 @@ export default class OperationPanel extends Component {
                         e.target.select();
                       }}
                       onChange={e => {
+                        // usrBalance  totalBalanceValue
                         let exitAmount = this.formatDecimalValue(e.target.value);
+                        let compareNum = usrBalance > totalBalanceValue ? totalBalanceValue : usrBalance;
 
                         this.props.dispatch({
                           type: 'usr/updateMultiParams',
@@ -264,7 +272,7 @@ export default class OperationPanel extends Component {
                           }
                         });
 
-                        if (exitAmount.cmp(usrBalance) > 0) {
+                        if (exitAmount.cmp(compareNum) > 0) {
                           this.props.dispatch({
                             type: 'usr/updateBtnDisable',
                             payload: {
@@ -306,9 +314,8 @@ export default class OperationPanel extends Component {
                     type="primary"
                     className={styles.btn}
                     onClick={this.handleRedeem}
-                    loading={redeemLoading}
                   >
-                    { t(redeemBalanceEnough ? 'operation.redeem.btnNormal' : 'operation.redeem.btnInsufficientBalance') }
+                    { t(redeemBalanceEnough ? 'operation.redeem.btnNormal' : 'operation.redeem.btnInsufficientLiquidity') }
                   </Button>
                 </Col>
               </Row>

@@ -51,6 +51,7 @@
       "notNull": "取回数量不能小于 0!",
       "lessThan": "最大取回数量不能超过 {{ value }}",
       "btnInsufficientBalance": "余额不足",
+      "btnInsufficientLiquidity": "流动性不足",
       "max": "最大值"
     }
   },
