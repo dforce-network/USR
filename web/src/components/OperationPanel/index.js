@@ -234,8 +234,8 @@ export default class OperationPanel extends Component {
   __renderRedeemForm = () => {
     const { usrBalance, receiveUSDxValue, exchangeRate, totalBalanceValue, redeemBalanceEnough } = this.props.usr;
 
-    console.log('********usrBalance:', usrBalance);
-    console.log('********totalBalanceValue:', totalBalanceValue);
+    // console.log('********usrBalance:', usrBalance);
+    // console.log('********totalBalanceValue:', totalBalanceValue);
     return (
       <Suspense fallback={ <SuspenseFallback /> }>
         <Translation>

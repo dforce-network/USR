@@ -15,6 +15,11 @@ export function accountFormatter(account) {
   return account.toLowerCase()
 }
 
+// transactions hash formatter
+export function transactionHashFormatter(hash) {
+  return `${hash.substring(0, 4)}****${hash.substring(hash.length - 4)}`;
+}
+
 // format percent
 export function percentFormatter(v) {
   let fixValue = parseFloat(v * 100).toFixed(2);
@@ -30,7 +35,17 @@ export function transactionValueFormatter(v) {
 
 // format transactions
 export function txFormatter(network, tx) {
-  return network == 1 ?  `https://etherscan.io/tx/${tx}` : `https://rinkeby.etherscan.io/tx/${tx}`;
+  return (
+    <a
+      href={
+        network == 1 ?  `https://etherscan.io/tx/${tx}` : `https://rinkeby.etherscan.io/tx/${tx}`
+      }
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      { transactionHashFormatter(tx) }
+    </a>
+  );
 }
 
 // format wallet address
@@ -48,8 +63,12 @@ export function formatCurrencyNumber(b) {
 }
 
 // get transactions from local
-export function getTransactions() {
+export function getTransactions(state = {}) {
+  if (!state) {
+    return [];
+  }
   let normalArray = window.localStorage.getItem('__transactions');
+  let { network, walletAddress } = state;
 
   if (!normalArray) {
     normalArray = [];
@@ -62,13 +81,25 @@ export function getTransactions() {
   }
 
   if (normalArray.length) {
-    return normalArray;
+    let filterResult = normalArray.filter(item => {
+      let itemFrom = item.from || '';
+      let itemNetwork = item.network || '';
+      return itemFrom && itemFrom.toLowerCase() === walletAddress.toLowerCase() && itemNetwork == network;
+    });
+    return filterResult;
   }
   return [];
 }
 
+// updated the status of transaction
 export function updateTransactionStatus(hash) {
-  let transactions = getTransactions();
+  let transactions = [];
+  try {
+    let transactionsStr = window.localStorage.getItem('__transactions');
+    transactions = JSON.parse(transactionsStr);
+  } catch (e) {
+    console.log(e);
+  }
   let filterResult = [];
   try {
     filterResult = transactions.filter(item => {

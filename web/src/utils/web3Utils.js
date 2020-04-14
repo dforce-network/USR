@@ -69,8 +69,6 @@ export async function getUSRBalance() {
   const usrBalanceDecimal = new WadDecimal(usrBalanceRaw).div('1e18');
   const usrBalance = toFixed(parseFloat(web3.utils.fromWei(usrBalanceRaw)), 5);
 
-  console.log(usrBalanceRaw)
-
   // save usr balance
   dispatch({
     type: 'usr/updateMultiParams',
@@ -232,6 +230,10 @@ export async function initBrowserWallet(dispatch, prompt = true) {
   dispatch('walletAddress', accounts[0]);
   dispatch('walletType', walletType);
 
+  this.props.dispatch({
+    type: 'usr/updateRecentTransactions'
+  });
+
   setupContracts.bind(this)(dispatch);
 
   getData.bind(this)();
@@ -242,13 +244,16 @@ export function mintUSRCallback(reject, reHash, receiveUSRValue, storeJoinAmount
     message.error(reject.message);
   }
   if (reHash) {
+    let { walletAddress, network } = this.props.usr;
     let transObj = {
       action: 'deposit',
       data: { transactionHash: reHash },
       usr: receiveUSRValue,
       usdx: storeJoinAmount,
       time: timeFormatter(new Date()),
-      status: 'init'
+      status: 'init',
+      from: walletAddress,
+      network
     };
 
     saveTransactions(transObj);
@@ -273,6 +278,7 @@ export async function mintUSR() {
     web3,
     usrObj,
     usdxObj,
+    network,
     joinAmount,
     walletAddress,
     receiveUSRValue,
@@ -282,7 +288,6 @@ export async function mintUSR() {
   let storeJoinAmount = joinAmount.toFixed();
 
   joinAmount = joinAmount.mul(10**18);
-
 
   if (allowanceResult) {
     usrObj.methods
@@ -342,6 +347,7 @@ export async function burnUSR() {
     web3,
     usrObj,
     usdxObj,
+    network,
     joinAmount,
     exitAmount,
     walletAddress,
@@ -356,7 +362,8 @@ export async function burnUSR() {
     .burn(walletAddress, exitAmount.toFixed())
     .send(
       {
-        from: walletAddress
+        from: walletAddress,
+        gas: 1000000
       },
       (reject, reHash) => {
         if (reject && reject.message) {
@@ -369,7 +376,9 @@ export async function burnUSR() {
             usr: storeExitAmount,
             usdx: receiveUSDxValue,
             time: timeFormatter(new Date()),
-            status: 'init'
+            status: 'init',
+            network,
+            from: walletAddress
           };
 
           saveTransactions(transObj);

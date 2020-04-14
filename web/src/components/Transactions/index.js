@@ -1,7 +1,7 @@
 import React, { Component, Suspense } from 'react';
 import styles from './index.less';
 import { Button, Menu } from 'antd';
-import { txFormatter, transactionValueFormatter, SuspenseFallback } from '@utils';
+import { txFormatter, transactionValueFormatter, SuspenseFallback, transactionHashFormatter } from '@utils';
 import { Translation } from 'react-i18next';
 
 const depositIcon = require('@assets/icon_deposit.svg');
@@ -64,14 +64,18 @@ export default class Transactions extends Component {
 
                           <div className={styles.transactions__item_right}>
                             <p>
-                              { item.time || '-' }  |
-                              <a
-                                target="_blank"
-                                href={ txFormatter(network, item.data.transactionHash) }
-                              > Tx-Hash
-                              </a>
+                              { item.time || '-' }  |  { txFormatter(network, item.data.transactionHash) }
                             </p>
+                            <label>
+                              {
+                                t(item.action === 'deposit' ? 'transactions.deposit' : 'transactions.redeem', {
+                                  usdx: transactionValueFormatter(item.usdx),
+                                  usr: transactionValueFormatter(item.usr)
+                                })
+                              }
+                              </label>
                             {
+                              /*
                               item.action === 'deposit'
                                 ? <label>
                                   {
@@ -89,6 +93,7 @@ export default class Transactions extends Component {
                                     })
                                   }
                                   </label>
+                              */
                             }
                           </div>
                         </section>

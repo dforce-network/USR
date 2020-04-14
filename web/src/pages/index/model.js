@@ -63,7 +63,7 @@ export default {
       };
     },
     updateRecentTransactions(state) {
-      const transactions = getTransactions();
+      const transactions = getTransactions(state);
       return {
         ...state,
         recentTransactions: [...transactions],
