@@ -132,6 +132,23 @@ export async function getShare() {
   });
 }
 
+// get redeem amount
+export function getRedeemAmount(usr) {
+  const { usrObj } = this.props.usr;
+  usrObj.methods.getRedeemAmount(usr).call().then(redeemAmountRaw => {
+    const redeemAmountDecimal = new WadDecimal(redeemAmountRaw).div('1e18');
+    const redeemAmount = redeemAmountDecimal.toFixed(2);
+    console.log(redeemAmount);
+
+    this.props.dispatch({
+      type: 'usr/updateMultiParams',
+      payload: {
+        receiveUSDxValue: redeemAmount
+      }
+    });
+  });
+}
+
 // set up contracts
 export function setupContracts(dispatch) {
   const { web3, network } = this.props.usr;

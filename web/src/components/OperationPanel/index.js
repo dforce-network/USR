@@ -4,7 +4,7 @@ import styles from './index.less';
 import { Row, Col, Tabs, Button, Input, message } from 'antd';
 import { Translation, Trans } from 'react-i18next';
 import { formatCurrencyNumber, SuspenseFallback, toFixed } from '@utils';
-import { WadDecimal, mintUSR, burnUSR } from '@utils/web3Utils';
+import { WadDecimal, mintUSR, burnUSR, getRedeemAmount } from '@utils/web3Utils';
 
 const { TabPane } = Tabs;
 const usdxIcon = require('@assets/icon_usdx.svg');
@@ -113,21 +113,25 @@ export default class OperationPanel extends Component {
       let compareTag = usrBalance > totalBalanceValue ? 'balance' : 'usr';
       let compareRedeemTag = 'normal';
 
-      console.log(usrBalance, totalBalanceValue);
       if (usrBalance) {
         usrShowValue = parseFloat(usrBalance).toFixed(2);
-        receiveUSDxValue = usrShowValue * exchangeRate;
+        // receiveUSDxValue = usrShowValue * exchangeRate;
 
         if (usrBalance > compareTag) {
           compareRedeemTag = compareTag;
         }
+
+        // getRedeemAmount.bind(this)((usrShowValue * 1e18));
+        console.log(usrShowValue);
+        console.log((usrShowValue * 1e18).toLocaleString().replace(/,/g, ''));
+        getRedeemAmount.bind(this)((usrShowValue * 1e18).toLocaleString().replace(/,/g, ''));
       }
 
       this.props.dispatch({
         type: 'usr/updateMultiParams',
         payload: {
           usrShowValue,
-          receiveUSDxValue,
+          // receiveUSDxValue,
           exitAmount,
           compareRedeemTag,
           redeemDisable: exitAmount.cmp(usrBalance) > 0,
@@ -262,7 +266,7 @@ export default class OperationPanel extends Component {
 
   __renderRedeemForm = () => {
     const { usrBalance, receiveUSDxValue, exchangeRate, totalBalanceValue, compareRedeemTag } = this.props.usr;
-
+    let onChangeTimer = null;
     // console.log('********usrBalance:', usrBalance);
     // console.log('********totalBalanceValue:', totalBalanceValue);
     return (
@@ -291,10 +295,28 @@ export default class OperationPanel extends Component {
                       }}
                       onChange={e => {
                         // usrBalance  totalBalanceValue
-                        let exitAmount = this.formatDecimalValue(e.target.value);
+                        let targetValue = e.target.value;
+                        let self = this;
+                        let exitAmount = this.formatDecimalValue(targetValue);
                         let compareNum = usrBalance > totalBalanceValue ? totalBalanceValue : usrBalance;
                         let compareRedeemTag = usrBalance > totalBalanceValue ? 'balance' : 'usr';
 
+                        clearTimeout(onChangeTimer);
+                        onChangeTimer = setTimeout(() => {
+                          console.log('getRedeemAmount:')
+                          if (targetValue && targetValue <= compareNum) {
+                            getRedeemAmount.bind(self)((targetValue * 1e18).toLocaleString().replace(/,/g, ''));
+                          }
+                          if (!targetValue) {
+                            this.props.dispatch({
+                              type: 'usr/updateMultiParams',
+                              payload: {
+                                receiveUSDxValue: 0
+                              }
+                            });
+                          }
+                        }, 10);
+                        // console.log(item)
                         // console.log(compareRedeemTag)
                         this.props.dispatch({
                           type: 'usr/updateMultiParams',
@@ -326,7 +348,7 @@ export default class OperationPanel extends Component {
                               redeemDisable: false,
                               compareRedeemTag: 'normal',
                               usrShowValue: e.target.value,
-                              receiveUSDxValue: toFixed(exitAmount * exchangeRate)
+                              // receiveUSDxValue: toFixed(exitAmount * exchangeRate)
                             }
                           });
                         }
