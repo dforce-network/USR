@@ -84,7 +84,7 @@ export default class OperationPanel extends Component {
 
       if (usdxBalance) {
         usdxShowValue = parseFloat(usdxBalance).toFixed(2);
-        receiveUSRValue = usdxShowValue * exchangeRate;
+        receiveUSRValue = usdxShowValue / exchangeRate;
       }
 
       this.props.dispatch({
@@ -104,7 +104,9 @@ export default class OperationPanel extends Component {
 
       if (usrBalance) {
         usrShowValue = parseFloat(usrBalance).toFixed(2);
-        receiveUSDxValue = usrShowValue / exchangeRate;
+        receiveUSDxValue = usrShowValue * exchangeRate;
+
+        console.log(usrShowValue, exchangeRate)
       }
 
       this.props.dispatch({

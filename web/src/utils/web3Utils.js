@@ -109,6 +109,7 @@ export async function getTotalBalanceOfUSDx() {
   const totalBalanceRaw = await usrObj.methods.getTotalBalance(walletAddress).call();
   const totalBalanceValue = toFixed(parseFloat(web3.utils.fromWei(totalBalanceRaw)), 5);
 
+  console.log('totalBalanceRaw', totalBalanceRaw);
   this.props.dispatch({
     type: 'usr/updateMultiParams',
     payload: { totalBalanceValue }
