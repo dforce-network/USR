@@ -22,7 +22,8 @@ WadDecimal.format = {
 
 // to fixed
 function toFixed(num, precision) {
-  return (+(Math.round(+(num + 'e' + precision)) + 'e' + -precision)).toFixed(precision);
+  let result = (+(Math.round(+(num + 'e' + precision)) + 'e' + -precision)).toFixed(precision);
+  return +result;
 }
 
 // get usdx balance
@@ -61,11 +62,11 @@ export async function getUSRBalance() {
   } = this.props;
 
   if (!usrObj || !walletAddress) return;
-  console.log(walletAddress);
   const usrBalanceRaw = await usrObj.methods.balanceOf(walletAddress).call();
   const usrBalanceDecimal = new WadDecimal(usrBalanceRaw).div('1e18');
   const usrBalance = toFixed(parseFloat(web3.utils.fromWei(usrBalanceRaw)), 5);
 
+  console.log('usrBalanceRaw', usrBalanceRaw);
   // save usr balance
   dispatch({
     type: 'usr/updateMultiParams',
@@ -147,6 +148,12 @@ export async function getData() {
   getShare.bind(this)();
   getTotalBalanceOfUSDx.bind(this)();
   allowance.bind(this)();
+  getTransactionStatus.bind(this)();
+}
+
+// get the status of transaction
+export function getTransactionStatus() {
+
 }
 
 // approval

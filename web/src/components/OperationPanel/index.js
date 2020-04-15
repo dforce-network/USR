@@ -74,17 +74,25 @@ export default class OperationPanel extends Component {
       exchangeRate,
       receiveUSRValue,
       receiveUSDxValue,
-      shareValue
+      shareValue,
+      totalBalanceValue
     } = this.props.usr;
 
     if (tag === 'join') {
       // join
       let usdxShowValue = 0;
       let joinAmount = this.formatDecimalValue(usdxBalance || 0);
+      let compareNum = shareValue > usdxBalance ? usdxBalance : shareValue;
+      let compareTag = shareValue > usdxBalance ? 'usdx' : 'share';
+      let compareDepositTag = 'normal';
 
       if (usdxBalance) {
         usdxShowValue = parseFloat(usdxBalance).toFixed(2);
         receiveUSRValue = usdxShowValue / exchangeRate;
+
+        if (usdxBalance > compareNum) {
+          compareDepositTag = compareTag;
+        }
       }
 
       this.props.dispatch({
@@ -93,20 +101,26 @@ export default class OperationPanel extends Component {
           usdxShowValue,
           receiveUSRValue,
           joinAmount,
-          depositDisable: joinAmount.cmp(shareValue) > 0,
-          depositBalanceEnough: !(joinAmount.cmp(shareValue) > 0)
+          compareDepositTag,
+          depositDisable: joinAmount.cmp(compareNum) > 0,
         }
       });
     } else {
       // exit
       let usrShowValue = 0;
       let exitAmount = this.formatDecimalValue(usrBalance || 0);
+      let compareNum = usrBalance > totalBalanceValue ? totalBalanceValue : usrBalance;
+      let compareTag = usrBalance > totalBalanceValue ? 'balance' : 'usr';
+      let compareRedeemTag = 'normal';
 
+      console.log(usrBalance, totalBalanceValue);
       if (usrBalance) {
         usrShowValue = parseFloat(usrBalance).toFixed(2);
         receiveUSDxValue = usrShowValue * exchangeRate;
 
-        console.log(usrShowValue, exchangeRate)
+        if (usrBalance > compareTag) {
+          compareRedeemTag = compareTag;
+        }
       }
 
       this.props.dispatch({
@@ -115,8 +129,8 @@ export default class OperationPanel extends Component {
           usrShowValue,
           receiveUSDxValue,
           exitAmount,
+          compareRedeemTag,
           redeemDisable: exitAmount.cmp(usrBalance) > 0,
-          redeemBalanceEnough: !(exitAmount.cmp(usrBalance) > 0)
         }
       });
     }
@@ -137,7 +151,7 @@ export default class OperationPanel extends Component {
   }
 
   __renderDepositForm = () => {
-    const { usdxBalance, receiveUSRValue, exchangeRate, shareValue, depositBalanceEnough, compareDepositTag } = this.props.usr;
+    const { usdxBalance, receiveUSRValue, exchangeRate, shareValue, compareDepositTag } = this.props.usr;
 
     // console.log('********shareValue:', shareValue);
     // console.log('********usdxBalance:', usdxBalance);
@@ -191,7 +205,6 @@ export default class OperationPanel extends Component {
                           this.props.dispatch({
                             type: 'usr/updateMultiParams',
                             payload: {
-                              depositBalanceEnough: false,
                               compareDepositTag
                             }
                           });
@@ -201,9 +214,8 @@ export default class OperationPanel extends Component {
                             payload: {
                               joinAmount,
                               depositDisable: false,
-                              compareDepositTag: '',
+                              compareDepositTag: 'normal',
                               usdxShowValue: e.target.value,
-                              depositBalanceEnough: true,
                               receiveUSRValue: this.formatDecimalValue(joinAmount / exchangeRate)
                             }
                           });
@@ -224,11 +236,19 @@ export default class OperationPanel extends Component {
                     className={styles.btn}
                   >
                     {
-                       compareDepositTag
-                        ? (
-                          compareDepositTag === 'usdx' ? t('operation.deposit.btnInsufficientBalance') : t('operation.deposit.btnInsufficientLiquidity')
+                      /*
+                        compareDepositTag
+                        normal: deposit
+                        usdx: insufficient balance
+                        share: insufficient liquidity
+                      */
+                      compareDepositTag === 'normal'
+                        ? t('operation.deposit.btnNormal')
+                        : (
+                          compareDepositTag === 'usdx'
+                            ? t('operation.deposit.btnInsufficientBalance')
+                            : t('operation.deposit.btnInsufficientLiquidity')
                         )
-                        : t('operation.deposit.btnNormal')
                     }
                   </Button>
                 </Col>
@@ -241,7 +261,7 @@ export default class OperationPanel extends Component {
   }
 
   __renderRedeemForm = () => {
-    const { usrBalance, receiveUSDxValue, exchangeRate, totalBalanceValue, redeemBalanceEnough, compareRedeemTag } = this.props.usr;
+    const { usrBalance, receiveUSDxValue, exchangeRate, totalBalanceValue, compareRedeemTag } = this.props.usr;
 
     // console.log('********usrBalance:', usrBalance);
     // console.log('********totalBalanceValue:', totalBalanceValue);
@@ -295,7 +315,6 @@ export default class OperationPanel extends Component {
                           this.props.dispatch({
                             type: 'usr/updateMultiParams',
                             payload: {
-                              redeemBalanceEnough: false,
                               compareRedeemTag
                             }
                           });
@@ -305,9 +324,8 @@ export default class OperationPanel extends Component {
                             payload: {
                               exitAmount,
                               redeemDisable: false,
-                              compareRedeemTag: '',
+                              compareRedeemTag: 'normal',
                               usrShowValue: e.target.value,
-                              redeemBalanceEnough: true,
                               receiveUSDxValue: this.formatDecimalValue(exitAmount * exchangeRate)
                             }
                           });
@@ -329,11 +347,19 @@ export default class OperationPanel extends Component {
                     onClick={this.handleRedeem}
                   >
                     {
-                      compareRedeemTag
-                       ? (
-                         compareRedeemTag === 'usr' ? t('operation.redeem.btnInsufficientBalance') : t('operation.redeem.btnInsufficientLiquidity')
+                      /*
+                        compareRedeemTag
+                        normal: normal
+                        usr: insufficient balance
+                        balance: insufficient liquidity
+                      */
+                      compareRedeemTag === 'normal'
+                        ? t('operation.redeem.btnNormal')
+                        : (
+                         compareRedeemTag === 'usr'
+                          ? t('operation.redeem.btnInsufficientBalance')
+                          : t('operation.redeem.btnInsufficientLiquidity')
                        )
-                       : t('operation.redeem.btnNormal')
                     }
                   </Button>
                 </Col>
