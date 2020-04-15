@@ -17,7 +17,7 @@ export function accountFormatter(account) {
 
 // transactions hash formatter
 export function transactionHashFormatter(hash) {
-  return `${hash.substring(0, 4)}****${hash.substring(hash.length - 4)}`;
+  return `${hash.substring(0, 6)}...${hash.substring(hash.length - 4)}`;
 }
 
 // format percent
@@ -51,7 +51,7 @@ export function txFormatter(network, tx) {
 // format wallet address
 export function accountHideFormatter(account) {
   let newaccount = accountFormatter(account);
-  return `${newaccount.substring(0, 4)}****${newaccount.substring(newaccount.length - 4)}`;
+  return `${newaccount.substring(0, 4)}...${newaccount.substring(newaccount.length - 4)}`;
 }
 
 // currency format

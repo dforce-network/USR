@@ -139,8 +139,10 @@ export default class PageHeader extends Component {
                           }
                           target="_blank"
                         >
-                          <i style={{ backgroundColor: this.props.usr.network == 1 ? '#29B6AF' : '#e2bc73' }}></i>
-                          { accountHideFormatter(walletAddress) }
+                          <div>
+                            <i style={{ backgroundColor: this.props.usr.network == 1 ? '#29B6AF' : '#e2bc73' }}></i>
+                            { accountHideFormatter(walletAddress) }
+                          </div>
                         </a>
                       )
                       : <a className={styles.header__menu_wallet} onClick={this.connectWallet}>{ t('menu.connectWallet') }</a>
