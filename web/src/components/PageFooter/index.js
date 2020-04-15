@@ -16,12 +16,27 @@ const iconLinkedin = require('@assets/icon_linkedin.svg');
 const iconYoutube = require('@assets/icon_youtube.svg');
 
 export default class PageFooter extends Component {
+  state = {
+    language: 'en',
+  }
+
   changeLanguage(language) {
     i18n.changeLanguage(language);
+    this.setState({
+      language
+    });
+  }
+
+  componentDidMount() {
+    setTimeout(() => {
+      this.setState({
+        language: i18next.language
+      });
+    }, 600);
   }
 
   render() {
-    let currentLanguage = i18next.language;
+    let currentLanguage = this.state.language;
 
     return (
       <Suspense fallback={ <SuspenseFallback /> }>
