@@ -102,7 +102,7 @@ export function getTransactions(state = {}) {
 }
 
 // updated the status of transaction
-export function updateTransactionStatus(hash) {
+export function updateTransactionStatus({ hash = '', walletAddress = '', network = 4, status = 'finished' }) {
   let transactions = [];
   try {
     let transactionsStr = window.localStorage.getItem('__transactions');
@@ -113,16 +113,17 @@ export function updateTransactionStatus(hash) {
   let filterResult = [];
   try {
     filterResult = transactions.filter(item => {
-      if (item.data && item.data.transactionHash) {
-        return item.data.transactionHash.toLowerCase() === hash.toLowerCase();
+      if (item.data && item.data.transactionHash && item.from) {
+        return item.data.transactionHash.toLowerCase() === hash.toLowerCase()
+          && item.from.toLowerCase() === walletAddress.toLowerCase()
       }
     });
+
+    if (filterResult.length) {
+      filterResult[0].status = status;
+    }
   } catch {
     filterResult = [];
-  }
-
-  if (filterResult.length) {
-    filterResult[0].status = 'finished';
   }
 
   window.localStorage.setItem('__transactions', JSON.stringify(transactions));

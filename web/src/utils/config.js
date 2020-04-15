@@ -3,7 +3,7 @@ import { message } from 'antd';
 message.config({
   top: 100,
   maxCount: 1,
-  duration: 2
+  duration: 3
 });
 
 export default {

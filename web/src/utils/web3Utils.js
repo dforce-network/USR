@@ -148,12 +148,6 @@ export async function getData() {
   getShare.bind(this)();
   getTotalBalanceOfUSDx.bind(this)();
   allowance.bind(this)();
-  getTransactionStatus.bind(this)();
-}
-
-// get the status of transaction
-export function getTransactionStatus() {
-
 }
 
 // approval
@@ -212,6 +206,9 @@ export async function initBrowserWallet(dispatch, prompt = true) {
     }
 
     window.ethereum.on('accountsChanged', (accounts) => {
+      this.props.dispatch({
+        type: 'usr/resetInput'
+      });
       initBrowserWallet.bind(this)();
     });
   } else if (window.web3) {
@@ -313,7 +310,7 @@ export async function mintUSR() {
         getData.bind(this)();
 
         // set the status of transaction
-        updateTransactionStatus(res.transactionHash);
+        updateTransactionStatus({ hash: res.transactionHash, walletAddress, network });
 
         this.props.dispatch({
           type: 'usr/updateRecentTransactions'
@@ -338,7 +335,8 @@ export async function mintUSR() {
               getData.bind(this)();
 
               // set the status of transaction
-              updateTransactionStatus(res.transactionHash);
+              // updateTransactionStatus(res.transactionHash);
+              updateTransactionStatus({ hash: res.transactionHash, walletAddress, network });
 
               this.props.dispatch({
                 type: 'usr/updateRecentTransactions'
@@ -409,7 +407,7 @@ export async function burnUSR() {
       getData.bind(this)();
 
       // set the status of transaction
-      updateTransactionStatus(res.transactionHash);
+      updateTransactionStatus({ hash: res.transactionHash, walletAddress, network });
 
       this.props.dispatch({
         type: 'usr/updateRecentTransactions'

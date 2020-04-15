@@ -21,9 +21,6 @@ export default {
     joinAmount: 0,
     exitAmount: 0,
 
-    depositLoading: false,
-    redeemLoading: false,
-
     depositDisable: false,
     redeemDisable: false,
 
@@ -97,6 +94,15 @@ export default {
           redeemDisable: !!action.payload.disable
         };
       }
+    },
+    resetInput(state, action) {
+      return {
+        ...state,
+        usdxShowValue: '',
+        usrShowValue: '',
+        receiveUSRValue: 0,
+        receiveUSDxValue: 0
+      };
     }
   }
 }

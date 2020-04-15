@@ -1,14 +1,80 @@
 import React, { Component, Suspense } from 'react';
 import styles from './index.less';
 import { Button, Menu } from 'antd';
-import { txFormatter, transactionValueFormatter, transTimeFormatter, SuspenseFallback, transactionHashFormatter } from '@utils';
+import {
+  txFormatter,
+  transactionValueFormatter,
+  transTimeFormatter,
+  SuspenseFallback,
+  getTransactions,
+  updateTransactionStatus
+} from '@utils';
 import { Translation } from 'react-i18next';
 
 const depositIcon = require('@assets/icon_deposit.svg');
 const loadingIcon = require('@assets/icon_loading.svg');
 const redeemIcon = require('@assets/icon_redeem.svg');
+const failedIcon = require('@assets/icon_failed.svg');
 
 export default class Transactions extends Component {
+  componentDidMount() {
+    this.loadHistory();
+    var timer = setInterval(() => {
+      const { walletAddress, network } = this.props.usr;
+      if (walletAddress) {
+        clearInterval(timer);
+      }
+      this.loadHistory();
+    }, 1000);
+  }
+
+  loadHistory = () => {
+    const { web3, walletAddress, network } = this.props.usr;
+    const transArray = getTransactions({ walletAddress, network });
+
+    if (transArray && transArray.length) {
+      transArray.map(item => {
+        if (item.status === 'init') {
+          var timerObj = {};
+          var tempRandom = Math.random();
+
+          timerObj[tempRandom] = setInterval(() => {
+            web3.eth.getTransactionReceipt(item.data.transactionHash, (resFail, resSuccess) => {
+              if (resSuccess) {
+                console.log(' *** i got getTransactionReceipt... *** ');
+                console.log(resSuccess);
+                updateTransactionStatus({
+                  walletAddress,
+                  network,
+                  hash: resSuccess.transactionHash
+                });
+                clearInterval(timerObj[tempRandom]);
+
+                setTimeout(() => {
+                  console.log(' *** i load_history again *** ');
+                  this.props.dispatch({
+                    type: 'usr/updateRecentTransactions'
+                  });
+                }, 1000);
+              }
+
+              if (resFail) {
+                console.log(resFail);
+                updateTransactionStatus({
+                  walletAddress,
+                  network,
+                  hash: resSuccess.transactionHash,
+                  status: 'failed'
+                });
+                clearInterval(timerObj[tempRandom]);
+              }
+            });
+          }, 2000);
+        }
+      });
+    }
+  }
+
   render() {
     let { recentTransactions, network } = this.props.usr;
 
@@ -55,10 +121,14 @@ export default class Transactions extends Component {
                                     src={loadingIcon}
                                     className={styles.transactions__item_icon_loading}
                                   />
-                                : <img
-                                    src={item.action === 'deposit' ? depositIcon : redeemIcon}
-                                    className={styles.transactions__item_icon}
-                                  />
+                                : (
+                                    item.status === 'failed'
+                                      ? <img src={failedIcon} className={styles.transactions__item_icon} />
+                                      : <img
+                                          src={item.action === 'deposit' ? depositIcon : redeemIcon}
+                                          className={styles.transactions__item_icon}
+                                        />
+                                  )
                             }
                           </div>
 
