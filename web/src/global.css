@@ -37,6 +37,9 @@ body .ant-dropdown-menu-item, body .ant-dropdown-menu-submenu-title {
   word-wrap: break-word;
   white-space: pre-wrap;
 }
+body .ant-dropdown-menu-light .ant-dropdown-menu-item:hover {
+  color: #5d52ff;
+}
 
 body .loader {
   box-sizing: border-box;
