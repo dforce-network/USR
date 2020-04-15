@@ -77,6 +77,7 @@ export default class PageFooter extends Component {
                   </div>
 
                   <Dropdown
+                    placement="topCenter"
                     overlay={(
                       <Menu style={{ width: '100px' }}>
                         <Menu.Item onClick={e => this.changeLanguage('zh')}>{ t('footer.community.chinese') }</Menu.Item>
