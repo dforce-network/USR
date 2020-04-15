@@ -304,9 +304,18 @@ contract USR is Pausable, ERC20SafeTransfer {
      * @param _account account to query current total balance.
      * @return total balance with any accumulated interest.
      */
-    function getTotalBalance(address _account) external view returns (uint _wad) {
+    function getTotalBalance(address _account) external view returns (uint) {
+        return getRedeemAmount(balanceOf[_account]);
+    }
+
+    /**
+     * @dev Total amount with earning savings.
+     * @param _wad amount of USR, scaled by 1e18.
+     * @return amount of USDx, scaled by 1e18.
+     */
+    function getRedeemAmount(uint _wad) public view returns (uint) {
         uint _exchangeRate = getExchangeRate();
-        _wad = mulScale(rmul(balanceOf[_account], _exchangeRate), BASE.sub(originationFee));
+        return mulScale(rmul(_wad, _exchangeRate), BASE.sub(originationFee));
     }
 
     /**
