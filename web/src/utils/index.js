@@ -7,6 +7,16 @@ export function timeFormatter(time) {
   return moment(time).format('YYYY-MM-DD HH:mm:ss');
 }
 
+// format time
+export function transTimeFormatter(time) {
+  moment.locale('en');
+
+  let timeobj = moment(time);
+  let timePrefix = timeobj.format('LL');
+  let timeEnd = timeobj.format('HH:mm:ss');
+  return `${timePrefix} at ${timeEnd}`;
+}
+
 // account formatter
 export function accountFormatter(account) {
   if (account.length && account.length === 40) {

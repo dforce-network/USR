@@ -1,7 +1,7 @@
 import React, { Component, Suspense } from 'react';
 import styles from './index.less';
 import { Button, Menu } from 'antd';
-import { txFormatter, transactionValueFormatter, SuspenseFallback, transactionHashFormatter } from '@utils';
+import { txFormatter, transactionValueFormatter, transTimeFormatter, SuspenseFallback, transactionHashFormatter } from '@utils';
 import { Translation } from 'react-i18next';
 
 const depositIcon = require('@assets/icon_deposit.svg');
@@ -64,7 +64,7 @@ export default class Transactions extends Component {
 
                           <div className={styles.transactions__item_right}>
                             <p>
-                              { item.time || '-' }  |  { txFormatter(network, item.data.transactionHash) }
+                              { transTimeFormatter(item.time) || '-' }  |  { txFormatter(network, item.data.transactionHash) }
                             </p>
                             <label>
                               {

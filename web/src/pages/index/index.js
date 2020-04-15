@@ -11,7 +11,7 @@ import { initBrowserWallet } from '@utils/web3Utils';
 // import { Translation } from 'react-i18next';
 import { useTranslation, withTranslation, Trans, NamespacesConsumer } from 'react-i18next';
 import i18n from '@services/i18n.js';
-
+import moment from 'moment';
 const web3 = new Web3(new Web3.providers.HttpProvider(config.defaultWeb3Provider));
 
 @connect(({ usr }) => ({ usr }))
@@ -31,6 +31,11 @@ class IndexPage extends PureComponent {
   }
 
   componentDidMount() {
+    let timestr = '2020-04-15 10:01:44';
+    let timeobj = moment(timestr);
+    moment.locale('en');
+    console.log(timeobj.format('LL'));
+
     initBrowserWallet.bind(this)(this.dispatchValue);
     this.props.dispatch({
       type: 'usr/updateRecentTransactions'

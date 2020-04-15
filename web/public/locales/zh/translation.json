@@ -26,8 +26,8 @@
     "exchangeMarket": {
       "title": "Exchange Market",
       "xswap": {
-        "title": "X-Swap",
-        "label": "Instant Swap/dForce Instant Swap of Stable Assets"
+        "title": "Instant Swap",
+        "label": "dForce Instant Swap of Stable Assets"
       }
     },
     "connectWallet": "连接钱包"
