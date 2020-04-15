@@ -39,6 +39,7 @@
       "tip": "你会收到",
       "btnNormal": "存入",
       "btnInsufficientBalance": "余额不足",
+      "btnInsufficientLiquidity": "流动性不足",
       "notNull": "存入金额不能小于 0!",
       "lessThan": "最大存入金额不能超过 {{ value }}",
       "max": "最大值"

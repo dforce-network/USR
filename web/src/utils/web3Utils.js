@@ -8,9 +8,6 @@ import { saveTransactions, updateTransactionStatus, timeFormatter } from './inde
 let Decimal = require('decimal.js-light');
 Decimal = require('toformat')(Decimal);
 
-const USDxAddress = config.USDx;
-const USRAddress = config.USR;
-
 export const WadDecimal = Decimal.clone({
   rounding: 1, // round down
   precision: 78,
@@ -64,7 +61,7 @@ export async function getUSRBalance() {
   } = this.props;
 
   if (!usrObj || !walletAddress) return;
-
+  console.log(walletAddress);
   const usrBalanceRaw = await usrObj.methods.balanceOf(walletAddress).call();
   const usrBalanceDecimal = new WadDecimal(usrBalanceRaw).div('1e18');
   const usrBalance = toFixed(parseFloat(web3.utils.fromWei(usrBalanceRaw)), 5);
@@ -125,6 +122,7 @@ export async function getShare() {
   const shareRaw = await usrObj.methods.share().call();
   const shareValue = toFixed(parseFloat(web3.utils.fromWei(shareRaw)), 5);
 
+  console.log(`shareRaw: ${shareRaw/1e18}`);
   this.props.dispatch({
     type: 'usr/updateMultiParams',
     payload: { shareValue }
@@ -133,9 +131,10 @@ export async function getShare() {
 
 // set up contracts
 export function setupContracts(dispatch) {
-  const { web3 } = this.props.usr;
-  dispatch('usrObj', new web3.eth.Contract(USRABI, USRAddress));
-  dispatch('usdxObj', new web3.eth.Contract(USDxABI, USDxAddress));
+  const { web3, network } = this.props.usr;
+  let networkName = network == 0 ? 'main' :'rinkeby';
+  dispatch('usrObj', new web3.eth.Contract(USRABI, config[networkName].USR));
+  dispatch('usdxObj', new web3.eth.Contract(USDxABI, config[networkName].USDx));
 }
 
 // get balance of usr and usdx
@@ -162,8 +161,9 @@ export async function approval() {
 
 // get allowance data
 export async function allowance() {
-  const { usdxObj, usrObj, walletAddress } = this.props.usr;
-  const allowanceResult = await usdxObj.methods.allowance(walletAddress, config.USR).call();
+  const { usdxObj, usrObj, walletAddress, network } = this.props.usr;
+  const networkName = network == 0 ? 'main' : 'rinkeby';
+  const allowanceResult = await usdxObj.methods.allowance(walletAddress, config[networkName].USR).call();
 
   this.props.dispatch({
     type: 'usr/updateMultiParams',

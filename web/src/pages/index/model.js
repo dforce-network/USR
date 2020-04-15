@@ -47,7 +47,10 @@ export default {
     depositBalanceEnough: true,
     redeemBalanceEnough: true,
 
-    allowanceResult: 0
+    allowanceResult: 0,
+
+    compareDepositTag: '',
+    compareRedeemTag: ''
   },
   reducers: {
     updateParams(state, action) {

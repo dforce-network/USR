@@ -39,6 +39,7 @@
       "tip": "You will receive approximately",
       "btnNormal": "DEPOSIT",
       "btnInsufficientBalance": "INSUFFICIENT BALANCE",
+      "btnInsufficientLiquidity": "INSUFFICIENT LIQUIDITY",
       "notNull": "Deposit value should greater than 0!",
       "lessThan": "Deposit value should less than {{ value }}",
       "max": "MAX"
