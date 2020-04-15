@@ -3,7 +3,7 @@ import config from './config';
 import USRABI from '../abi/USR.abi.json';
 import USDxABI from '../abi/USDx.abi.json';
 import { message } from 'antd';
-import { saveTransactions, updateTransactionStatus, timeFormatter } from './index';
+import { toFixed, saveTransactions, updateTransactionStatus, timeFormatter } from './index';
 
 let Decimal = require('decimal.js-light');
 Decimal = require('toformat')(Decimal);
@@ -20,12 +20,6 @@ WadDecimal.format = {
   groupSize: 3,
 }
 
-// to fixed
-function toFixed(num, precision) {
-  let result = (+(Math.round(+(num + 'e' + precision)) + 'e' + -precision)).toFixed(precision);
-  return +result;
-}
-
 // get usdx balance
 export async function getUSDxBalance() {
   const {
@@ -39,7 +33,7 @@ export async function getUSDxBalance() {
 
   const usdxBalanceRaw = await usdxObj.methods.balanceOf(walletAddress).call();
   const usdxBalanceDecimal = new WadDecimal(usdxBalanceRaw).div('1e18');
-  const usdxBalance = toFixed(parseFloat(web3.utils.fromWei(usdxBalanceRaw)), 5);
+  const usdxBalance = toFixed(parseFloat(web3.utils.fromWei(usdxBalanceRaw)), 2);
 
   dispatch({
     type: 'usr/updateMultiParams',
@@ -64,9 +58,9 @@ export async function getUSRBalance() {
   if (!usrObj || !walletAddress) return;
   const usrBalanceRaw = await usrObj.methods.balanceOf(walletAddress).call();
   const usrBalanceDecimal = new WadDecimal(usrBalanceRaw).div('1e18');
-  const usrBalance = toFixed(parseFloat(web3.utils.fromWei(usrBalanceRaw)), 5);
+  const usrBalance = toFixed(parseFloat(web3.utils.fromWei(usrBalanceRaw)), 2);
 
-  console.log('usrBalanceRaw', usrBalanceRaw);
+  console.log('usrBalance', usrBalance);
   // save usr balance
   dispatch({
     type: 'usr/updateMultiParams',
@@ -84,9 +78,14 @@ export async function getExchangeRate() {
   const exchangeRateDecimal = new WadDecimal(exchangeRateRaw).div('1e27');
   const exchangeRate = exchangeRateDecimal.toFixed(8);
 
+  console.log('decimal test', exchangeRateDecimal.mul(new WadDecimal(10.27776)).toFixed(8));
+
   this.props.dispatch({
     type: 'usr/updateMultiParams',
-    payload: { exchangeRate }
+    payload: {
+      exchangeRate,
+      exchangeRateDecimal
+    }
   });
 }
 
@@ -96,7 +95,9 @@ export async function getInterestRate() {
   // console.log(usrObj.methods)
   const interestRateRaw = await usrObj.methods.getFixedInterestRate(3600 * 24 * 365).call();
   const interestRateDecimal = new WadDecimal(interestRateRaw - 1e27).div('1e27');
-  const interestRate = interestRateDecimal.toFixed();
+  const interestRate = interestRateDecimal.toFixed(5);
+
+  console.log(`interestRate:${interestRate}`);
 
   this.props.dispatch({
     type: 'usr/updateMultiParams',

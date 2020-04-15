@@ -30,6 +30,8 @@ export default {
 
     // exchange rate
     exchangeRate: 1.5,
+    exchangeRateDecimal: 0,
+
     // interest rate
     interestRate: 0,
 

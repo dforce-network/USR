@@ -30,9 +30,23 @@ export function transactionHashFormatter(hash) {
   return `${hash.substring(0, 6)}...${hash.substring(hash.length - 4)}`;
 }
 
+// to fixed
+export function toFixed(num, decimal = 2) {
+  // let result = (+(Math.round(+(num + 'e' + precision)) + 'e' + -precision)).toFixed(precision);
+  // return +result;
+  num = num.toString();
+  let index = num.indexOf('.');
+  if (index !== -1) {
+    num = num.substring(0, decimal + index + 1);
+  } else {
+    num = num.substring(0);
+  }
+  return +parseFloat(num).toFixed(decimal);
+}
+
 // format percent
 export function percentFormatter(v) {
-  let fixValue = parseFloat(v * 100).toFixed(2);
+  let fixValue = toFixed(parseFloat(v * 100));
   return `${fixValue}%`;
 }
 

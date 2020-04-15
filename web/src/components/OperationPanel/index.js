@@ -3,7 +3,7 @@ import React, { Component, Suspense } from 'react';
 import styles from './index.less';
 import { Row, Col, Tabs, Button, Input, message } from 'antd';
 import { Translation, Trans } from 'react-i18next';
-import { formatCurrencyNumber, SuspenseFallback } from '@utils';
+import { formatCurrencyNumber, SuspenseFallback, toFixed } from '@utils';
 import { WadDecimal, mintUSR, burnUSR } from '@utils/web3Utils';
 
 const { TabPane } = Tabs;
@@ -216,7 +216,7 @@ export default class OperationPanel extends Component {
                               depositDisable: false,
                               compareDepositTag: 'normal',
                               usdxShowValue: e.target.value,
-                              receiveUSRValue: this.formatDecimalValue(joinAmount / exchangeRate)
+                              receiveUSRValue: toFixed(joinAmount / exchangeRate)
                             }
                           });
                         }
@@ -326,7 +326,7 @@ export default class OperationPanel extends Component {
                               redeemDisable: false,
                               compareRedeemTag: 'normal',
                               usrShowValue: e.target.value,
-                              receiveUSDxValue: this.formatDecimalValue(exitAmount * exchangeRate)
+                              receiveUSDxValue: toFixed(exitAmount * exchangeRate)
                             }
                           });
                         }
