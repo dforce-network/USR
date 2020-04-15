@@ -273,6 +273,7 @@ export default class OperationPanel extends Component {
                         let compareNum = usrBalance > totalBalanceValue ? totalBalanceValue : usrBalance;
                         let compareRedeemTag = usrBalance > totalBalanceValue ? 'balance' : 'usr';
 
+                        // console.log(compareRedeemTag)
                         this.props.dispatch({
                           type: 'usr/updateMultiParams',
                           payload: {
@@ -328,7 +329,7 @@ export default class OperationPanel extends Component {
                     {
                       compareRedeemTag
                        ? (
-                         compareRedeemTag === 'balance' ? t('operation.redeem.btnInsufficientBalance') : t('operation.redeem.btnInsufficientLiquidity')
+                         compareRedeemTag === 'usr' ? t('operation.redeem.btnInsufficientBalance') : t('operation.redeem.btnInsufficientLiquidity')
                        )
                        : t('operation.redeem.btnNormal')
                     }
