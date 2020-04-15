@@ -69,8 +69,9 @@ export default class PageFooter extends Component {
                       </Menu>
                     )}
                   >
-                    <label>
+                    <label className={styles.footer__community_language}>
                       { currentLanguage === 'en' ? t('footer.community.english') : t('footer.community.chinese') }
+                      <img src={require('@assets/icon_language_down.svg')} />
                     </label>
                   </Dropdown>
                 </section>
