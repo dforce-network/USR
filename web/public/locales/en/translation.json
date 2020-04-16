@@ -59,11 +59,11 @@
   "overview": {
     "title": "You have",
     "saving": "saving in USR",
-    "balance": "Total USDx in USR:",
-    "annualRate": "USDx Saving Rate:",
-    "USRNetWorth": "USR Net Worth:",
-    "liquidityRemaining": "Liquidity Remaining:",
-    "savingOriginationFee": "Saving Origination Fee:"
+    "balance": "Total USDx in USR",
+    "annualRate": "USDx Saving Rate",
+    "USRNetWorth": "USR Net Worth",
+    "liquidityRemaining": "Liquidity Remaining",
+    "savingOriginationFee": "Saving Origination Fee"
   },
   "transactions": {
     "title": "Recent Transactions",

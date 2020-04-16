@@ -59,11 +59,11 @@
   "overview": {
     "title": "您有",
     "saving": "正在生息",
-    "balance": "存入USDx的总量:",
-    "annualRate": "USR年化利率:",
-    "USRNetWorth": "USR净值:",
-    "liquidityRemaining": "剩余可存入USDx数量:",
-    "savingOriginationFee": "存款手续费率:"
+    "balance": "存入USDx的总量",
+    "annualRate": "USR年化利率",
+    "USRNetWorth": "USR净值",
+    "liquidityRemaining": "剩余可存入USDx数量",
+    "savingOriginationFee": "存款手续费率"
   },
   "transactions": {
     "title": "最近记录",
