@@ -29,7 +29,7 @@ export default {
     receiveUSDxValue: 0,
 
     // exchange rate
-    exchangeRate: 1.5,
+    exchangeRate: 1,
     exchangeRateDecimal: 0,
 
     // interest rate

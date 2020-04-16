@@ -91,7 +91,7 @@
       justify-content: center;
 
       div {
-        width: 90%;
+        width: 80%;
         display: inline-flex;
         align-items: center;
         justify-content: space-around;
@@ -115,9 +115,12 @@
 
 @media screen and (max-width: 768px) {
   .header {
-    width: 93%;
-    margin: 0 auto 25px;
-    padding-top: 26px;
+    // width: 93%;
+    // margin: 0 auto 25px;
+    // padding-top: 26px;
+    padding: 0;
+    margin: 20px auto 25px;
+    // border: solid 2px blue;
 
     &__logo {
       width: 80px;
@@ -139,23 +142,25 @@
     }
 
     &__dropdown {
+      width: 21px;
       display: inline-flex;
     }
 
     &__drawer {
-      margin-bottom: 30px;
+      // margin-bottom: 30px;
+      width: 93%;
+      margin: 0 auto;
 
       h2 {
         font-size: 18px;
         font-weight: 500;
-        color: #434976;
+        color: #252152;
         display: flex;
         align-items: center;
         justify-content: space-between;
 
         img {
-          width: 17px;
-          margin-right: 20px;
+          width: 12px;
         }
       }
 
@@ -166,9 +171,10 @@
 
         span {
           font-size: 15px;
-          font-weight: 400;
+          font-weight: 500;
         }
         label {
+          width: 100%;
           font-size: 13px;
         }
       }

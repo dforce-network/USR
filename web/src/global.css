@@ -26,9 +26,6 @@ body .ant-tabs-tab {
 body .ant-tabs-bar {
   margin: 0;
 }
-body .ant-tabs-nav .ant-tabs-tab-active {
-  font-weight: bold;
-}
 
 body .ant-dropdown-menu-item > a, .ant-dropdown-menu-submenu-title > a {
   margin: 0;
@@ -39,6 +36,13 @@ body .ant-dropdown-menu-item, body .ant-dropdown-menu-submenu-title {
 }
 body .ant-dropdown-menu-light .ant-dropdown-menu-item:hover {
   color: #5d52ff;
+}
+body .ant-tabs-nav .ant-tabs-tab {
+  color: #434976;
+}
+body .ant-tabs-nav-wrap .ant-tabs-nav .ant-tabs-tab-active {
+  font-weight: bold;
+  color: #675CFF;
 }
 
 body .loader {
@@ -132,5 +136,14 @@ body .loader {
     text-align: center;
     font-size: 14px;
     font-weight: bold;
+  }
+  body .ant-drawer-header {
+    padding: 0;
+    margin: 0 auto 12px;
+    border-bottom: 0;
+    width: 93%;
+  }
+  body .ant-drawer-body {
+    padding: 0;
   }
 }

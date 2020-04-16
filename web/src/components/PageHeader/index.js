@@ -54,11 +54,7 @@ export default class PageHeader extends Component {
                   <img src={require('@assets/logo.svg')} alt="logo" />
                 </a>
 
-                <MenuOutlined
-                  className={styles.header__dropdown}
-                  style={{fontSize: '20px', fontWeight: 'bold'}}
-                  onClick={this.openMenu}
-                />
+                <img onClick={this.openMenu} className={styles.header__dropdown} src={require('@assets/icon_menu.svg')} alt="menu" />
 
                 <div className={styles.header__menu}>
                   <Dropdown

@@ -9,12 +9,12 @@
   h2 {
     color: #434976;
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 600;
     margin: 16px 0 10px 22px;
   }
 
   &__null {
-    height: 160px;
+    height: 120px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -23,20 +23,20 @@
       text-align: center;
     }
     img {
-      width: 42px;
+      width: 41px;
       display: block;
       margin: 0 auto;
     }
     span {
       display: block;
-      margin-top: 10px;
+      margin-top: 6px;
       color: #6D6B85;
       font-size: 14px;
     }
   }
 
   &__box {
-    max-height: 290px;
+    max-height: 246px;
     overflow-y: scroll;
     padding-bottom: 5px;
   }
@@ -97,7 +97,7 @@
         color: #252152;
         font-family: Roboto;
         font-size: 14px;
-        font-weight: 400;
+        font-weight: 500;
       }
     }
 
@@ -132,12 +132,16 @@
 @media screen and (max-width: 768px) {
   .transactions {
     width: 100%;
-    margin: 18px 0;
+    margin: 18px 0 40px;
     h2 {
-      font-size: 15px;
-      margin: 15px 0 15px 12px;
+      font-size: 13px;
+      margin: 15px 0 7px 12px;
     }
 
+    &__box {
+      max-height: 230px;
+      overflow-y: scroll;
+    }
     &__item {
       height: 56px;
       margin: 0;
@@ -147,7 +151,7 @@
       }
 
       &_left {
-        font-size: 12px;
+        font-size: 10px;
 
         &::after {
           content: "";
@@ -161,8 +165,16 @@
       }
 
       &_right {
-        font-size: 12px;
         margin: 0;
+        display: inline-flex;
+        flex-direction: column;
+
+        p {
+          font-size: 10px;
+        }
+        label {
+          font-size: 11px;
+        }
       }
     }
   }

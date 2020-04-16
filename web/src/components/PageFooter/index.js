@@ -14,6 +14,7 @@ const iconReddit = require('@assets/icon_reddit.svg');
 const iconDiscord = require('@assets/icon_discord.svg');
 const iconLinkedin = require('@assets/icon_linkedin.svg');
 const iconYoutube = require('@assets/icon_youtube.svg');
+const iconWechat = require('@assets/icon_wechat.svg');
 
 export default class PageFooter extends Component {
   state = {
@@ -74,6 +75,9 @@ export default class PageFooter extends Component {
                     <a href="https://www.youtube.com/channel/UCM6Vgoc-BhFGG11ZndUr6Ow" target="_blank">
                       <img src={iconYoutube} alt="youtube" />
                     </a>
+                    {
+                      currentLanguage === 'en' ? null : <a href="/" target="_blank"><img src={iconWechat} alt="wechat" /></a>
+                    }
                   </div>
 
                   <Dropdown
