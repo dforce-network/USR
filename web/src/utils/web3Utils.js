@@ -110,12 +110,31 @@ export async function getTotalBalanceOfUSDx() {
   const totalBalanceDecimal = new WadDecimal(totalBalanceRaw).div('1e18');
   const totalBalanceValue = toFixed(parseFloat(web3.utils.fromWei(totalBalanceRaw)), 5);
 
-  console.log('totalBalanceRaw', totalBalanceRaw);
   this.props.dispatch({
     type: 'usr/updateMultiParams',
     payload: {
       totalBalanceValue,
       totalBalanceDecimal
+    }
+  });
+}
+
+// get the usdx blance in usr
+export async function getBalanceOfUSDxInUSR() {
+  const { web3, usrObj, walletAddress } = this.props.usr;
+  const balanceRaw = await usrObj.methods.balanceOf(walletAddress).call();
+  const blanceDecimal = new WadDecimal(balanceRaw).div('1e18');
+  const totalUSDxInUSR = toFixed(parseFloat(web3.utils.fromWei(balanceRaw)), 5);
+
+  const originationFeeRaw = await usrObj.methods.originationFee().call();
+  const savingOriginationFee = originationFeeRaw / 1e18;
+  console.log('originationFeeRaw', originationFeeRaw);
+
+  this.props.dispatch({
+    type: 'usr/updateMultiParams',
+    payload: {
+      totalUSDxInUSR,
+      savingOriginationFee
     }
   });
 }
@@ -168,6 +187,7 @@ export async function getData() {
   getInterestRate.bind(this)();
   getShare.bind(this)();
   getTotalBalanceOfUSDx.bind(this)();
+  getBalanceOfUSDxInUSR.bind(this)();
   allowance.bind(this)();
 }
 

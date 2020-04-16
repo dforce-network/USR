@@ -9,11 +9,11 @@
       },
       "usr": {
         "title": "USR",
-        "label": "Saving and Accuring interest"
+        "label": "Saving and Accuring Interest"
       },
       "dip001": {
         "title": "DIP001",
-        "label": "Collateral lending dashboard"
+        "label": "Collateral Lending Dashboard"
       }
     },
     "yieldMarket": {
@@ -27,7 +27,7 @@
       "title": "Exchange Market",
       "xswap": {
         "title": "Instant Swap",
-        "label": "dForce Instant Swap of Stable Assets"
+        "label": "Instant Swap of Stable Assets"
       }
     },
     "connectWallet": "Connect Wallet"
@@ -57,9 +57,13 @@
     }
   },
   "overview": {
-    "title": "You can withdraw",
-    "balance": "USR balance:",
-    "annualRate": "USDx Annual Rate:"
+    "title": "You have",
+    "saving": "saving in USR",
+    "balance": "Total USDx in USR:",
+    "annualRate": "USDx Saving Rate:",
+    "USRNetWorth": "USR Net Worth:",
+    "liquidityRemaining": "Liquidity Remaining:",
+    "savingOriginationFee": "Saving Origination Fee:"
   },
   "transactions": {
     "title": "Recent Transactions",

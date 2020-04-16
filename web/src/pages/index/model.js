@@ -47,7 +47,13 @@ export default {
     allowanceResult: 0,
 
     compareDepositTag: 'normal',
-    compareRedeemTag: 'normal'
+    compareRedeemTag: 'normal',
+
+    // Overview
+    totalUSDxInUSR: 0,
+    liquidityRemaining: 0,
+    USDxSavingRate: 0,
+    savingOriginationFee: 0
   },
   reducers: {
     updateParams(state, action) {

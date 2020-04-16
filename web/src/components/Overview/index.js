@@ -8,9 +8,11 @@ export default class Overview extends Component {
   render() {
     const {
       usrBalance,
+      shareValue,
       interestRate,
       exchangeRate,
       totalBalanceValue,
+      savingOriginationFee,
     } = this.props.usr;
 
     return (
@@ -19,11 +21,27 @@ export default class Overview extends Component {
           {
             t => (
               <section className={styles.overview}>
-                <h2>{ t('overview.title') } <b>{ formatCurrencyNumber(totalBalanceValue) }</b> USDx</h2>
-
-                <p>{ t('overview.balance') } { formatCurrencyNumber(usrBalance) }</p>
-                <p>1 USR = { exchangeRate } USDx</p>
-                <p>{ t('overview.annualRate') } { percentFormatter(interestRate) }</p>
+                <h2>{ t('overview.title') } <b>{ formatCurrencyNumber(totalBalanceValue) }</b> USDx { t('overview.saving') }</h2>
+                <div className={styles.overview__one}>
+                  <span>{ t('overview.balance') }</span>
+                  <label><b>{ formatCurrencyNumber(usrBalance) }</b> USDx</label>
+                </div>
+                <div>
+                  <span>{ t('overview.liquidityRemaining') }</span>
+                  <label><b>{ formatCurrencyNumber(shareValue) }</b> USDx</label>
+                </div>
+                <div>
+                  <span>{ t('overview.USRNetWorth')}</span>
+                  <label><b>{ exchangeRate }</b> USDx</label>
+                </div>
+                <div>
+                  <span>{ t('overview.annualRate') }</span>
+                  <label><b>{ percentFormatter(interestRate) }</b></label>
+                </div>
+                <div>
+                  <span>{ t('overview.savingOriginationFee') }</span>
+                  <label><b>{ percentFormatter(savingOriginationFee) }</b></label>
+                </div>
               </section>
             )
           }

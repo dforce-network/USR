@@ -9,11 +9,11 @@
       },
       "usr": {
         "title": "USR",
-        "label": "Saving and Accuring interest"
+        "label": "Saving and Accuring Interest"
       },
       "dip001": {
         "title": "DIP001",
-        "label": "Collateral lending dashboard"
+        "label": "Collateral Lending Dashboard"
       }
     },
     "yieldMarket": {
@@ -27,7 +27,7 @@
       "title": "Exchange Market",
       "xswap": {
         "title": "Instant Swap",
-        "label": "dForce Instant Swap of Stable Assets"
+        "label": "Instant Swap of Stable Assets"
       }
     },
     "connectWallet": "连接钱包"
@@ -57,9 +57,13 @@
     }
   },
   "overview": {
-    "title": "你会取回",
-    "balance": "USR 余额:",
-    "annualRate": "USDx Annual Rate:"
+    "title": "您有",
+    "saving": "正在生息",
+    "balance": "存入USDx的总量:",
+    "annualRate": "USR年化利率:",
+    "USRNetWorth": "USR净值:",
+    "liquidityRemaining": "剩余可存入USDx数量:",
+    "savingOriginationFee": "存款手续费率:"
   },
   "transactions": {
     "title": "最近记录",
