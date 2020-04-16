@@ -78,8 +78,6 @@ export async function getExchangeRate() {
   const exchangeRateDecimal = new WadDecimal(exchangeRateRaw).div('1e27');
   const exchangeRate = exchangeRateDecimal.toFixed(8);
 
-  console.log('decimal test', exchangeRateDecimal.mul(new WadDecimal(10.27776)).toFixed(8));
-
   this.props.dispatch({
     type: 'usr/updateMultiParams',
     payload: {
@@ -109,12 +107,16 @@ export async function getInterestRate() {
 export async function getTotalBalanceOfUSDx() {
   const { web3, usrObj, walletAddress } = this.props.usr;
   const totalBalanceRaw = await usrObj.methods.getTotalBalance(walletAddress).call();
+  const totalBalanceDecimal = new WadDecimal(totalBalanceRaw).div('1e18');
   const totalBalanceValue = toFixed(parseFloat(web3.utils.fromWei(totalBalanceRaw)), 5);
 
   console.log('totalBalanceRaw', totalBalanceRaw);
   this.props.dispatch({
     type: 'usr/updateMultiParams',
-    payload: { totalBalanceValue }
+    payload: {
+      totalBalanceValue,
+      totalBalanceDecimal
+    }
   });
 }
 

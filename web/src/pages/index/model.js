@@ -42,6 +42,7 @@ export default {
 
     shareValue: 0,
     totalBalanceValue: 0,
+    totalBalanceDecimal: 0,
 
     allowanceResult: 0,
 

@@ -70,6 +70,8 @@ export default class OperationPanel extends Component {
   handleMaxEvent = tag => {
     let {
       usdxBalance,
+      usdxBalanceDecimal,
+      usrBalanceDecimal,
       usrBalance,
       exchangeRate,
       receiveUSRValue,
@@ -79,18 +81,21 @@ export default class OperationPanel extends Component {
     } = this.props.usr;
 
     if (tag === 'join') {
+      // console.log(shareValue > usdxBalanceDecimal);
+      // return;
       // join
       let usdxShowValue = 0;
       let joinAmount = this.formatDecimalValue(usdxBalance || 0);
-      let compareNum = shareValue > usdxBalance ? usdxBalance : shareValue;
-      let compareTag = shareValue > usdxBalance ? 'usdx' : 'share';
+      let compareNum = shareValue > usdxBalanceDecimal ? usdxBalanceDecimal : shareValue;
+      let compareTag = shareValue > usdxBalanceDecimal ? 'usdx' : 'share';
       let compareDepositTag = 'normal';
 
-      if (usdxBalance) {
-        usdxShowValue = parseFloat(usdxBalance).toFixed(2);
+      if (usdxBalanceDecimal) {
+        usdxShowValue = toFixed(usdxBalanceDecimal.toFixed(5), 4);
         receiveUSRValue = usdxShowValue / exchangeRate;
+        joinAmount = this.formatDecimalValue(usdxShowValue || 0);
 
-        if (usdxBalance > compareNum) {
+        if (usdxBalanceDecimal > compareNum) {
           compareDepositTag = compareTag;
         }
       }
@@ -109,21 +114,20 @@ export default class OperationPanel extends Component {
       // exit
       let usrShowValue = 0;
       let exitAmount = this.formatDecimalValue(usrBalance || 0);
-      let compareNum = usrBalance > totalBalanceValue ? totalBalanceValue : usrBalance;
-      let compareTag = usrBalance > totalBalanceValue ? 'balance' : 'usr';
+      let compareNum = usrBalanceDecimal > totalBalanceValue ? totalBalanceValue : usrBalanceDecimal;
+      let compareTag = usrBalanceDecimal > totalBalanceValue ? 'balance' : 'usr';
       let compareRedeemTag = 'normal';
 
-      if (usrBalance) {
-        usrShowValue = parseFloat(usrBalance).toFixed(2);
+      if (usrBalanceDecimal) {
+        // usrShowValue = parseFloat(usrBalance).toFixed(2);
         // receiveUSDxValue = usrShowValue * exchangeRate;
+        usrShowValue = toFixed(usrBalanceDecimal.toFixed(5), 4);
+        exitAmount = this.formatDecimalValue(usrShowValue || 0);
 
-        if (usrBalance > compareTag) {
+        if (usrBalanceDecimal > compareTag) {
           compareRedeemTag = compareTag;
         }
 
-        // getRedeemAmount.bind(this)((usrShowValue * 1e18));
-        console.log(usrShowValue);
-        console.log((usrShowValue * 1e18).toLocaleString().replace(/,/g, ''));
         getRedeemAmount.bind(this)((usrShowValue * 1e18).toLocaleString().replace(/,/g, ''));
       }
 
@@ -134,7 +138,7 @@ export default class OperationPanel extends Component {
           // receiveUSDxValue,
           exitAmount,
           compareRedeemTag,
-          redeemDisable: exitAmount.cmp(usrBalance) > 0,
+          redeemDisable: exitAmount.cmp(compareNum) > 0,
         }
       });
     }
@@ -155,7 +159,14 @@ export default class OperationPanel extends Component {
   }
 
   __renderDepositForm = () => {
-    const { usdxBalance, receiveUSRValue, exchangeRate, shareValue, compareDepositTag } = this.props.usr;
+    const {
+      usdxBalance,
+      usdxBalanceDecimal,
+      receiveUSRValue,
+      exchangeRate,
+      shareValue,
+      compareDepositTag
+    } = this.props.usr;
 
     // console.log('********shareValue:', shareValue);
     // console.log('********usdxBalance:', usdxBalance);
@@ -186,9 +197,12 @@ export default class OperationPanel extends Component {
                       }}
                       onChange={e => {
                         let joinAmount = this.formatDecimalValue(e.target.value);
-                        let compareNum = shareValue > usdxBalance ? usdxBalance : shareValue;
-                        let compareDepositTag = shareValue > usdxBalance ? 'usdx' : 'share';
+                        let compareNum = shareValue > usdxBalanceDecimal ? usdxBalanceDecimal : shareValue;
+                        let compareDepositTag = shareValue > usdxBalanceDecimal ? 'usdx' : 'share';
 
+                        if (e.target.value.toString().length > 18) {
+                          return;
+                        }
                         this.props.dispatch({
                           type: 'usr/updateMultiParams',
                           payload: {
@@ -265,7 +279,15 @@ export default class OperationPanel extends Component {
   }
 
   __renderRedeemForm = () => {
-    const { usrBalance, receiveUSDxValue, exchangeRate, totalBalanceValue, compareRedeemTag } = this.props.usr;
+    const {
+      usrBalance,
+      usrBalanceDecimal,
+      receiveUSDxValue,
+      exchangeRate,
+      totalBalanceValue,
+      totalBalanceDecimal,
+      compareRedeemTag
+    } = this.props.usr;
     let onChangeTimer = null;
     // console.log('********usrBalance:', usrBalance);
     // console.log('********totalBalanceValue:', totalBalanceValue);
@@ -298,13 +320,25 @@ export default class OperationPanel extends Component {
                         let targetValue = e.target.value;
                         let self = this;
                         let exitAmount = this.formatDecimalValue(targetValue);
-                        let compareNum = usrBalance > totalBalanceValue ? totalBalanceValue : usrBalance;
-                        let compareRedeemTag = usrBalance > totalBalanceValue ? 'balance' : 'usr';
+                        let compareResult = totalBalanceDecimal.cmp(usrBalanceDecimal);
+                        let compareNum = 0;
+                        let compareRedeemTag = '';
+
+                        if (compareResult === 1) {
+                          compareNum = usrBalanceDecimal;
+                          compareRedeemTag = 'usr';
+                        } else {
+                          compareNum = totalBalanceDecimal;
+                          compareRedeemTag = 'balance';
+                        }
+
+                        if (targetValue.toString().length > 18) {
+                          return;
+                        }
 
                         clearTimeout(onChangeTimer);
                         onChangeTimer = setTimeout(() => {
-                          console.log('getRedeemAmount:')
-                          if (targetValue && targetValue <= compareNum) {
+                          if (targetValue && compareNum.cmp(targetValue) === 1) {
                             getRedeemAmount.bind(self)((targetValue * 1e18).toLocaleString().replace(/,/g, ''));
                           }
                           if (!targetValue) {

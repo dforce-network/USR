@@ -29,11 +29,26 @@ class IndexPage extends PureComponent {
     });
   }
 
+  componentWillUpdate(nextProps) {
+    // if (this.props.usr.walletAddress !== nextProps.usr.walletAddress) {
+    //   console.log('componentWillUpdate');
+    //   console.log(this.dispatchTimer);
+    // }
+  }
+
   componentDidMount() {
-    initBrowserWallet.bind(this)(this.dispatchValue);
+    let self = this;
+    let dispatchTimer = null;
+
+    initBrowserWallet.bind(self)(self.dispatchValue);
+    this.dispatchTimer = setInterval(() => {
+      initBrowserWallet.bind(self)(self.dispatchValue);
+    }, 15000);
+
     this.props.dispatch({
       type: 'usr/updateRecentTransactions'
     });
+
     setTimeout(() => {
       document.getElementById('page__loader').style.display = 'none';
     }, 500);
