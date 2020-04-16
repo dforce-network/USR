@@ -154,7 +154,8 @@ export function getRedeemAmount(usr) {
 // set up contracts
 export function setupContracts(dispatch) {
   const { web3, network } = this.props.usr;
-  let networkName = network == 0 ? 'main' :'rinkeby';
+  let networkName = network == 1 ? 'main' :'rinkeby';
+
   dispatch('usrObj', new web3.eth.Contract(USRABI, config[networkName].USR));
   dispatch('usdxObj', new web3.eth.Contract(USDxABI, config[networkName].USDx));
 }
