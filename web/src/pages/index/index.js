@@ -51,7 +51,7 @@ class IndexPage extends PureComponent {
 
     setTimeout(() => {
       document.getElementById('page__loader').style.display = 'none';
-    }, 500);
+    }, 800);
   }
 
   render() {

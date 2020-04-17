@@ -46,6 +46,7 @@ export function toFixed(num, decimal = 2) {
 
 // format percent
 export function percentFormatter(v) {
+  if (v === '...') return v;
   let fixValue = toFixed(parseFloat(v * 100));
   return `${fixValue}%`;
 }
@@ -80,6 +81,7 @@ export function accountHideFormatter(account) {
 
 // currency format
 export function formatCurrencyNumber(b) {
+  if (b === '...') return b;
   if (b > 0) {
     return numeral(b).format('0,0.00');
   }

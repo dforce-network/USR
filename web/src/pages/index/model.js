@@ -13,9 +13,9 @@ export default {
     walletType: '',
     usrObj: null,
     usdxObj: null,
-    usdxBalance: 0,
+    usdxBalance: '...',
     usdxBalanceDecimal: 0,
-    usrBalance: 0,
+    usrBalance: '...',
     usrBalanceDecimal: 0,
 
     joinAmount: 0,
@@ -25,23 +25,23 @@ export default {
     redeemDisable: false,
 
     // how many usr you will receive
-    receiveUSRValue: 0,
-    receiveUSDxValue: 0,
+    receiveUSRValue: '...',
+    receiveUSDxValue: '...',
 
     // exchange rate
     exchangeRate: '...',
     exchangeRateDecimal: 0,
 
     // interest rate
-    interestRate: 0,
+    interestRate: '...',
 
     usdxShowValue: '',
     usrShowValue: '',
 
     recentTransactions: [],
 
-    shareValue: 0,
-    totalBalanceValue: 0,
+    shareValue: '...',
+    totalBalanceValue: '...',
     totalBalanceDecimal: 0,
 
     allowanceResult: 0,
@@ -52,8 +52,8 @@ export default {
     // Overview
     totalUSDxInUSR: '...',
     liquidityRemaining: '...',
-    USDxSavingRate: 0,
-    savingOriginationFee: 0
+    USDxSavingRate: '...',
+    savingOriginationFee: '...'
   },
   reducers: {
     updateParams(state, action) {
