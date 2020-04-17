@@ -121,14 +121,16 @@ export async function getTotalBalanceOfUSDx() {
 
 // get the usdx blance in usr
 export async function getBalanceOfUSDxInUSR() {
-  const { web3, usrObj, walletAddress } = this.props.usr;
-  const balanceRaw = await usrObj.methods.balanceOf(walletAddress).call();
+  const { web3, usrObj, usdxObj, walletAddress, network } = this.props.usr;
+  const networkName = network == 0 ? 'main' : 'rinkeby';
+  const balanceRaw = await usdxObj.methods.balanceOf(config[networkName].USR).call();
   const blanceDecimal = new WadDecimal(balanceRaw).div('1e18');
   const totalUSDxInUSR = toFixed(parseFloat(web3.utils.fromWei(balanceRaw)), 5);
 
   const originationFeeRaw = await usrObj.methods.originationFee().call();
   const savingOriginationFee = originationFeeRaw / 1e18;
   console.log('originationFeeRaw', originationFeeRaw);
+  console.log('totalUSDxInUSR', totalUSDxInUSR);
 
   this.props.dispatch({
     type: 'usr/updateMultiParams',
@@ -181,6 +183,7 @@ export function setupContracts(dispatch) {
 
 // get balance of usr and usdx
 export async function getData() {
+  console.log('getData')
   getUSRBalance.bind(this)();
   getUSDxBalance.bind(this)();
   getExchangeRate.bind(this)();

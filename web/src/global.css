@@ -70,7 +70,26 @@ body .loader {
   position: relative;
   z-index: 0;
   height: inherit;
-  /* background: #f9f8ff; */
+}
+
+#trans__box div::-webkit-scrollbar{
+  width: 6px;
+  height: 10px;
+}
+#trans__box div::-webkit-scrollbar-track{
+  /* background: rgb(239, 239, 239); */
+  background: #fff;
+  border-radius: 2px;
+}
+#trans__box div::-webkit-scrollbar-thumb{
+  background: #bfbfbf;
+  border-radius: 10px;
+}
+#trans__box div::-webkit-scrollbar-thumb:hover{
+  background: #bfbfbf;
+}
+#trans__box div::-webkit-scrollbar-corner{
+  background: #fff;
 }
 
 .ball-pulse > div:nth-child(1) {

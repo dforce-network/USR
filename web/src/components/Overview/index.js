@@ -12,6 +12,7 @@ export default class Overview extends Component {
       interestRate,
       exchangeRate,
       totalBalanceValue,
+      totalUSDxInUSR,
       savingOriginationFee,
     } = this.props.usr;
 
@@ -24,7 +25,7 @@ export default class Overview extends Component {
                 <h2>{ t('overview.title') } <b>{ formatCurrencyNumber(totalBalanceValue) }</b> USDx { t('overview.saving') }</h2>
                 <div className={styles.overview__one}>
                   <span>{ t('overview.balance') }</span>
-                  <label><b>{ formatCurrencyNumber(usrBalance) }</b> USDx</label>
+                  <label><b>{ formatCurrencyNumber(totalUSDxInUSR) }</b> USDx</label>
                 </div>
                 <div>
                   <span>{ t('overview.liquidityRemaining') }</span>

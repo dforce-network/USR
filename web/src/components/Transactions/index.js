@@ -106,7 +106,7 @@ export default class Transactions extends Component {
         <Translation>
           {
             t => (
-              <div className={styles.transactions}>
+              <div className={styles.transactions} id="trans__box">
                 <h2>{ t('transactions.title') }</h2>
 
                 <div className={styles.transactions__box}>
