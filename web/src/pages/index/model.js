@@ -25,8 +25,8 @@ export default {
     redeemDisable: false,
 
     // how many usr you will receive
-    receiveUSRValue: '...',
-    receiveUSDxValue: '...',
+    receiveUSRValue: 0,
+    receiveUSDxValue: 0,
 
     // exchange rate
     exchangeRate: '...',
