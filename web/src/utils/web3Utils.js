@@ -248,12 +248,14 @@ export async function initBrowserWallet(dispatch, prompt = true) {
       console.error("User denied account access");
     }
 
-    window.ethereum.on('accountsChanged', (accounts) => {
-      this.props.dispatch({
-        type: 'usr/resetInput'
+    if (window.ethereum.on) {
+      window.ethereum.on('accountsChanged', (accounts) => {
+        this.props.dispatch({
+          type: 'usr/resetInput'
+        });
+        initBrowserWallet.bind(this)();
       });
-      initBrowserWallet.bind(this)();
-    });
+    }
   } else if (window.web3) {
     web3Provider = window.web3.currentProvider;
   } else {

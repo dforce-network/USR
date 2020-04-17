@@ -5,10 +5,7 @@ import Overview from '@components/Overview';
 import Transactions from '@components/Transactions';
 import styles from './index.less';
 import { connect } from 'dva';
-import config from '@utils/config';
-import Web3 from 'web3';
 import { initBrowserWallet } from '@utils/web3Utils';
-import { useTranslation, withTranslation, Trans, NamespacesConsumer } from 'react-i18next';
 import i18n from '@services/i18n.js';
 
 @connect(({ usr }) => ({ usr }))
@@ -26,14 +23,14 @@ class IndexPage extends PureComponent {
   componentDidMount() {
     let self = this;
     let dispatchTimer = null;
-    if (window.localStorage.getItem('i18nextLng')) {
-      window.localStorage.removeItem('i18nextLng')
-    }
+    // if (window.localStorage.getItem('i18nextLng')) {
+    //   window.localStorage.removeItem('i18nextLng')
+    // }
 
     initBrowserWallet.bind(self)(self.dispatchValue);
     this.dispatchTimer = setInterval(() => {
       initBrowserWallet.bind(self)(self.dispatchValue);
-    }, 5000);
+    }, 15000);
 
     this.props.dispatch({
       type: 'usr/updateRecentTransactions'

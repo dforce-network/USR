@@ -1,6 +1,5 @@
 import React, { Component, Suspense } from 'react';
 import styles from './index.less';
-import { Button, Menu } from 'antd';
 import {
   txFormatter,
   transactionValueFormatter,
