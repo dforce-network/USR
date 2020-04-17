@@ -2,7 +2,7 @@ import React, { Component, Suspense } from 'react';
 import styles from './index.less';
 import { message, Dropdown, Menu } from 'antd';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { SuspenseFallback } from '@utils';
+import { SuspenseFallback, isMobileDevice } from '@utils';
 import { Translation } from 'react-i18next';
 import i18next from 'i18next';
 import i18n from '@services/i18n.js';
@@ -22,8 +22,7 @@ export default class PageFooter extends Component {
     language: 'en',
   }
 
-  changeLanguage(language) {
-    console.log(language)
+  changeLanguage = (language) => {
     i18n.changeLanguage(language);
     this.setState({
       language
@@ -31,11 +30,19 @@ export default class PageFooter extends Component {
   }
 
   componentDidMount() {
+
     setTimeout(() => {
       this.setState({
-        language: i18next.language
+        language: i18next.language || 'en'
       });
-    }, 600);
+
+      if (isMobileDevice()) {
+        if (navigator.language) {
+          let language = ['en', 'en-US'].indexOf(navigator.language) >= 0 ? 'en' : 'zh-CN';
+          this.changeLanguage(language);
+        }
+      }
+    }, 300);
   }
 
   render() {
@@ -78,7 +85,7 @@ export default class PageFooter extends Component {
                       <img src={iconYoutube} alt="youtube" />
                     </a>
                     {
-                      currentLanguage === 'en'
+                      ['en', 'en-US'].indexOf(currentLanguage) >= 0
                         ? null
                         : (
                           <a className={styles.footer__community_wechat} target="_blank">

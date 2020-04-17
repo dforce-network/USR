@@ -18,11 +18,6 @@ i18n
       wait: true,
       bindI18n: 'languageChanged loaded',
       bindStore: 'added removed',
-    },
-    backend: {
-      allowMultiLoading: false,
-      crossDomain: true,
-      withCredentials: false
     }
 });
 
