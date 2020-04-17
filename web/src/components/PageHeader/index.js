@@ -1,5 +1,5 @@
 import React, { Component, Suspense } from 'react';
-import { Menu, Dropdown, Drawer } from 'antd';
+import { Menu, Dropdown, Drawer, Collapse } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
 import { initBrowserWallet } from '@utils/web3Utils';
 import { connect } from 'dva';
@@ -8,7 +8,7 @@ import { Translation } from 'react-i18next';
 import styles from './index.less';
 
 const downSvg = require('@assets/icon_xl.svg');
-
+const { Panel } = Collapse;
 export default class PageHeader extends Component {
   state = {
     drawerVisible: false
@@ -160,48 +160,39 @@ export default class PageHeader extends Component {
                   closable={false}
                   onClose={this.onClose}
                   visible={this.state.drawerVisible}
-                  height="640"
+                  height="680"
                 >
-                  <section className={styles.header__drawer}>
-                    <h2>
-                      { t('menu.dForceStablecoin.title') }
-                      <img src={require('@assets/icon_down.svg')} alt="down" />
-                    </h2>
-                    <a target="_blank" rel="noopener noreferrer" href="https://usdx.dforce.network" className={styles.header__overlay_item}>
-                      <span>{ t('menu.dForceStablecoin.usdx.title') }</span>
-                      <label>{ t('menu.dForceStablecoin.usdx.label') }</label>
-                    </a>
-                    <a target="_blank" rel="noopener noreferrer" href="/" className={styles.header__overlay_item}>
-                      <span>{ t('menu.dForceStablecoin.usr.title') }</span>
-                      <label>{ t('menu.dForceStablecoin.usr.label') }</label>
-                    </a>
-                    <a target="_blank" rel="noopener noreferrer" href="https://dip001.dforce.network" className={styles.header__overlay_item}>
-                      <span>{ t('menu.dForceStablecoin.dip001.title') }</span>
-                      <label>{ t('menu.dForceStablecoin.dip001.label') }</label>
-                    </a>
-                  </section>
-
-                  <section className={styles.header__drawer}>
-                    <h2>
-                      { t('menu.yieldMarket.title') }
-                      <img src={require('@assets/icon_down.svg')} alt="down" />
-                    </h2>
-                    <a target="_blank" rel="noopener noreferrer" href="https://lendf.me" className={styles.header__overlay_item}>
-                      <span>{ t('menu.yieldMarket.lendfMe.title') }</span>
-                      <label>{ t('menu.yieldMarket.lendfMe.label') }</label>
-                    </a>
-                  </section>
-
-                  <section className={styles.header__drawer}>
-                    <h2>
-                      { t('menu.exchangeMarket.title') }
-                      <img src={require('@assets/icon_down.svg')} alt="down" />
-                    </h2>
-                    <a target="_blank" href="/" className={styles.header__overlay_item}>
-                      <span>{ t('menu.exchangeMarket.xswap.title') }</span>
-                      <label>{ t('menu.exchangeMarket.xswap.label') }</label>
-                    </a>
-                  </section>
+                  <Collapse
+                    defaultActiveKey={['1', '2', '3']}
+                    expandIconPosition='right'
+                  >
+                    <Panel header={ t('menu.dForceStablecoin.title') } key="1">
+                      <a target="_blank" rel="noopener noreferrer" href="https://usdx.dforce.network" className={styles.header__overlay_item}>
+                        <span>{ t('menu.dForceStablecoin.usdx.title') }</span>
+                        <label>{ t('menu.dForceStablecoin.usdx.label') }</label>
+                      </a>
+                      <a target="_blank" rel="noopener noreferrer" href="/" className={styles.header__overlay_item}>
+                        <span>{ t('menu.dForceStablecoin.usr.title') }</span>
+                        <label>{ t('menu.dForceStablecoin.usr.label') }</label>
+                      </a>
+                      <a target="_blank" rel="noopener noreferrer" href="https://dip001.dforce.network" className={styles.header__overlay_item}>
+                        <span>{ t('menu.dForceStablecoin.dip001.title') }</span>
+                        <label>{ t('menu.dForceStablecoin.dip001.label') }</label>
+                      </a>
+                    </Panel>
+                    <Panel header={ t('menu.yieldMarket.title') } key="2">
+                      <a target="_blank" rel="noopener noreferrer" href="https://lendf.me" className={styles.header__overlay_item}>
+                        <span>{ t('menu.yieldMarket.lendfMe.title') }</span>
+                        <label>{ t('menu.yieldMarket.lendfMe.label') }</label>
+                      </a>
+                    </Panel>
+                    <Panel header={ t('menu.exchangeMarket.title') } key="3">
+                      <a target="_blank" href="/" className={styles.header__overlay_item}>
+                        <span>{ t('menu.exchangeMarket.xswap.title') }</span>
+                        <label>{ t('menu.exchangeMarket.xswap.label') }</label>
+                      </a>
+                    </Panel>
+                  </Collapse>
                 </Drawer>
               </div>
             )

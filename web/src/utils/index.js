@@ -54,7 +54,7 @@ export function percentFormatter(v) {
 export function transactionValueFormatter(v) {
   if (!v) return 0;
   let vStr = parseFloat(v).toFixed(4);
-  return parseFloat(vStr);
+  return formatCurrencyNumber(parseFloat(vStr));
 }
 
 // format transactions

@@ -115,6 +115,45 @@ body .loader {
   display: inline-block;
 }
 
+body .ant-collapse {
+  border: 0;
+  background: #fff;
+}
+body .ant-collapse-content {
+  border: 0;
+  width: 93%;
+  padding: 0;
+  margin: 0 auto 30px;
+  /* margin-bottom: 20px; */
+}
+body .ant-collapse > .ant-collapse-item {
+  border: 0;
+  margin-bottom: 20px;
+}
+body .ant-collapse-content > .ant-collapse-content-box {
+  padding: 0;
+  margin: 18px auto 0;
+  padding-left: 20px;
+}
+body .ant-collapse-icon-position-right > .ant-collapse-item > .ant-collapse-header {
+  background: #fff;
+  border-color: #fff;
+  padding: 0;
+  color: red;
+  font-size: 18px;
+  font-weight: 500;
+  color: #252152;
+  width: 93%;
+  margin: 0 auto;
+}
+body .ant-collapse-icon-position-right > .ant-collapse-item > .ant-collapse-header .ant-collapse-arrow {
+  font-size: 16px;
+  right: 0;
+  color: #050435;
+  font-weight: bold;
+}
+
+
 @-webkit-keyframes scale {
   0% {
     -webkit-transform: scale(1);

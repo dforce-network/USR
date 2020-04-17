@@ -115,12 +115,8 @@
 
 @media screen and (max-width: 768px) {
   .header {
-    // width: 93%;
-    // margin: 0 auto 25px;
-    // padding-top: 26px;
     padding: 0;
     margin: 20px auto 25px;
-    // border: solid 2px blue;
 
     &__logo {
       width: 80px;
@@ -146,37 +142,18 @@
       display: inline-flex;
     }
 
-    &__drawer {
-      // margin-bottom: 30px;
-      width: 93%;
-      margin: 0 auto;
+    &__overlay_item {
+      display: block;
+      margin: 16px 0 0 0;
 
-      h2 {
-        font-size: 18px;
+      span {
+        font-size: 15px;
         font-weight: 500;
-        color: #252152;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-
-        img {
-          width: 12px;
-        }
       }
-
-      a {
-        display: block;
-        padding-left: 16px;
-        margin-top: 10px;
-
-        span {
-          font-size: 15px;
-          font-weight: 500;
-        }
-        label {
-          width: 100%;
-          font-size: 13px;
-        }
+      label {
+        width: 100%;
+        font-size: 13px;
+        margin: 0;
       }
     }
   }

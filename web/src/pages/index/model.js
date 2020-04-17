@@ -29,7 +29,7 @@ export default {
     receiveUSDxValue: 0,
 
     // exchange rate
-    exchangeRate: 1,
+    exchangeRate: '...',
     exchangeRateDecimal: 0,
 
     // interest rate
@@ -50,8 +50,8 @@ export default {
     compareRedeemTag: 'normal',
 
     // Overview
-    totalUSDxInUSR: 0,
-    liquidityRemaining: 0,
+    totalUSDxInUSR: '...',
+    liquidityRemaining: '...',
     USDxSavingRate: 0,
     savingOriginationFee: 0
   },
