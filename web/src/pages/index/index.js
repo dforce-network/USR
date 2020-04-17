@@ -11,12 +11,12 @@ import { initBrowserWallet } from '@utils/web3Utils';
 // import { Translation } from 'react-i18next';
 import { useTranslation, withTranslation, Trans, NamespacesConsumer } from 'react-i18next';
 import i18n from '@services/i18n.js';
-const web3 = new Web3(new Web3.providers.HttpProvider(config.defaultWeb3Provider));
+// const web3 = new Web3(new Web3.providers.HttpProvider(config.defaultWeb3Provider));
 
 @connect(({ usr }) => ({ usr }))
 class IndexPage extends PureComponent {
   state = {
-    web3: web3
+    // web3: web3
   }
 
   dispatchValue = (name, value) => {

@@ -23,14 +23,37 @@
     span {
       margin-right: 12px;
     }
+    a.footer__community_wechat {
+      position: relative;
+
+      &:hover {
+        .footer__community_wechat_qr {
+          display: block;
+        }
+      }
+
+      .footer__community_wechat_qr {
+        display: none;
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        left: -20px;
+        top: -70px;
+        border: solid 4px #fff;
+      }
+    }
+
     &_language {
-      display: flex;
+      display: inline-flex;
       align-items: center;
       color: #6D6B85;
       margin-top: 10px;
       cursor: pointer;
       font-size: 14px;
       font-weight: 500;
+      // border: solid 1px blue;
+      // width: 80px;
+
       img {
         width: 9px;
         margin-left: 3px;
@@ -74,10 +97,9 @@
       color: #868593;
       font-size: 13px;
       margin-bottom: 4px;
-
-      &:hover {
-        // color: #5d52ff;
-      }
+    }
+    a:hover {
+      color: #5d52ff;
     }
   }
 }

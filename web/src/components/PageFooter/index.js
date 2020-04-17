@@ -15,6 +15,7 @@ const iconDiscord = require('@assets/icon_discord.svg');
 const iconLinkedin = require('@assets/icon_linkedin.svg');
 const iconYoutube = require('@assets/icon_youtube.svg');
 const iconWechat = require('@assets/icon_wechat.svg');
+const iconWechatQRCode = require('@assets/wechat.png');
 
 export default class PageFooter extends Component {
   state = {
@@ -47,8 +48,8 @@ export default class PageFooter extends Component {
               <div className={styles.footer}>
                 <section className={styles.footer__link}>
                   <h2>{ t('footer.resource.title') }</h2>
-                  <a href="https://github.com/dforce-network/USR">{ t('footer.resource.github') }</a>
-                  <a href="https://github.com/dforce-network/USR">{ t('footer.resource.faq') }</a>
+                  <a href="https://github.com/dforce-network/USR" target="_blank">{ t('footer.resource.github') }</a>
+                  <a href="https://github.com/dforce-network/USR" target="_blank">{ t('footer.resource.faq') }</a>
                 </section>
 
                 <section className={styles.footer__community}>
@@ -76,7 +77,14 @@ export default class PageFooter extends Component {
                       <img src={iconYoutube} alt="youtube" />
                     </a>
                     {
-                      currentLanguage === 'en' ? null : <a href="/" target="_blank"><img src={iconWechat} alt="wechat" /></a>
+                      currentLanguage === 'en'
+                        ? null
+                        : (
+                          <a className={styles.footer__community_wechat} target="_blank">
+                            <img src={iconWechat} alt="wechat" />
+                            <img className={styles.footer__community_wechat_qr} src={iconWechatQRCode} alt="wechat" />
+                          </a>
+                        )
                     }
                   </div>
 
