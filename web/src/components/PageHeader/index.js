@@ -1,8 +1,6 @@
 import React, { Component, Suspense } from 'react';
 import { Menu, Dropdown, Drawer, Collapse } from 'antd';
-import { MenuOutlined } from '@ant-design/icons';
 import { initBrowserWallet } from '@utils/web3Utils';
-import { connect } from 'dva';
 import { accountHideFormatter, SuspenseFallback } from '@utils';
 import { Translation } from 'react-i18next';
 import styles from './index.less';
