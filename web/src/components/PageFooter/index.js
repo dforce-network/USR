@@ -23,6 +23,7 @@ export default class PageFooter extends Component {
   }
 
   changeLanguage(language) {
+    console.log(language)
     i18n.changeLanguage(language);
     this.setState({
       language

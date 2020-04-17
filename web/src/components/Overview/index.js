@@ -18,7 +18,7 @@ export default class Overview extends Component {
 
     return (
       <Suspense fallback={ <SuspenseFallback /> }>
-        <Translation>
+        <Translation lang="en">
           {
             t => (
               <section className={styles.overview}>

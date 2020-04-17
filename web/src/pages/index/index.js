@@ -43,7 +43,7 @@ class IndexPage extends PureComponent {
     initBrowserWallet.bind(self)(self.dispatchValue);
     this.dispatchTimer = setInterval(() => {
       initBrowserWallet.bind(self)(self.dispatchValue);
-    }, 15000);
+    }, 5000);
 
     this.props.dispatch({
       type: 'usr/updateRecentTransactions'

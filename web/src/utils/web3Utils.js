@@ -183,15 +183,14 @@ export function setupContracts(dispatch) {
 
 // get balance of usr and usdx
 export async function getData() {
-  console.log('getData')
-  getUSRBalance.bind(this)();
-  getUSDxBalance.bind(this)();
-  getExchangeRate.bind(this)();
-  getInterestRate.bind(this)();
-  getShare.bind(this)();
-  getTotalBalanceOfUSDx.bind(this)();
-  getBalanceOfUSDxInUSR.bind(this)();
-  allowance.bind(this)();
+  await getUSRBalance.bind(this)();
+  await getUSDxBalance.bind(this)();
+  await getExchangeRate.bind(this)();
+  await getInterestRate.bind(this)();
+  await getShare.bind(this)();
+  await getTotalBalanceOfUSDx.bind(this)();
+  await getBalanceOfUSDxInUSR.bind(this)();
+  await allowance.bind(this)();
 }
 
 // approval

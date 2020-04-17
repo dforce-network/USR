@@ -8,20 +8,21 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    fallbackLng: {
-      'zh-Hant': [ 'zh' ],
-      'zh-TW': [ 'zh' ],
-      'zh-CN': [ 'zh' ],
-      'zh-Hans-CN': [ 'zh' ],
-      'zh-SG': [ 'zh' ],
-      'zh-HK': [ 'zh' ],
-      'zh-Hans': [ 'zh' ],
-      'en-US': [ 'en' ],
-      default: [ 'en' ]
-    },
-    debug: false,
+    fallbackLng: 'en',
+    // lng: 'en',
+    debug: true,
     interpolation: {
       escapeValue: false
+    },
+    react: {
+      wait: true,
+      bindI18n: 'languageChanged loaded',
+      bindStore: 'added removed',
+    },
+    backend: {
+      allowMultiLoading: false,
+      crossDomain: true,
+      withCredentials: false
     }
 });
 
