@@ -26,8 +26,10 @@ class IndexPage extends PureComponent {
     // if (window.localStorage.getItem('i18nextLng')) {
     //   window.localStorage.removeItem('i18nextLng')
     // }
+    setTimeout(() => {
+      initBrowserWallet.bind(self)(self.dispatchValue);
+    }, 500);
 
-    initBrowserWallet.bind(self)(self.dispatchValue);
     this.dispatchTimer = setInterval(() => {
       initBrowserWallet.bind(self)(self.dispatchValue);
     }, 15000);
