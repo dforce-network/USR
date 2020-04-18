@@ -122,7 +122,8 @@ export async function getTotalBalanceOfUSDx() {
 // get the usdx blance in usr
 export async function getBalanceOfUSDxInUSR() {
   const { web3, usrObj, usdxObj, walletAddress, network } = this.props.usr;
-  const networkName = network == 0 ? 'main' : 'rinkeby';
+  const networkName = network == 1 ? 'main' : 'rinkeby';
+  // alert(network)
   const balanceRaw = await usdxObj.methods.balanceOf(config[networkName].USR).call();
   const blanceDecimal = new WadDecimal(balanceRaw).div('1e18');
   const totalUSDxInUSR = toFixed(parseFloat(web3.utils.fromWei(balanceRaw)), 5);
@@ -130,7 +131,7 @@ export async function getBalanceOfUSDxInUSR() {
   const originationFeeRaw = await usrObj.methods.originationFee().call();
   const savingOriginationFee = originationFeeRaw / 1e18;
   console.log('originationFeeRaw', originationFeeRaw);
-  console.log('totalUSDxInUSR', totalUSDxInUSR);
+  console.log('totalUSDxInUSR', balanceRaw);
 
   this.props.dispatch({
     type: 'usr/updateMultiParams',
@@ -207,7 +208,7 @@ export async function approval() {
 // get allowance data
 export async function allowance() {
   const { usdxObj, usrObj, walletAddress, network } = this.props.usr;
-  const networkName = network == 0 ? 'main' : 'rinkeby';
+  const networkName = network == 1 ? 'main' : 'rinkeby';
   const allowanceResult = await usdxObj.methods.allowance(walletAddress, config[networkName].USR).call();
 
   this.props.dispatch({
