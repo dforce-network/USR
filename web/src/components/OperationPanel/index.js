@@ -171,7 +171,7 @@ export default class OperationPanel extends Component {
     // console.log('********shareValue:', shareValue);
     // console.log('********usdxBalance:', usdxBalance);
     return (
-      <Suspense fallback={ <SuspenseFallback /> }>
+      <Suspense fallback={<SuspenseFallback />}>
         <Translation>
           {
             t => (
@@ -181,7 +181,12 @@ export default class OperationPanel extends Component {
                     <img src={usdxIcon} />
                     USDx
                   </span>
-                  <label>{ formatCurrencyNumber(usdxBalance) }</label>
+                  <label>
+                    <span className={styles.balance}>
+                      {t('balance')}
+                    </span>
+                    {formatCurrencyNumber(usdxBalance)}
+                  </label>
                 </Col>
 
                 <Col className={styles.input} span={24}>
@@ -191,7 +196,7 @@ export default class OperationPanel extends Component {
                       min="0"
                       step="1"
                       value={this.props.usr.usdxShowValue}
-                      placeholder={ t('operation.deposit.placeholder') }
+                      placeholder={t('operation.deposit.placeholder')}
                       onFocus={e => {
                         e.target.select();
                       }}
@@ -240,9 +245,9 @@ export default class OperationPanel extends Component {
                         }
                       }}
                     />
-                    <a onClick={e => this.handleMaxEvent('join')}>{ t('operation.deposit.max') }</a>
+                    <a onClick={e => this.handleMaxEvent('join')}>{t('operation.deposit.max')}</a>
                   </div>
-                  <p>{ t('operation.deposit.tip') } <b>{ formatCurrencyNumber(receiveUSRValue) }</b> USR</p>
+                  <p>{t('operation.deposit.tip')} <b>{formatCurrencyNumber(receiveUSRValue)}</b> USR</p>
                 </Col>
 
                 <Col span={24}>
@@ -292,7 +297,7 @@ export default class OperationPanel extends Component {
     // console.log('********usrBalance:', usrBalance);
     // console.log('********totalBalanceValue:', totalBalanceValue);
     return (
-      <Suspense fallback={ <SuspenseFallback /> }>
+      <Suspense fallback={<SuspenseFallback />}>
         <Translation>
           {
             t => (
@@ -301,7 +306,12 @@ export default class OperationPanel extends Component {
                   <span>
                     USR
                   </span>
-                  <label>{ formatCurrencyNumber(usrBalance) }</label>
+                  <label>
+                    <span className={styles.balance}>
+                      {t('balance')}
+                    </span>
+                    {formatCurrencyNumber(usrBalance)}
+                  </label>
                 </Col>
 
                 <Col className={styles.input} span={24}>
@@ -311,7 +321,7 @@ export default class OperationPanel extends Component {
                       min="0"
                       step="1"
                       value={this.props.usr.usrShowValue}
-                      placeholder={ t('operation.redeem.placeholder') }
+                      placeholder={t('operation.redeem.placeholder')}
                       onFocus={e => {
                         e.target.select();
                       }}
@@ -388,10 +398,10 @@ export default class OperationPanel extends Component {
                         }
                       }}
                     />
-                    <a onClick={e => this.handleMaxEvent('exit')}>{ t('operation.redeem.max') }</a>
+                    <a onClick={e => this.handleMaxEvent('exit')}>{t('operation.redeem.max')}</a>
                   </div>
 
-                  <p>{ t('operation.redeem.tip') } <b>{ formatCurrencyNumber(receiveUSDxValue) }</b> USDx</p>
+                  <p>{t('operation.redeem.tip')} <b>{formatCurrencyNumber(receiveUSDxValue)}</b> USDx</p>
                 </Col>
 
                 <Col span={24}>
@@ -412,10 +422,10 @@ export default class OperationPanel extends Component {
                       compareRedeemTag === 'normal'
                         ? t('operation.redeem.btnNormal')
                         : (
-                         compareRedeemTag === 'usr'
-                          ? t('operation.redeem.btnInsufficientBalance')
-                          : t('operation.redeem.btnInsufficientLiquidity')
-                       )
+                          compareRedeemTag === 'usr'
+                            ? t('operation.redeem.btnInsufficientBalance')
+                            : t('operation.redeem.btnInsufficientLiquidity')
+                        )
                     }
                   </Button>
                 </Col>
@@ -429,7 +439,7 @@ export default class OperationPanel extends Component {
 
   render() {
     return (
-      <Suspense fallback={ <SuspenseFallback /> }>
+      <Suspense fallback={<SuspenseFallback />}>
         <Translation>
           {
             t => (
@@ -442,14 +452,14 @@ export default class OperationPanel extends Component {
                       color: '#7a7b9e',
                     }}
                   >
-                    <TabPane tab={ t('operation.deposit.title') } key="1">
-                      { this.__renderDepositForm() }
+                    <TabPane tab={t('operation.deposit.title')} key="1">
+                      {this.__renderDepositForm()}
                     </TabPane>
-                    <TabPane tab={ t('operation.redeem.title') } key="2">
-                      { this.__renderRedeemForm() }
+                    <TabPane tab={t('operation.redeem.title')} key="2">
+                      {this.__renderRedeemForm()}
                     </TabPane>
                   </Tabs>
-                 </div>
+                </div>
               </section>
             )
           }

@@ -49,19 +49,19 @@ export default class PageFooter extends Component {
     let currentLanguage = this.state.language;
 
     return (
-      <Suspense fallback={ <SuspenseFallback /> }>
+      <Suspense fallback={<SuspenseFallback />}>
         <Translation>
           {
             t => (
               <div className={styles.footer}>
                 <section className={styles.footer__link}>
-                  <h2>{ t('footer.resource.title') }</h2>
-                  <a href="https://github.com/dforce-network/USR" target="_blank">{ t('footer.resource.github') }</a>
-                  <a href="https://github.com/dforce-network/USR" target="_blank">{ t('footer.resource.faq') }</a>
+                  <h2>{t('footer.resource.title')}</h2>
+                  <a href="https://github.com/dforce-network/USR" target="_blank">{t('footer.resource.github')}</a>
+                  <a href="https://github.com/dforce-network/USR" target="_blank">{t('footer.resource.faq')}</a>
                 </section>
 
                 <section className={styles.footer__community}>
-                  <h2>{ t('footer.community.title') }</h2>
+                  <h2>{t('footer.community.title')}</h2>
                   <div>
                     <a href="https://twitter.com/dForcenet" target="_blank">
                       <img src={iconTwitter} alt="twitter" />
@@ -100,27 +100,27 @@ export default class PageFooter extends Component {
                     placement="topCenter"
                     overlay={(
                       <Menu style={{ width: '100px' }}>
-                        <Menu.Item onClick={e => this.changeLanguage('zh')}>{ t('footer.community.chinese') }</Menu.Item>
-                        <Menu.Item onClick={e => this.changeLanguage('en')}>{ t('footer.community.english') }</Menu.Item>
+                        <Menu.Item onClick={e => this.changeLanguage('zh')}>{t('footer.community.chinese')}</Menu.Item>
+                        <Menu.Item onClick={e => this.changeLanguage('en')}>{t('footer.community.english')}</Menu.Item>
                       </Menu>
                     )}
                   >
                     <label className={styles.footer__community_language}>
-                      { currentLanguage === 'en' ? t('footer.community.english') : t('footer.community.chinese') }
+                      {currentLanguage === 'en' ? t('footer.community.english') : t('footer.community.chinese')}
                       <img src={require('@assets/icon_language_down.svg')} />
                     </label>
                   </Dropdown>
                 </section>
 
                 <section className={styles.footer__email}>
-                  <h2>{ t('footer.contact.title') }</h2>
+                  <h2>{t('footer.contact.title')}</h2>
                   <CopyToClipboard
-                    text={'contacts@dforce.network'}
+                    text={'support@dforce.network'}
                     onCopy={() => {
                       message.success(t('footer.copied'), 4);
                     }}
                   >
-                    <span>contacts@dforce.network</span>
+                    <span>support@dforce.network</span>
                   </CopyToClipboard>
                   <CopyToClipboard
                     text={'bd@dforce.network'}

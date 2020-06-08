@@ -1,11 +1,12 @@
 {
+  "balance": "余额:",
   "title": "dForce USR",
   "menu": {
     "dForceStablecoin": {
-      "title": "dForce Stablecoin",
+      "title": "资产协议",
       "usdx": {
         "title": "USDx",
-        "label": "Portal"
+        "label": "合成型稳定币"
       },
       "usr": {
         "title": "USR",
@@ -17,17 +18,17 @@
       }
     },
     "yieldMarket": {
-      "title": "Yield Market",
+      "title": "交易协议",
       "lendfMe": {
-        "title": "LendfMe",
-        "label": "Lend and Borrow"
+        "title": "dForce Trade",
+        "label": "稳定资产闪兑"
       }
     },
     "exchangeMarket": {
-      "title": "Exchange Market",
+      "title": "治理",
       "xswap": {
-        "title": "Instant Swap",
-        "label": "Instant Swap of Stable Assets"
+        "title": "Airdrop",
+        "label": "DF代币分发"
       }
     },
     "connectWallet": "连接钱包"
@@ -58,8 +59,8 @@
   },
   "overview": {
     "title": "您有",
-    "saving": "正在生息",
-    "balance": "存入USDx的总量",
+    "saving": "正在计息",
+    "balance": "USR中锁定的USDx总量",
     "annualRate": "USR年化利率",
     "USRNetWorth": "USR净值",
     "liquidityRemaining": "剩余可存入USDx数量",

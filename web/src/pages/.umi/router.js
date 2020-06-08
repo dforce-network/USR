@@ -33,7 +33,7 @@ const routes = [
       {
         component: () =>
           React.createElement(
-            require('/Users/limeng/Desktop/project/myproject/USR/web/node_modules/umi-build-dev/lib/plugins/404/NotFound.js')
+            require('/Users/gaoyang/Desktop/USR/web/node_modules/_umi-build-dev@1.18.5@umi-build-dev/lib/plugins/404/NotFound.js')
               .default,
             { pagesPath: 'src/pages', hasRoutesInConfig: false },
           ),
@@ -47,7 +47,7 @@ const routes = [
   {
     component: () =>
       React.createElement(
-        require('/Users/limeng/Desktop/project/myproject/USR/web/node_modules/umi-build-dev/lib/plugins/404/NotFound.js')
+        require('/Users/gaoyang/Desktop/USR/web/node_modules/_umi-build-dev@1.18.5@umi-build-dev/lib/plugins/404/NotFound.js')
           .default,
         { pagesPath: 'src/pages', hasRoutesInConfig: false },
       ),

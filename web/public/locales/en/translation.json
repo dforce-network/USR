@@ -1,11 +1,12 @@
 {
+  "balance": "Balance:",
   "title": "dForce USR",
   "menu": {
     "dForceStablecoin": {
-      "title": "dForce Stablecoin",
+      "title": "Assets",
       "usdx": {
         "title": "USDx",
-        "label": "Portal"
+        "label": "An indexed stablecoin"
       },
       "usr": {
         "title": "USR",
@@ -17,17 +18,17 @@
       }
     },
     "yieldMarket": {
-      "title": "Yield Market",
+      "title": "Trade",
       "lendfMe": {
-        "title": "LendfMe",
-        "label": "Lend and Borrow"
+        "title": "dForce Trade",
+        "label": "Stable assets swap"
       }
     },
     "exchangeMarket": {
-      "title": "Exchange Market",
+      "title": "Governance",
       "xswap": {
-        "title": "Instant Swap",
-        "label": "Instant Swap of Stable Assets"
+        "title": "Airdrop",
+        "label": "DF token distribution"
       }
     },
     "connectWallet": "Connect Wallet"
@@ -61,7 +62,7 @@
     "saving": "saving in USR",
     "balance": "Total USDx in USR",
     "annualRate": "USDx Saving Rate",
-    "USRNetWorth": "USR Net Worth",
+    "USRNetWorth": "USR Net Vaule",
     "liquidityRemaining": "Liquidity Remaining",
     "savingOriginationFee": "Saving Origination Fee"
   },

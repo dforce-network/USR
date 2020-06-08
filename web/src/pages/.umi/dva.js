@@ -12,7 +12,7 @@ export function _onCreate() {
     history,
     
     ...(runtimeDva.config || {}),
-    ...(window.g_useSSR ? { initialState: window.g_initialData[location.pathname] } : {}),
+    ...(window.g_useSSR ? { initialState: window.g_initialData } : {}),
   });
   
   app.use(createLoading());
@@ -20,7 +20,7 @@ export function _onCreate() {
     app.use(plugin);
   });
   
-  app.model({ namespace: 'model', ...(require('/Users/limeng/Desktop/project/myproject/USR/web/src/pages/index/model.js').default) });
+  app.model({ namespace: 'model', ...(require('/Users/gaoyang/Desktop/USR/web/src/pages/index/model.js').default) });
   return app;
 }
 

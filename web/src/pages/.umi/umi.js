@@ -5,7 +5,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import findRoute, {
   getUrlQuery,
-} from '/Users/limeng/Desktop/project/myproject/USR/web/node_modules/umi-build-dev/lib/findRoute.js';
+} from '/Users/gaoyang/Desktop/USR/web/node_modules/_umi-build-dev@1.18.5@umi-build-dev/lib/findRoute.js';
 
 // runtime plugins
 const plugins = require('umi/_runtimePlugin');
@@ -22,7 +22,9 @@ plugins.init({
     'dva',
   ],
 });
-plugins.use(require('../../../node_modules/umi-plugin-dva/lib/runtime'));
+plugins.use(
+  require('../../../node_modules/_umi-plugin-dva@1.11.3@umi-plugin-dva/lib/runtime'),
+);
 plugins.use(require('@/app'));
 
 const app = require('@tmp/dva')._onCreate();
@@ -35,7 +37,7 @@ let clientRender = async () => {
   // Both support SSR and CSR
   if (window.g_useSSR) {
     // 如果开启服务端渲染则客户端组件初始化 props 使用服务端注入的数据
-    props = window.g_initialData[location.pathname];
+    props = window.g_initialData;
   } else {
     const pathname = location.pathname;
     const activeRoute = findRoute(require('@@/router').routes, pathname);
@@ -201,9 +203,7 @@ if (!__IS_BROWSER) {
       htmlElement: matchPath ? htmlTemplateMap[matchPath] : '',
       rootContainer,
       matchPath,
-      g_initialData: {
-        [ctx.req.url]: props,
-      },
+      g_initialData: props,
       context,
     };
   };
