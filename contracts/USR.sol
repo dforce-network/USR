@@ -6,6 +6,8 @@ import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/ownership/Ownable.sol";
 
+import "./interface/IProfitProvider.sol";
+
 contract ERC20Exchangeable is ERC20Pausable, ERC20Detailed, Ownable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
@@ -17,9 +19,15 @@ contract ERC20Exchangeable is ERC20Pausable, ERC20Detailed, Ownable {
     constructor(
         string memory _name,
         string memory _symbol,
-        uint8 _decimals,
         address _underlyingToken
-    ) public ERC20Detailed(_name, _symbol, _decimals) {
+    )
+        public
+        ERC20Detailed(
+            _name,
+            _symbol,
+            ERC20Detailed(_underlyingToken).decimals()
+        )
+    {
         underlyingToken = IERC20(_underlyingToken);
     }
 
@@ -28,8 +36,8 @@ contract ERC20Exchangeable is ERC20Pausable, ERC20Detailed, Ownable {
         whenNotPaused
         returns (bool)
     {
-        underlyingToken.safeTransferFrom(msg.sender, address(this), amount);
         _mint(account, rdiv(amount, exchangeRate()));
+        underlyingToken.safeTransferFrom(msg.sender, address(this), amount);
 
         return true;
     }
@@ -39,18 +47,26 @@ contract ERC20Exchangeable is ERC20Pausable, ERC20Detailed, Ownable {
         whenNotPaused
         returns (bool)
     {
-        _burn(account, amount);
-        underlyingToken.safeTransfer(msg.sender, rmul(amount, exchangeRate()));
+        uint256 underlying = rmul(amount, exchangeRate());
+
+        if (account != msg.sender) {
+            _burnFrom(account, amount);
+        } else {
+            _burn(account, amount);
+        }
+
+        underlyingToken.safeTransfer(msg.sender, underlying);
 
         return true;
     }
 
+    function underlyingBalance() public view returns (uint256) {
+        return underlyingToken.balanceOf(address(this));
+    }
+
     function exchangeRate() public view returns (uint256) {
         uint256 totalSupply = totalSupply();
-        return
-            totalSupply > 0
-                ? rdiv(underlyingToken.balanceOf(address(this)), totalSupply)
-                : BASE;
+        return totalSupply > 0 ? rdiv(underlyingBalance(), totalSupply) : BASE;
     }
 
     // --- Math ---
@@ -64,5 +80,80 @@ contract ERC20Exchangeable is ERC20Pausable, ERC20Detailed, Ownable {
 
     function rdivup(uint256 x, uint256 y) internal pure returns (uint256 z) {
         z = x.mul(BASE).add(y.sub(1)) / y;
+    }
+}
+
+contract USR is ERC20Exchangeable {
+    using SafeERC20 for IERC20;
+
+    IProfitProvider profitProvider;
+
+    event NewProfitProvider(
+        address oldProfitProvider,
+        address NewProfitProvider
+    );
+
+    constructor(address _underlyingToken, address _profitProvider)
+        public
+        ERC20Exchangeable("USR", "USR", _underlyingToken)
+    {
+        profitProvider = IProfitProvider(_profitProvider);
+
+        emit NewProfitProvider(address(0), _profitProvider);
+    }
+
+    function updateProfitProvider(address _profitProvider)
+        external
+        onlyOwner
+        returns (bool)
+    {
+        require(
+            _profitProvider != _profitProvider,
+            "updateProfitProvider: same profit provider address."
+        );
+        IProfitProvider _oldProfitProvider = profitProvider;
+        profitProvider = IProfitProvider(_profitProvider);
+        emit NewProfitProvider(address(_oldProfitProvider), _profitProvider);
+
+        return true;
+    }
+
+    function underlyingBalance() public view returns (uint256) {
+        return super.underlyingBalance().add(profitProvider.getProfitAmount());
+    }
+
+    function mint(address account, uint256 amount)
+        public
+        whenNotPaused
+        returns (bool)
+    {
+        if (totalSupply() == 0) {
+            profitProvider.resetProfit();
+        }
+
+        return super.mint(account, amount);
+    }
+
+    function burn(address account, uint256 amount)
+        public
+        whenNotPaused
+        returns (bool)
+    {
+        uint256 target = rmul(amount, exchangeRate());
+        uint256 balance = underlyingToken.balanceOf(address(this));
+
+        // There is not enough balance here, need to withdraw from profit provider
+        if (target > balance) {
+            uint256 withdrawn = profitProvider.withdrawProfit(
+                target.sub(balance)
+            );
+
+            require(
+                withdrawn.add(balance) >= target,
+                "burn: Not enough underlying token to withdraw"
+            );
+        }
+
+        return super.burn(account, amount);
     }
 }
