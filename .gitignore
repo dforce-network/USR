@@ -1,4 +1,6 @@
 # dependencies
+cache
+artifacts
 node_modules
 npm-debug.log*
 yarn-error.log
@@ -21,7 +23,7 @@ logs
 *.log
 
 # testing
-/test
+# /test
 
 # umi
 .umi
