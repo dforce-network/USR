@@ -1,14 +1,16 @@
 pragma solidity 0.5.12;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20Pausable.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
+
+import "@openzeppelin/upgrades/contracts/Initializable.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Pausable.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Detailed.sol";
 
 import "./interface/IProfitProvider.sol";
 
-contract ERC20Exchangeable is ERC20Pausable, ERC20Detailed, Ownable {
+contract ERC20Exchangeable is Initializable, ERC20Pausable, ERC20Detailed {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -16,18 +18,17 @@ contract ERC20Exchangeable is ERC20Pausable, ERC20Detailed, Ownable {
 
     uint256 constant BASE = 10**18;
 
-    constructor(
+    function initialize(
         string memory _name,
         string memory _symbol,
         address _underlyingToken
-    )
-        public
-        ERC20Detailed(
+    ) public initializer {
+        ERC20Pausable.initialize(msg.sender);
+        ERC20Detailed.initialize(
             _name,
             _symbol,
             ERC20Detailed(_underlyingToken).decimals()
-        )
-    {
+        );
         underlyingToken = IERC20(_underlyingToken);
     }
 
@@ -83,7 +84,7 @@ contract ERC20Exchangeable is ERC20Pausable, ERC20Detailed, Ownable {
     }
 }
 
-contract USR is ERC20Exchangeable {
+contract USR is Initializable, ERC20Exchangeable, Ownable {
     using SafeERC20 for IERC20;
 
     IProfitProvider profitProvider;
@@ -93,12 +94,14 @@ contract USR is ERC20Exchangeable {
         address NewProfitProvider
     );
 
-    constructor(address _underlyingToken, address _profitProvider)
+    function initialize(address _underlyingToken, address _profitProvider)
         public
-        ERC20Exchangeable("USR", "USR", _underlyingToken)
+        initializer
     {
-        profitProvider = IProfitProvider(_profitProvider);
+        ERC20Exchangeable.initialize("USR", "USR", _underlyingToken);
+        Ownable.initialize(msg.sender);
 
+        profitProvider = IProfitProvider(_profitProvider);
         emit NewProfitProvider(address(0), _profitProvider);
     }
 

@@ -12,9 +12,13 @@
     "@nomiclabs/buidler": "^1.4.3",
     "@nomiclabs/buidler-ethers": "^2.0.0",
     "@nomiclabs/buidler-waffle": "^2.0.0",
-    "@openzeppelin/contracts": "^2.4.0",
     "chai": "^4.2.0",
     "ethereum-waffle": "^3.0.2",
     "ethers": "^5.0.8"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^2.4.0",
+    "@openzeppelin/contracts-ethereum-package": "^2.5.0",
+    "@openzeppelin/upgrades": "^2.8.0"
   }
 }

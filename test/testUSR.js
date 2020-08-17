@@ -31,8 +31,15 @@ async function fixtureMockProfitProvider([wallet, other], provider) {
   // console.log("profitProvider address:", profitProvider.address);
 
   const USR = await ethers.getContractFactory("USR");
-  const usr = await USR.deploy(usdx.address, profitProvider.address);
+  const usr = await USR.deploy();
   await usr.deployed();
+
+  // There are many initialize due to inheritance, use the full typed signature
+  //console.log(usr.functions);
+  await usr.functions["initialize(address,address)"](
+    usdx.address,
+    profitProvider.address
+  );
 
   // console.log("USR address:", usr.address);
 
