@@ -33,7 +33,7 @@ contract MockProfitProviderUSDx is IProfitProvider {
      * @dev When the total supply of token is 0, it needs to be called to reset the starting point.
      */
     function resetProfit() external {
-        startingPoint = getProfitAmount();
+        startingPoint = USDx.balanceOf(pool);
     }
 
     /**

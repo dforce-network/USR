@@ -9,8 +9,14 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Paus
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Detailed.sol";
 
 import "./interface/IProfitProvider.sol";
+import "./Chargeable.sol";
 
-contract ERC20Exchangeable is Initializable, ERC20Pausable, ERC20Detailed {
+contract ERC20Exchangeable is
+    Initializable,
+    ERC20Pausable,
+    ERC20Detailed,
+    Chargeable
+{
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -29,6 +35,8 @@ contract ERC20Exchangeable is Initializable, ERC20Pausable, ERC20Detailed {
             _symbol,
             ERC20Detailed(_underlyingToken).decimals()
         );
+        Chargeable.initialize(_underlyingToken);
+
         underlyingToken = IERC20(_underlyingToken);
     }
 
@@ -56,7 +64,8 @@ contract ERC20Exchangeable is Initializable, ERC20Pausable, ERC20Detailed {
             _burn(account, amount);
         }
 
-        underlyingToken.safeTransfer(msg.sender, underlying);
+        uint256 remaining = chargeFee(underlying);
+        underlyingToken.safeTransfer(msg.sender, remaining);
 
         return true;
     }
@@ -84,7 +93,7 @@ contract ERC20Exchangeable is Initializable, ERC20Pausable, ERC20Detailed {
     }
 }
 
-contract USR is Initializable, ERC20Exchangeable, Ownable {
+contract USR is Initializable, Ownable, ERC20Exchangeable {
     using SafeERC20 for IERC20;
 
     IProfitProvider profitProvider;
@@ -110,13 +119,15 @@ contract USR is Initializable, ERC20Exchangeable, Ownable {
         onlyOwner
         returns (bool)
     {
+        address _oldProfitProvider = address(profitProvider);
+
         require(
-            _profitProvider != _profitProvider,
+            _profitProvider != _oldProfitProvider,
             "updateProfitProvider: same profit provider address."
         );
-        IProfitProvider _oldProfitProvider = profitProvider;
+
         profitProvider = IProfitProvider(_profitProvider);
-        emit NewProfitProvider(address(_oldProfitProvider), _profitProvider);
+        emit NewProfitProvider(_oldProfitProvider, _profitProvider);
 
         return true;
     }
