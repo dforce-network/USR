@@ -1,16 +1,26 @@
 pragma solidity 0.5.12;
 
+import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
 
 import "./library/DSAuth.sol";
 
 interface IProfitFunds {
-    function transferOut(address _token, address _to, uint _amount) external returns (bool);
+    function transferOut(
+        address _token,
+        address _to,
+        uint256 _amount
+    ) external returns (bool);
 }
 
 interface IDSWrappedToken {
-    function changeByMultiple(uint _amount) external view returns (uint);
-    function reverseByMultiple(uint _xAmount) external view returns (uint);
+    function changeByMultiple(uint256 _amount) external view returns (uint256);
+
+    function reverseByMultiple(uint256 _xAmount)
+        external
+        view
+        returns (uint256);
+
     function getSrcERC20() external view returns (address);
 }
 
@@ -19,7 +29,11 @@ interface IDFStore {
 }
 
 interface IDFPoolV2 {
-    function transferOutSrc(address _token, address _to, uint _amount) external returns (bool);
+    function transferOutSrc(
+        address _token,
+        address _to,
+        uint256 _amount
+    ) external returns (bool);
 }
 
 interface IDTokenController {
@@ -27,7 +41,6 @@ interface IDTokenController {
 }
 
 interface IDToken {
-
     function getBaseData()
         external
         returns (
@@ -59,7 +72,10 @@ contract ProfitProviderUSDx is DSAuth {
     event NewPool(address _oldPool, address _newPool);
     event NewCollateral(address _oldCollateral, address _newCollateral);
     event NewFunds(address _oldFunds, address _newFunds);
-    event NewDTokenController(address _oldNewDTokenController, address _newNewDTokenController);
+    event NewDTokenController(
+        address _oldNewDTokenController,
+        address _newNewDTokenController
+    );
 
     /**
      * The constructor is used here to ensure that the implementation
@@ -75,7 +91,14 @@ contract ProfitProviderUSDx is DSAuth {
         address _profitFunds,
         address _dTokenController
     ) public {
-        initialize(_USDx, _dfStore, _dfPool, _dfCollateral, _profitFunds, _dTokenController);
+        initialize(
+            _USDx,
+            _dfStore,
+            _dfPool,
+            _dfCollateral,
+            _profitFunds,
+            _dTokenController
+        );
     }
 
     /************************/
@@ -98,7 +121,7 @@ contract ProfitProviderUSDx is DSAuth {
         dfPool = _dfPool;
         dfCollateral = _dfCollateral;
         profitFunds = _profitFunds;
-        dTokenController = _dTokenController;        
+        dTokenController = _dTokenController;
         initialized = true;
     }
 
@@ -151,7 +174,8 @@ contract ProfitProviderUSDx is DSAuth {
     function setDTokenController(address _newDTokenController) external auth {
         address _oldDTokenController = dTokenController;
         require(
-            _newDTokenController != address(0) && _newDTokenController != _oldDTokenController,
+            _newDTokenController != address(0) &&
+                _newDTokenController != _oldDTokenController,
             "setDTokenController: dTokenController can be not set to 0 or the current one."
         );
         dTokenController = _newDTokenController;
@@ -186,6 +210,7 @@ contract ProfitProviderUSDx is DSAuth {
         uint256 withdrawXAmount;
         uint256 sum;
     }
+
     function withdrawProfit(uint256 _amount) external auth {
         withdrawLocalVars memory _local;
 
@@ -194,24 +219,34 @@ contract ProfitProviderUSDx is DSAuth {
         _local.dfPool = dfPool;
         _local.profitFunds = profitFunds;
         _local.xTokens = IDFStore(dfStore).getMintedTokenList();
-        for (uint i = 0; i < _local.xTokens.length && _local.sum > 0; i++) {
-
-            _local.xBalance = IERC20(_local.xTokens[i]).balanceOf(_local.dfCollateral);
+        for (uint256 i = 0; i < _local.xTokens.length && _local.sum > 0; i++) {
+            _local.xBalance = IERC20(_local.xTokens[i]).balanceOf(
+                _local.dfCollateral
+            );
 
             _local.token = IDSWrappedToken(_local.xTokens[i]).getSrcERC20();
 
-            _local.xAmount = IDSWrappedToken(_local.xTokens[i]).changeByMultiple(getUnderlyingAmountOfDToken(_local.token)); 
-            _local.xAmount = _local.xAmount > _local.xBalance ? _local.xAmount.sub(_local.xBalance) : 0;
+            _local.xAmount = IDSWrappedToken(_local.xTokens[i])
+                .changeByMultiple(getUnderlyingAmountOfDToken(_local.token));
+            _local.xAmount = _local.xAmount > _local.xBalance
+                ? _local.xAmount.sub(_local.xBalance)
+                : 0;
 
             if (_local.xAmount > 0) {
+                _local.withdrawXAmount = _local.xAmount > _local.sum
+                    ? _local.sum
+                    : _local.xAmount;
+                _local.withdrawAmount = IDSWrappedToken(_local.xTokens[i])
+                    .reverseByMultiple(_local.withdrawXAmount);
 
-                _local.withdrawXAmount = _local.xAmount > _local.sum ? _local.sum : _local.xAmount;
-                _local.withdrawAmount = IDSWrappedToken(_local.xTokens[i]).reverseByMultiple(_local.withdrawXAmount);
-
-                IDFPoolV2(_local.dfPool).transferOutSrc(_local.token, _local.profitFunds, _local.withdrawAmount);
+                IDFPoolV2(_local.dfPool).transferOutSrc(
+                    _local.token,
+                    _local.profitFunds,
+                    _local.withdrawAmount
+                );
                 _local.sum = _local.sum.sub(_local.withdrawXAmount);
             }
-		}
+        }
         require(_local.sum == 0, "withdrawProfit");
         IProfitFunds(_local.profitFunds).transferOut(USDx, msg.sender, _amount);
     }
@@ -223,7 +258,7 @@ contract ProfitProviderUSDx is DSAuth {
     function getUSDxProfitAmount() public returns (uint256) {
         uint256 _totalAmount;
         (, , , uint256[] memory _amounts) = getProfit();
-        for (uint i = 0; i < _amounts.length; i++)
+        for (uint256 i = 0; i < _amounts.length; i++)
             _totalAmount = _totalAmount.add(_amounts[i]);
         return _totalAmount;
     }
@@ -237,22 +272,38 @@ contract ProfitProviderUSDx is DSAuth {
         uint256 xAmount;
         uint256 xBalance;
     }
-    function getProfit() public returns (address[] memory, uint256[] memory, address[] memory, uint256[] memory) {
+
+    function getProfit()
+        public
+        returns (
+            address[] memory,
+            uint256[] memory,
+            address[] memory,
+            uint256[] memory
+        )
+    {
         ProfitLocalVars memory _local;
         _local.xTokens = IDFStore(dfStore).getMintedTokenList();
         _local.xAmounts = new uint256[](_local.xTokens.length);
         _local.tokens = new address[](_local.xTokens.length);
         _local.amounts = new uint256[](_local.xTokens.length);
         _local.dfCollateral = dfCollateral;
-        for (uint i = 0; i < _local.xTokens.length; i++) {
-
+        for (uint256 i = 0; i < _local.xTokens.length; i++) {
             _local.tokens[i] = IDSWrappedToken(_local.xTokens[i]).getSrcERC20();
-            _local.xAmount = IDSWrappedToken(_local.xTokens[i]).changeByMultiple(getUnderlyingAmountOfDToken(_local.tokens[i]));
-            _local.xBalance = IERC20(_local.xTokens[i]).balanceOf(_local.dfCollateral);
-            
-            _local.xAmounts[i] = _local.xAmount > _local.xBalance ? _local.xAmount.sub(_local.xBalance) : 0;
-            _local.amounts[i] = IDSWrappedToken(_local.xTokens[i]).reverseByMultiple(_local.xAmounts[i]);
-		}
+            _local.xAmount = IDSWrappedToken(_local.xTokens[i])
+                .changeByMultiple(
+                getUnderlyingAmountOfDToken(_local.tokens[i])
+            );
+            _local.xBalance = IERC20(_local.xTokens[i]).balanceOf(
+                _local.dfCollateral
+            );
+
+            _local.xAmounts[i] = _local.xAmount > _local.xBalance
+                ? _local.xAmount.sub(_local.xBalance)
+                : 0;
+            _local.amounts[i] = IDSWrappedToken(_local.xTokens[i])
+                .reverseByMultiple(_local.xAmounts[i]);
+        }
         return (_local.tokens, _local.amounts, _local.xTokens, _local.xAmounts);
     }
 
@@ -264,13 +315,25 @@ contract ProfitProviderUSDx is DSAuth {
         uint256 baseAmount;
         uint256 amount;
     }
-    function getUnderlyingAmountOfDToken(address _underlying) public returns (uint256) {
-        DTokenLocalVars memory _local;
-        _local.dToken = IDTokenController(dTokenController).getDToken(_underlying);
-        (, _local.exchangeRate, , _local.feeRate,) = IDToken(_local.dToken).getBaseData();
 
-        _local.grossAmount = rmul(IERC20(_local.dToken).balanceOf(dfPool), _local.exchangeRate);
-        _local.amount = _local.grossAmount.sub(rmul(_local.grossAmount, _local.feeRate));
+    function getUnderlyingAmountOfDToken(address _underlying)
+        public
+        returns (uint256)
+    {
+        DTokenLocalVars memory _local;
+        _local.dToken = IDTokenController(dTokenController).getDToken(
+            _underlying
+        );
+        (, _local.exchangeRate, , _local.feeRate, ) = IDToken(_local.dToken)
+            .getBaseData();
+
+        _local.grossAmount = rmul(
+            IERC20(_local.dToken).balanceOf(dfPool),
+            _local.exchangeRate
+        );
+        _local.amount = _local.grossAmount.sub(
+            rmul(_local.grossAmount, _local.feeRate)
+        );
         // _local.baseAmount = 10**uint256(IERC20(_local.dToken).decimals());
 
         // return _local.amount > _local.baseAmount ? _local.amount.sub(_local.baseAmount) : 0;

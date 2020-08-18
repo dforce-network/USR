@@ -1,9 +1,8 @@
 pragma solidity 0.5.12;
 
-import "../interface/IProfitProvider.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
 
+import "../interface/IProfitProvider.sol";
 import "@nomiclabs/buidler/console.sol";
 
 contract MockProfitProviderUSDx is IProfitProvider {
