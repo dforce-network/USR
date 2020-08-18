@@ -1,4 +1,5 @@
 usePlugin("@nomiclabs/buidler-waffle");
+usePlugin("buidler-gas-reporter");
 
 // This is a sample Buidler task. To learn how to create your own go to
 // https://buidler.dev/guides/create-task.html
@@ -18,5 +19,11 @@ module.exports = {
   // This is a sample solc configuration that specifies which version of solc to use
   solc: {
     version: "0.5.12",
+  },
+
+  gasReporter: {
+    enabled: process.env.REPORT_GAS ? true : false,
+    currency: "USD",
+    gasPrice: 200,
   },
 };
