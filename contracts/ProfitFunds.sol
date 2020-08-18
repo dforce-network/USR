@@ -8,10 +8,11 @@ contract ProfitFunds is DSAuth {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
-    function transferOut(address _token, address _to, uint _amount)
-        external
-        auth
-    {
+    function transferOut(
+        address _token,
+        address _to,
+        uint256 _amount
+    ) external auth {
         require(_to != address(0), "transferOut: address invalid.");
         IERC20(_token).safeTransfer(_to, _amount);
     }

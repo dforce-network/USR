@@ -2,9 +2,9 @@
   "name": "usr",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npx buidler test",
+    "format": "prettier --write contracts test"
   },
   "author": "",
   "license": "MIT",
@@ -20,6 +20,8 @@
   "dependencies": {
     "@openzeppelin/contracts": "^2.4.0",
     "@openzeppelin/contracts-ethereum-package": "^2.5.0",
-    "@openzeppelin/upgrades": "^2.8.0"
+    "@openzeppelin/upgrades": "^2.8.0",
+    "prettier": "^2.0.5",
+    "prettier-plugin-solidity": "^1.0.0-alpha.56"
   }
 }
