@@ -5,11 +5,12 @@ import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Pausable.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Detailed.sol";
 
-import "./interface/IProfitProvider.sol";
+import "./ERC20Pausable.sol";
 import "./Chargeable.sol";
+import "./interface/IProfitProvider.sol";
 
 contract ERC20Exchangeable is
     Initializable,
@@ -29,7 +30,6 @@ contract ERC20Exchangeable is
         string memory _symbol,
         address _underlyingToken
     ) public initializer {
-        ERC20Pausable.initialize(msg.sender);
         ERC20Detailed.initialize(
             _name,
             _symbol,
@@ -93,7 +93,7 @@ contract ERC20Exchangeable is
     }
 }
 
-contract USR is Initializable, Ownable, ERC20Exchangeable {
+contract USR is Initializable, DSAuth, ERC20Exchangeable {
     using SafeERC20 for IERC20;
 
     IProfitProvider profitProvider;
@@ -108,15 +108,15 @@ contract USR is Initializable, Ownable, ERC20Exchangeable {
         initializer
     {
         ERC20Exchangeable.initialize("USR", "USR", _underlyingToken);
-        Ownable.initialize(msg.sender);
 
+        owner = msg.sender;
         profitProvider = IProfitProvider(_profitProvider);
         emit NewProfitProvider(address(0), _profitProvider);
     }
 
     function updateProfitProvider(address _profitProvider)
         external
-        onlyOwner
+        auth
         returns (bool)
     {
         address _oldProfitProvider = address(profitProvider);

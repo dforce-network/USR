@@ -4,9 +4,9 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20
 import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol";
+import "./library/DSAuth.sol";
 
-contract Chargeable is Initializable, Ownable {
+contract Chargeable is Initializable, DSAuth {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -23,14 +23,14 @@ contract Chargeable is Initializable, Ownable {
     );
 
     function initialize(address _token) public initializer {
-        Ownable.initialize(msg.sender);
+        owner = msg.sender;
         token = IERC20(_token);
         feeRecipient = address(this);
     }
 
-    function updateRecipient(address _feeRecipient)
+    function updateFeeRecipient(address _feeRecipient)
         external
-        onlyOwner
+        auth
         returns (bool)
     {
         address _oldFeeRecipient = feeRecipient;
@@ -48,7 +48,7 @@ contract Chargeable is Initializable, Ownable {
 
     function updateOriginationFee(uint256 _newOriginationFee)
         external
-        onlyOwner
+        auth
         returns (bool)
     {
         require(
@@ -81,4 +81,6 @@ contract Chargeable is Initializable, Ownable {
 
         return remaining;
     }
+
+    uint256[50] private ______gap;
 }
