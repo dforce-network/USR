@@ -17,7 +17,7 @@ package-lock.json
 
 # testing
 /coverage
-
+local
 # Logs
 logs
 *.log
