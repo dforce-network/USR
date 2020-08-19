@@ -73,6 +73,26 @@ contract Chargeable is Initializable, DSAuth {
         emit NewOriginationFee(_sig, _oldOriginationFee, _newOriginationFee);
     }
 
+    function calcAdditionalFee(bytes4 _sig, uint256 _amount)
+        internal
+        view
+        returns (uint256)
+    {
+        uint256 _originationFee = originationFee[_sig];
+        return
+            _amount.rdivup(SafeRatioMath.base().sub(_originationFee)).sub(
+                _amount
+            );
+    }
+
+    function transferFee(address _account, uint256 _amount) internal {
+        if (_account == address(this)) {
+            token.safeTransfer(feeRecipient, _amount);
+        } else {
+            token.safeTransferFrom(_account, feeRecipient, _amount);
+        }
+    }
+
     function chargeFee(
         bytes4 _sig,
         address _account,
@@ -88,15 +108,7 @@ contract Chargeable is Initializable, DSAuth {
             SafeRatioMath.base().sub(_originationFee)
         );
 
-        if (_account == address(this)) {
-            token.safeTransfer(feeRecipient, _amount.sub(remaining));
-        } else {
-            token.safeTransferFrom(
-                _account,
-                feeRecipient,
-                _amount.sub(remaining)
-            );
-        }
+        transferFee(_account, _amount.sub(remaining));
 
         return remaining;
     }

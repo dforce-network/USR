@@ -9,7 +9,7 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Deta
 import "./ERC20Pausable.sol";
 import "./Chargeable.sol";
 import "./SafeRatioMath.sol";
-import "./interface/IProfitProvider.sol";
+import "./interface/IInterestProvider.sol";
 
 contract ERC20Exchangeable is
     Initializable,
@@ -39,11 +39,18 @@ contract ERC20Exchangeable is
         underlyingToken = IERC20(_underlyingToken);
     }
 
+    function checkMint(uint256 amount) internal {}
+
+    function checkRedeem(uint256 amount) internal {}
+
     function mint(address account, uint256 amount)
         public
         whenNotPaused
         returns (bool)
     {
+        // Allow sub contract to do something
+        checkMint(amount);
+
         uint256 remaining = chargeFee(msg.sig, msg.sender, amount);
 
         _mint(account, remaining.rdiv(exchangeRate()));
@@ -53,7 +60,7 @@ contract ERC20Exchangeable is
         return true;
     }
 
-    function burn(address account, uint256 amount)
+    function redeem(address account, uint256 amount)
         public
         whenNotPaused
         returns (bool)
@@ -66,8 +73,35 @@ contract ERC20Exchangeable is
             _burnFrom(account, amount);
         }
 
+        // Allow sub contract to do something
+        checkRedeem(underlying);
+
         uint256 remaining = chargeFee(msg.sig, address(this), underlying);
         underlyingToken.safeTransfer(msg.sender, remaining);
+
+        return true;
+    }
+
+    function redeemUnderlying(address account, uint256 underlying)
+        public
+        whenNotPaused
+        returns (bool)
+    {
+        uint256 fee = calcAdditionalFee(this.redeem.selector, underlying);
+        uint256 totalUnderlying = underlying.add(fee);
+        uint256 amount = totalUnderlying.rdivup(exchangeRate());
+
+        if (account == msg.sender) {
+            _burn(account, amount);
+        } else {
+            _burnFrom(account, amount);
+        }
+
+        // Allow sub contract to do something
+        checkRedeem(totalUnderlying);
+
+        transferFee(address(this), fee);
+        underlyingToken.safeTransfer(msg.sender, underlying);
 
         return true;
     }
@@ -88,14 +122,14 @@ contract ERC20Exchangeable is
 contract USR is Initializable, DSAuth, ERC20Exchangeable {
     using SafeERC20 for IERC20;
 
-    IProfitProvider profitProvider;
+    IInterestProvider interestProvider;
 
-    event NewProfitProvider(
-        address oldProfitProvider,
-        address NewProfitProvider
+    event NewInterestProvider(
+        address oldInterestProvider,
+        address NewInterestProvider
     );
 
-    function initialize(address _underlyingToken, address _profitProvider)
+    function initialize(address _underlyingToken, address _interestProvider)
         public
         initializer
     {
@@ -103,61 +137,52 @@ contract USR is Initializable, DSAuth, ERC20Exchangeable {
             "USR",
             "USR",
             _underlyingToken,
-            IProfitProvider(_profitProvider).profitFunds()
+            IInterestProvider(_interestProvider).funds()
         );
 
         owner = msg.sender;
-        profitProvider = IProfitProvider(_profitProvider);
-        emit NewProfitProvider(address(0), _profitProvider);
+        interestProvider = IInterestProvider(_interestProvider);
+        emit NewInterestProvider(address(0), _interestProvider);
     }
 
-    function updateProfitProvider(address _profitProvider)
+    function updateInterestProvider(address _interestProvider)
         external
         auth
         returns (bool)
     {
-        address _oldProfitProvider = address(profitProvider);
+        address _oldInterestProvider = address(interestProvider);
 
         require(
-            _profitProvider != _oldProfitProvider,
-            "updateProfitProvider: same profit provider address."
+            _interestProvider != _oldInterestProvider,
+            "updateInterestProvider: same profit provider address."
         );
 
-        profitProvider = IProfitProvider(_profitProvider);
-        emit NewProfitProvider(_oldProfitProvider, _profitProvider);
+        interestProvider = IInterestProvider(_interestProvider);
+        emit NewInterestProvider(_oldInterestProvider, _interestProvider);
 
         return true;
     }
 
     function underlyingBalance() public returns (uint256) {
-        return super.underlyingBalance().add(profitProvider.getProfitAmount());
+        return
+            super.underlyingBalance().add(interestProvider.getInterestAmount());
     }
 
-    function mint(address account, uint256 amount)
-        public
-        whenNotPaused
-        returns (bool)
-    {
+    function checkMint(uint256 amount) internal {
         if (totalSupply() == 0) {
-            profitProvider.resetProfit();
+            require(
+                amount >= SafeRatioMath.base(),
+                "The first mint amount is too small"
+            );
         }
-
-        return super.mint(account, amount);
     }
 
-    function burn(address account, uint256 amount)
-        public
-        whenNotPaused
-        returns (bool)
-    {
-        uint256 target = amount.rmul(exchangeRate());
+    function checkRedeem(uint256 amount) internal {
         uint256 balance = underlyingToken.balanceOf(address(this));
 
-        // There is not enough balance here, need to withdraw from profit provider
-        if (target > balance) {
-            profitProvider.withdrawProfit(target.sub(balance));
+        //There is not enough balance here, need to withdraw from profit provider
+        if (amount > balance) {
+            interestProvider.withdrawInterest(amount.sub(balance));
         }
-
-        return super.burn(account, amount);
     }
 }

@@ -7,7 +7,7 @@ const UINT256_MAX = BN.from(2).pow(BN.from(256)).sub(BN.from(1)).toString(); // 
 const BASE = ethers.utils.parseEther("1");
 
 const MINT_SELECTOR = "0x40c10f19";
-const BURN_SELECTOR = "0x9dc29fac";
+const REDEEM_SELECTOR = "0x1e9a6950";
 
 async function fixtureMockProfitProvider([wallet, other], provider) {
   const [owner, ...accounts] = await ethers.getSigners();
@@ -19,7 +19,7 @@ async function fixtureMockProfitProvider([wallet, other], provider) {
   // console.log("USDx address:", usdx.address);
 
   const MockProfitProvider = await ethers.getContractFactory(
-    "MockProfitProviderUSDx"
+    "MockInterestProvider"
   );
 
   // let accounts[0] to act as funds
@@ -48,10 +48,12 @@ async function fixtureMockProfitProvider([wallet, other], provider) {
   // console.log("USR address:", usr.address);
 
   await usdx.connect(funds).approve(profitProvider.address, UINT256_MAX);
-  await usdx.transfer(funds._address, ethers.utils.parseEther("500000000"));
+
+  const initialInterest = ethers.utils.parseEther("500");
+  await usdx.transfer(funds._address, initialInterest);
 
   expect(await usdx.balanceOf(funds._address)).to.equal(
-    ethers.utils.parseEther("500000000").toString()
+    initialInterest.toString()
   );
 
   return { usdx, usr, profitProvider };
@@ -93,13 +95,14 @@ describe("USR", function () {
       // Mock some profit by direct transfer
       await usdx.transfer(usr.address, ethers.utils.parseEther("500"));
 
+      // There are 500 initial interest in funds
       expect(await usr.callStatic.exchangeRate()).to.equal(
-        ethers.utils.parseEther("1.5").toString()
+        ethers.utils.parseEther("2.0").toString()
       );
     });
   });
 
-  describe("Mint/Burn", function () {
+  describe("Mint/Redeem/RedeemUnderlying", function () {
     it("Should be able to mint with mock profit provider", async function () {
       const { usdx, usr, profitProvider } = await loadFixture(
         fixtureMockProfitProvider
@@ -124,7 +127,7 @@ describe("USR", function () {
 
       // Mock some profit
       await usdx.transfer(
-        await profitProvider.profitFunds(),
+        await profitProvider.funds(),
         ethers.utils.parseEther("500")
       );
 
@@ -160,7 +163,7 @@ describe("USR", function () {
       );
     });
 
-    it("Should be able to burn with mock profit provider", async function () {
+    it("Should be able to redeem with mock profit provider", async function () {
       const { usdx, usr, profitProvider } = await loadFixture(
         fixtureMockProfitProvider
       );
@@ -186,7 +189,7 @@ describe("USR", function () {
         "USDx"
       );
 
-      await usr.connect(account).burn(account._address, balancesBefore.usr);
+      await usr.connect(account).redeem(account._address, balancesBefore.usr);
 
       let balancesAfter = {
         usr: await usr.balanceOf(account._address),
@@ -293,8 +296,10 @@ describe("USR", function () {
       );
 
       let fee = ethers.utils.parseEther("0.05");
-      await usr.updateOriginationFee(BURN_SELECTOR, fee);
-      expect(await usr.originationFee(BURN_SELECTOR)).to.equal(fee.toString());
+      await usr.updateOriginationFee(REDEEM_SELECTOR, fee);
+      expect(await usr.originationFee(REDEEM_SELECTOR)).to.equal(
+        fee.toString()
+      );
 
       let account = accounts[1];
 
@@ -317,7 +322,7 @@ describe("USR", function () {
       //   "USDx"
       // );
 
-      await usr.connect(account).burn(account._address, balancesBefore.usr);
+      await usr.connect(account).redeem(account._address, balancesBefore.usr);
 
       let balancesAfter = {
         usr: await usr.balanceOf(account._address),
