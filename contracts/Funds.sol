@@ -4,7 +4,7 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20
 
 import "./library/DSAuth.sol";
 
-contract ProfitFunds is DSAuth {
+contract Funds is DSAuth {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
