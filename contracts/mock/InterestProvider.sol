@@ -2,38 +2,24 @@ pragma solidity 0.5.12;
 
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 
-import "../interface/IProfitProvider.sol";
+import "../interface/IInterestProvider.sol";
 import "@nomiclabs/buidler/console.sol";
 
-contract MockProfitProviderUSDx is IProfitProvider {
+contract MockInterestProvider is IInterestProvider {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
     IERC20 public USDx;
 
-    address public profitFunds;
+    address public funds;
 
-    uint256 startingPoint;
-
-    constructor(address _USDx, address _profitFunds) public {
+    constructor(address _USDx, address _funds) public {
         USDx = IERC20(_USDx);
-        profitFunds = _profitFunds;
+        funds = _funds;
     }
 
-    function getProfitAmount() public returns (uint256) {
-        console.log(
-            "profitFunds balance %d, startingpoint %d",
-            USDx.balanceOf(profitFunds),
-            startingPoint
-        );
-        return USDx.balanceOf(profitFunds).sub(startingPoint);
-    }
-
-    /**
-     * @dev When the total supply of token is 0, it needs to be called to reset the starting point.
-     */
-    function resetProfit() external {
-        startingPoint = USDx.balanceOf(profitFunds);
+    function getInterestAmount() public returns (uint256) {
+        return USDx.balanceOf(funds);
     }
 
     /**
@@ -41,8 +27,8 @@ contract MockProfitProviderUSDx is IProfitProvider {
      * @param _amount USDx withdrawal amount.
      * @return Withdraw USDx amount.
      */
-    function withdrawProfit(uint256 _amount) external {
+    function withdrawInterest(uint256 _amount) external {
         console.log("About to transfer %d from %s", _amount, address(USDx));
-        USDx.safeTransferFrom(profitFunds, msg.sender, _amount);
+        USDx.safeTransferFrom(funds, msg.sender, _amount);
     }
 }
