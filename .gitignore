@@ -1,9 +1,12 @@
 # dependencies
+cache
+artifacts
 node_modules
 npm-debug.log*
 yarn-error.log
 yarn.lock
 package-lock.json
+/build
 
 # misc
 .DS_Store
@@ -15,13 +18,13 @@ package-lock.json
 
 # testing
 /coverage
-
+local
 # Logs
 logs
 *.log
 
 # testing
-/test
+# /test
 
 # umi
 .umi
