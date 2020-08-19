@@ -52,8 +52,6 @@ contract InterestProvider is DSAuth {
     address public dfPool;
     address public funds;
 
-    uint256 public baseInterest;
-
     event NewPool(address _oldPool, address _newPool);
     event NewFunds(address _oldFunds, address _newFunds);
 
@@ -120,10 +118,6 @@ contract InterestProvider is DSAuth {
         emit NewFunds(_oldFunds, _newFunds);
     }
 
-    function resetInterest() external auth {
-        baseInterest = getInterest();
-    }
-
     struct withdrawLocalVars {
         address[] xTokens;
         address dfPool;
@@ -164,17 +158,10 @@ contract InterestProvider is DSAuth {
             }
         }
         require(
-            _local.remaining == 0 &&
-                _amount <= _local.xTotalInterest.sub(baseInterest),
+            _local.remaining == 0 && _amount <= _local.xTotalInterest,
             "withdrawInterest: not enough interest"
         );
         IFunds(_local.funds).transferOut(USDx, msg.sender, _amount);
-    }
-
-    function getInterestAmount() external returns (uint256) {
-        uint256 _interest = getInterest();
-        uint256 _baseInterest = baseInterest;
-        return _interest > _baseInterest ? _interest.sub(_baseInterest) : 0;
     }
 
     struct InterestLocalVars {
@@ -184,7 +171,7 @@ contract InterestProvider is DSAuth {
         uint256 xTotalInterest;
     }
 
-    function getInterest() public returns (uint256) {
+    function getInterestAmount() external returns (uint256) {
         InterestLocalVars memory _local;
 
         _local.xTokens = IDFStore(dfStore).getMintedTokenList();
