@@ -100,12 +100,24 @@ describe("USR", function () {
   });
 
   describe("Mint/Burn", function () {
-    it("Should be able to mint/burn with mock profit provider", async function () {
+    it("Should be able to mint with mock profit provider", async function () {
       const { usdx, usr, profitProvider } = await loadFixture(
         fixtureMockProfitProvider
       );
 
       let account = accounts[1];
+
+      let exchangeRate = await usr.callStatic.exchangeRate();
+      console.log(
+        "Exchange Rate:",
+        ethers.utils.formatEther(await usr.callStatic.exchangeRate())
+      );
+
+      let balancesBefore = {
+        usr: await usr.balanceOf(account._address),
+        usdx: await usdx.balanceOf(account._address),
+      };
+
       await usr
         .connect(account)
         .mint(account._address, ethers.utils.parseEther("500"));
@@ -115,6 +127,45 @@ describe("USR", function () {
         await profitProvider.profitFunds(),
         ethers.utils.parseEther("500")
       );
+
+      console.log(
+        "Account has",
+        ethers.utils.formatEther(balancesBefore.usr),
+        "USR",
+        ethers.utils.formatEther(balancesBefore.usdx),
+        "USDx"
+      );
+
+      let balancesAfter = {
+        usr: await usr.balanceOf(account._address),
+        usdx: await usdx.balanceOf(account._address),
+      };
+
+      console.log(
+        "Account has",
+        ethers.utils.formatEther(balancesAfter.usr),
+        "USR",
+        ethers.utils.formatEther(balancesAfter.usdx),
+        "USDx"
+      );
+
+      let changed = {
+        usr: balancesAfter.usr.sub(balancesBefore.usr),
+        usdx: balancesAfter.usdx.sub(balancesBefore.usdx),
+      };
+
+      // usr = usdx * BASE/exchangeRate
+      expect(changed.usdx.mul(BASE).div(exchangeRate).abs()).to.equal(
+        changed.usr.abs()
+      );
+    });
+
+    it("Should be able to burn with mock profit provider", async function () {
+      const { usdx, usr, profitProvider } = await loadFixture(
+        fixtureMockProfitProvider
+      );
+
+      let account = accounts[1];
 
       let exchangeRate = await usr.callStatic.exchangeRate();
       console.log(
@@ -155,12 +206,10 @@ describe("USR", function () {
         usdx: balancesAfter.usdx.sub(balancesBefore.usdx),
       };
 
-      expect(
-        exchangeRate
-          .mul(changed.usr)
-          .div(ethers.utils.parseEther("1"))
-          .add(changed.usdx)
-      ).to.equal(0);
+      // usdx = usr * exchangeRate/BASE
+      expect(changed.usr.mul(exchangeRate).div(BASE).abs()).to.equal(
+        changed.usdx.abs()
+      );
     });
   });
 
