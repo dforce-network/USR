@@ -312,8 +312,8 @@ contract ProfitProviderUSDx is DSAuth {
         uint256 exchangeRate;
         uint256 feeRate;
         uint256 grossAmount;
-        uint256 baseAmount;
-        uint256 amount;
+        // uint256 baseAmount;
+        // uint256 amount;
     }
 
     function getUnderlyingAmountOfDToken(address _underlying)
@@ -324,6 +324,8 @@ contract ProfitProviderUSDx is DSAuth {
         _local.dToken = IDTokenController(dTokenController).getDToken(
             _underlying
         );
+        if (_local.dToken == address(0))
+            return 0;
         (, _local.exchangeRate, , _local.feeRate, ) = IDToken(_local.dToken)
             .getBaseData();
 
@@ -331,12 +333,15 @@ contract ProfitProviderUSDx is DSAuth {
             IERC20(_local.dToken).balanceOf(dfPool),
             _local.exchangeRate
         );
-        _local.amount = _local.grossAmount.sub(
+        return _local.grossAmount.sub(
             rmul(_local.grossAmount, _local.feeRate)
         );
+        // _local.amount = _local.grossAmount.sub(
+        //     rmul(_local.grossAmount, _local.feeRate)
+        // );
         // _local.baseAmount = 10**uint256(IERC20(_local.dToken).decimals());
 
         // return _local.amount > _local.baseAmount ? _local.amount.sub(_local.baseAmount) : 0;
-        return _local.amount;
+        // return _local.amount;
     }
 }
