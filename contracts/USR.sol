@@ -8,6 +8,7 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Deta
 
 import "./ERC20Pausable.sol";
 import "./Chargeable.sol";
+import "./SafeRatioMath.sol";
 import "./interface/IProfitProvider.sol";
 
 contract ERC20Exchangeable is
@@ -17,11 +18,10 @@ contract ERC20Exchangeable is
     Chargeable
 {
     using SafeMath for uint256;
+    using SafeRatioMath for uint256;
     using SafeERC20 for IERC20;
 
     IERC20 public underlyingToken;
-
-    uint256 constant BASE = 10**18;
 
     function initialize(
         string memory _name,
@@ -46,7 +46,7 @@ contract ERC20Exchangeable is
     {
         uint256 remaining = chargeFee(msg.sig, msg.sender, amount);
 
-        _mint(account, rdiv(remaining, exchangeRate()));
+        _mint(account, remaining.rdiv(exchangeRate()));
 
         underlyingToken.safeTransferFrom(msg.sender, address(this), remaining);
 
@@ -58,7 +58,7 @@ contract ERC20Exchangeable is
         whenNotPaused
         returns (bool)
     {
-        uint256 underlying = rmul(amount, exchangeRate());
+        uint256 underlying = amount.rmul(exchangeRate());
 
         if (account == msg.sender) {
             _burn(account, amount);
@@ -78,20 +78,10 @@ contract ERC20Exchangeable is
 
     function exchangeRate() public returns (uint256) {
         uint256 totalSupply = totalSupply();
-        return totalSupply > 0 ? rdiv(underlyingBalance(), totalSupply) : BASE;
-    }
-
-    // --- Math ---
-    function rmul(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        z = x.mul(y) / BASE;
-    }
-
-    function rdiv(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        z = x.mul(BASE) / y;
-    }
-
-    function rdivup(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        z = x.mul(BASE).add(y.sub(1)) / y;
+        return
+            totalSupply > 0
+                ? underlyingBalance().rdiv(totalSupply)
+                : SafeRatioMath.base();
     }
 }
 
@@ -160,7 +150,7 @@ contract USR is Initializable, DSAuth, ERC20Exchangeable {
         whenNotPaused
         returns (bool)
     {
-        uint256 target = rmul(amount, exchangeRate());
+        uint256 target = amount.rmul(exchangeRate());
         uint256 balance = underlyingToken.balanceOf(address(this));
 
         // There is not enough balance here, need to withdraw from profit provider

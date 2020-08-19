@@ -4,17 +4,17 @@ import "@openzeppelin/upgrades/contracts/Initializable.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
 
 import "./library/DSAuth.sol";
+import "./SafeRatioMath.sol";
 
 contract Chargeable is Initializable, DSAuth {
     using SafeMath for uint256;
+    using SafeRatioMath for uint256;
     using SafeERC20 for IERC20;
 
     IERC20 public token;
     address public feeRecipient;
 
     mapping(bytes4 => uint256) public originationFee;
-
-    uint256 constant BASE = 10**18;
 
     event NewFeeReceipient(address oldfeeRecipient, address newfeeRecipient);
     event NewOriginationFee(
@@ -60,7 +60,7 @@ contract Chargeable is Initializable, DSAuth {
         auth
     {
         require(
-            _newOriginationFee < BASE,
+            _newOriginationFee < SafeRatioMath.base(),
             "updateOriginationFee: incorrect fee."
         );
         uint256 _oldOriginationFee = originationFee[_sig];
@@ -84,7 +84,9 @@ contract Chargeable is Initializable, DSAuth {
             return _amount;
         }
 
-        uint256 remaining = _amount.mul(BASE.sub(_originationFee)).div(BASE);
+        uint256 remaining = _amount.rmul(
+            SafeRatioMath.base().sub(_originationFee)
+        );
 
         if (_account == address(this)) {
             token.safeTransfer(feeRecipient, _amount.sub(remaining));
@@ -97,19 +99,6 @@ contract Chargeable is Initializable, DSAuth {
         }
 
         return remaining;
-    }
-
-    // --- Math ---
-    function rmul(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        z = x.mul(y) / BASE;
-    }
-
-    function rdiv(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        z = x.mul(BASE) / y;
-    }
-
-    function rdivup(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        z = x.mul(BASE).add(y.sub(1)) / y;
     }
 
     uint256[50] private ______gap;
