@@ -6,6 +6,9 @@ const BN = ethers.BigNumber;
 const UINT256_MAX = BN.from(2).pow(BN.from(256)).sub(BN.from(1)).toString(); // unit256(-1)
 const BASE = ethers.utils.parseEther("1");
 
+const MINT_SELECTOR = "0x40c10f19";
+const BURN_SELECTOR = "0x9dc29fac";
+
 async function fixtureMockProfitProvider([wallet, other], provider) {
   const [owner, ...accounts] = await ethers.getSigners();
 
@@ -19,13 +22,13 @@ async function fixtureMockProfitProvider([wallet, other], provider) {
     "MockProfitProviderUSDx"
   );
 
-  // let accounts[0] to act as pool
-  let pool = accounts[0];
-  // console.log("pool address:", pool._address);
+  // let accounts[0] to act as funds
+  let funds = accounts[0];
+  // console.log("funds address:", funds._address);
 
   const profitProvider = await MockProfitProvider.deploy(
     usdx.address,
-    pool._address
+    funds._address
   );
   await profitProvider.deployed();
 
@@ -44,10 +47,10 @@ async function fixtureMockProfitProvider([wallet, other], provider) {
 
   // console.log("USR address:", usr.address);
 
-  await usdx.connect(pool).approve(profitProvider.address, UINT256_MAX);
-  await usdx.transfer(pool._address, ethers.utils.parseEther("500000000"));
+  await usdx.connect(funds).approve(profitProvider.address, UINT256_MAX);
+  await usdx.transfer(funds._address, ethers.utils.parseEther("500000000"));
 
-  expect(await usdx.balanceOf(pool._address)).to.equal(
+  expect(await usdx.balanceOf(funds._address)).to.equal(
     ethers.utils.parseEther("500000000").toString()
   );
 
@@ -70,10 +73,11 @@ describe("USR", function () {
     );
 
     expect(await usr.name()).to.equal("USR");
-    expect(await usr.exchangeRate()).to.equal(
+    expect(await usr.callStatic.exchangeRate()).to.equal(
       ethers.utils.parseEther("1.0").toString()
     );
   });
+
   describe("Exchange Rate", function () {
     it("Should be able to update exchange rate", async function () {
       const { usdx, usr } = await loadFixture(fixtureMockProfitProvider);
@@ -87,10 +91,10 @@ describe("USR", function () {
         .mint(account._address, ethers.utils.parseEther("1000"));
 
       // Mock some profit by direct transfer
-      await usdx.transfer(usr.address, ethers.utils.parseEther("400"));
+      await usdx.transfer(usr.address, ethers.utils.parseEther("500"));
 
-      expect(await usr.exchangeRate()).to.equal(
-        ethers.utils.parseEther("1.4").toString()
+      expect(await usr.callStatic.exchangeRate()).to.equal(
+        ethers.utils.parseEther("1.5").toString()
       );
     });
   });
@@ -107,26 +111,29 @@ describe("USR", function () {
         .mint(account._address, ethers.utils.parseEther("500"));
 
       // Mock some profit
-      await usdx.transfer(accounts[0]._address, ethers.utils.parseEther("500"));
+      await usdx.transfer(
+        await profitProvider.profitFunds(),
+        ethers.utils.parseEther("500")
+      );
 
-      let exchangeRate = await usr.exchangeRate();
-      // console.log(
-      //   "Exchange Rate:",
-      //   ethers.utils.formatEther(await usr.exchangeRate())
-      // );
+      let exchangeRate = await usr.callStatic.exchangeRate();
+      console.log(
+        "Exchange Rate:",
+        ethers.utils.formatEther(await usr.callStatic.exchangeRate())
+      );
 
       let balancesBefore = {
         usr: await usr.balanceOf(account._address),
         usdx: await usdx.balanceOf(account._address),
       };
 
-      // console.log(
-      //   "Account has",
-      //   ethers.utils.formatEther(balancesBefore.usr),
-      //   "USR",
-      //   ethers.utils.formatEther(balancesBefore.usdx),
-      //   "USDx"
-      // );
+      console.log(
+        "Account has",
+        ethers.utils.formatEther(balancesBefore.usr),
+        "USR",
+        ethers.utils.formatEther(balancesBefore.usdx),
+        "USDx"
+      );
 
       await usr.connect(account).burn(account._address, balancesBefore.usr);
 
@@ -135,13 +142,13 @@ describe("USR", function () {
         usdx: await usdx.balanceOf(account._address),
       };
 
-      // console.log(
-      //   "Account has",
-      //   ethers.utils.formatEther(balancesAfter.usr),
-      //   "USR",
-      //   ethers.utils.formatEther(balancesAfter.usdx),
-      //   "USDx"
-      // );
+      console.log(
+        "Account has",
+        ethers.utils.formatEther(balancesAfter.usr),
+        "USR",
+        ethers.utils.formatEther(balancesAfter.usdx),
+        "USDx"
+      );
 
       let changed = {
         usr: balancesAfter.usr.sub(balancesBefore.usr),
@@ -157,27 +164,95 @@ describe("USR", function () {
     });
   });
 
-  describe("Charge Fee", function () {
-    it(" Should be able to charge some fee", async function () {
+  describe("Fee", function () {
+    it("Should be able to update fee recipient", async function () {
+      const { usdx, usr, profitProvider } = await loadFixture(
+        fixtureMockProfitProvider
+      );
+
+      let recipient = accounts[accounts.length - 1]._address;
+      await usr.updateFeeRecipient(recipient);
+      expect(await usr.feeRecipient()).to.equal(recipient);
+    });
+
+    it("Should be able to charge some fee when mint", async function () {
       const { usdx, usr, profitProvider } = await loadFixture(
         fixtureMockProfitProvider
       );
 
       let fee = ethers.utils.parseEther("0.05");
-      await usr.updateOriginationFee(fee);
-      expect(await usr.originationFee()).to.equal(fee.toString());
-
-      console.log("MINT");
+      await usr.updateOriginationFee(MINT_SELECTOR, fee);
+      expect(await usr.originationFee(MINT_SELECTOR)).to.equal(fee.toString());
 
       let account = accounts[1];
+      let balancesBefore = {
+        usr: await usr.balanceOf(account._address),
+        usdx: await usdx.balanceOf(account._address),
+      };
+
+      console.log(
+        "Account has",
+        ethers.utils.formatEther(balancesBefore.usr),
+        "USR",
+        ethers.utils.formatEther(balancesBefore.usdx),
+        "USDx"
+      );
+
+      let exchangeRate = await usr.callStatic.exchangeRate();
+      console.log(
+        "Exchange Rate:",
+        ethers.utils.formatEther(await usr.callStatic.exchangeRate())
+      );
+
       await usr
         .connect(account)
         .mint(account._address, ethers.utils.parseEther("500"));
 
-      let exchangeRate = await usr.exchangeRate();
+      let balancesAfter = {
+        usr: await usr.balanceOf(account._address),
+        usdx: await usdx.balanceOf(account._address),
+      };
+
+      console.log(
+        "Account has",
+        ethers.utils.formatEther(balancesAfter.usr),
+        "USR",
+        ethers.utils.formatEther(balancesAfter.usdx),
+        "USDx"
+      );
+
+      let changed = {
+        usr: balancesAfter.usr.sub(balancesBefore.usr),
+        usdx: balancesAfter.usdx.sub(balancesBefore.usdx),
+      };
+
+      // usr = usdx * (BASE - fee)/BASE * BASE/exchangeRate
+      expect(
+        changed.usdx
+          .mul(BASE.sub(fee))
+          .div(BASE)
+          .mul(BASE)
+          .div(exchangeRate)
+          .abs()
+          .toString()
+      ).to.equal(changed.usr.abs().toString());
+    });
+
+    it("Should be able to charge some fee when burn", async function () {
+      const { usdx, usr, profitProvider } = await loadFixture(
+        fixtureMockProfitProvider
+      );
+
+      let fee = ethers.utils.parseEther("0.05");
+      await usr.updateOriginationFee(BURN_SELECTOR, fee);
+      expect(await usr.originationFee(BURN_SELECTOR)).to.equal(fee.toString());
+
+      let account = accounts[1];
+
+      let exchangeRate = await usr.callStatic.exchangeRate();
       console.log(
         "Exchange Rate:",
-        ethers.utils.formatEther(await usr.exchangeRate())
+        ethers.utils.formatEther(await usr.callStatic.exchangeRate())
       );
 
       let balancesBefore = {

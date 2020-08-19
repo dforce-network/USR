@@ -26,14 +26,15 @@ contract ERC20Exchangeable is
     function initialize(
         string memory _name,
         string memory _symbol,
-        address _underlyingToken
+        address _underlyingToken,
+        address _feeRecipient
     ) public initializer {
         ERC20Detailed.initialize(
             _name,
             _symbol,
             ERC20Detailed(_underlyingToken).decimals()
         );
-        Chargeable.initialize(_underlyingToken);
+        Chargeable.initialize(_underlyingToken, _feeRecipient);
 
         underlyingToken = IERC20(_underlyingToken);
     }
@@ -43,8 +44,11 @@ contract ERC20Exchangeable is
         whenNotPaused
         returns (bool)
     {
-        _mint(account, rdiv(amount, exchangeRate()));
-        underlyingToken.safeTransferFrom(msg.sender, address(this), amount);
+        uint256 remaining = chargeFee(msg.sig, msg.sender, amount);
+
+        _mint(account, rdiv(remaining, exchangeRate()));
+
+        underlyingToken.safeTransferFrom(msg.sender, address(this), remaining);
 
         return true;
     }
@@ -56,23 +60,23 @@ contract ERC20Exchangeable is
     {
         uint256 underlying = rmul(amount, exchangeRate());
 
-        if (account != msg.sender) {
-            _burnFrom(account, amount);
-        } else {
+        if (account == msg.sender) {
             _burn(account, amount);
+        } else {
+            _burnFrom(account, amount);
         }
 
-        uint256 remaining = chargeFee(underlying);
+        uint256 remaining = chargeFee(msg.sig, address(this), underlying);
         underlyingToken.safeTransfer(msg.sender, remaining);
 
         return true;
     }
 
-    function underlyingBalance() public view returns (uint256) {
+    function underlyingBalance() public returns (uint256) {
         return underlyingToken.balanceOf(address(this));
     }
 
-    function exchangeRate() public view returns (uint256) {
+    function exchangeRate() public returns (uint256) {
         uint256 totalSupply = totalSupply();
         return totalSupply > 0 ? rdiv(underlyingBalance(), totalSupply) : BASE;
     }
@@ -105,7 +109,12 @@ contract USR is Initializable, DSAuth, ERC20Exchangeable {
         public
         initializer
     {
-        ERC20Exchangeable.initialize("USR", "USR", _underlyingToken);
+        ERC20Exchangeable.initialize(
+            "USR",
+            "USR",
+            _underlyingToken,
+            IProfitProvider(_profitProvider).profitFunds()
+        );
 
         owner = msg.sender;
         profitProvider = IProfitProvider(_profitProvider);
@@ -130,7 +139,7 @@ contract USR is Initializable, DSAuth, ERC20Exchangeable {
         return true;
     }
 
-    function underlyingBalance() public view returns (uint256) {
+    function underlyingBalance() public returns (uint256) {
         return super.underlyingBalance().add(profitProvider.getProfitAmount());
     }
 
@@ -156,14 +165,7 @@ contract USR is Initializable, DSAuth, ERC20Exchangeable {
 
         // There is not enough balance here, need to withdraw from profit provider
         if (target > balance) {
-            uint256 withdrawn = profitProvider.withdrawProfit(
-                target.sub(balance)
-            );
-
-            require(
-                withdrawn.add(balance) >= target,
-                "burn: Not enough underlying token to withdraw"
-            );
+            profitProvider.withdrawProfit(target.sub(balance));
         }
 
         return super.burn(account, amount);

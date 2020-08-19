@@ -10,29 +10,30 @@ contract MockProfitProviderUSDx is IProfitProvider {
     using SafeERC20 for IERC20;
 
     IERC20 public USDx;
-    address private pool;
+
+    address public profitFunds;
 
     uint256 startingPoint;
 
-    constructor(address _USDx, address _pool) public {
+    constructor(address _USDx, address _profitFunds) public {
         USDx = IERC20(_USDx);
-        pool = _pool;
+        profitFunds = _profitFunds;
     }
 
-    function getProfitAmount() public view returns (uint256) {
+    function getProfitAmount() public returns (uint256) {
         console.log(
-            "pool balance %d, startingpoint %d",
-            USDx.balanceOf(pool),
+            "profitFunds balance %d, startingpoint %d",
+            USDx.balanceOf(profitFunds),
             startingPoint
         );
-        return USDx.balanceOf(pool).sub(startingPoint);
+        return USDx.balanceOf(profitFunds).sub(startingPoint);
     }
 
     /**
      * @dev When the total supply of token is 0, it needs to be called to reset the starting point.
      */
     function resetProfit() external {
-        startingPoint = USDx.balanceOf(pool);
+        startingPoint = USDx.balanceOf(profitFunds);
     }
 
     /**
@@ -40,10 +41,8 @@ contract MockProfitProviderUSDx is IProfitProvider {
      * @param _amount USDx withdrawal amount.
      * @return Withdraw USDx amount.
      */
-    function withdrawProfit(uint256 _amount) external returns (uint256) {
+    function withdrawProfit(uint256 _amount) external {
         console.log("About to transfer %d from %s", _amount, address(USDx));
-        USDx.safeTransferFrom(pool, msg.sender, _amount);
-
-        return _amount;
+        USDx.safeTransferFrom(profitFunds, msg.sender, _amount);
     }
 }
