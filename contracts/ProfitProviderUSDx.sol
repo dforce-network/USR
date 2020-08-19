@@ -195,47 +195,38 @@ contract ProfitProviderUSDx is DSAuth {
     }
 
     function resetProfit() external auth {
-        baseProfit = getUSDxProfitAmount();
+        baseProfit = getProfit();
     }
 
     struct withdrawLocalVars {
         address[] xTokens;
-        address token;
-        address dfCollateral;
         address dfPool;
         address profitFunds;
-        uint256 xAmount;
-        uint256 xBalance;
+        address token;
+        uint256 remaining;
+        uint256 xProfit;
+        uint256 xTotalProfit;
         uint256 withdrawAmount;
         uint256 withdrawXAmount;
-        uint256 sum;
     }
 
     function withdrawProfit(uint256 _amount) external auth {
         withdrawLocalVars memory _local;
 
-        _local.sum = _amount;
-        _local.dfCollateral = dfCollateral;
+        _local.xTokens = IDFStore(dfStore).getMintedTokenList();
         _local.dfPool = dfPool;
         _local.profitFunds = profitFunds;
-        _local.xTokens = IDFStore(dfStore).getMintedTokenList();
-        for (uint256 i = 0; i < _local.xTokens.length && _local.sum > 0; i++) {
-            _local.xBalance = IERC20(_local.xTokens[i]).balanceOf(
-                _local.dfCollateral
+        _local.remaining = _amount;
+        for (uint256 i = 0; i < _local.xTokens.length; i++) {
+            (_local.token, _local.xProfit) = getProfitByXToken(
+                _local.xTokens[i]
             );
+            _local.xTotalProfit = _local.xTotalProfit.add(_local.xProfit);
 
-            _local.token = IDSWrappedToken(_local.xTokens[i]).getSrcERC20();
-
-            _local.xAmount = IDSWrappedToken(_local.xTokens[i])
-                .changeByMultiple(getUnderlyingAmountOfDToken(_local.token));
-            _local.xAmount = _local.xAmount > _local.xBalance
-                ? _local.xAmount.sub(_local.xBalance)
-                : 0;
-
-            if (_local.xAmount > 0) {
-                _local.withdrawXAmount = _local.xAmount > _local.sum
-                    ? _local.sum
-                    : _local.xAmount;
+            if (_local.xProfit > 0 && _local.remaining > 0) {
+                _local.withdrawXAmount = _local.xProfit > _local.remaining
+                    ? _local.remaining
+                    : _local.xProfit;
                 _local.withdrawAmount = IDSWrappedToken(_local.xTokens[i])
                     .reverseByMultiple(_local.withdrawXAmount);
 
@@ -244,37 +235,49 @@ contract ProfitProviderUSDx is DSAuth {
                     _local.profitFunds,
                     _local.withdrawAmount
                 );
-                _local.sum = _local.sum.sub(_local.withdrawXAmount);
+                _local.remaining = _local.remaining.sub(_local.withdrawXAmount);
             }
         }
-        require(_local.sum == 0, "withdrawProfit");
+        require(
+            _local.remaining == 0 &&
+                _amount <= _local.xTotalProfit.sub(baseProfit),
+            "withdrawProfit: not enough profit"
+        );
         IProfitFunds(_local.profitFunds).transferOut(USDx, msg.sender, _amount);
     }
 
     function getProfitAmount() external returns (uint256) {
-        return getUSDxProfitAmount().sub(baseProfit);
-    }
-
-    function getUSDxProfitAmount() public returns (uint256) {
-        uint256 _totalAmount;
-        (, , , uint256[] memory _amounts) = getProfit();
-        for (uint256 i = 0; i < _amounts.length; i++)
-            _totalAmount = _totalAmount.add(_amounts[i]);
-        return _totalAmount;
+        uint256 _profit = getProfit();
+        uint256 _baseProfit = baseProfit;
+        return _profit > _baseProfit ? _profit.sub(_baseProfit) : 0;
     }
 
     struct ProfitLocalVars {
         address[] xTokens;
-        uint256[] xAmounts;
-        address[] tokens;
-        uint256[] amounts;
-        address dfCollateral;
-        uint256 xAmount;
-        uint256 xBalance;
+        uint256 xProfit;
+        uint256 xTotalProfit;
     }
 
-    function getProfit()
-        public
+    function getProfit() public returns (uint256) {
+        ProfitLocalVars memory _local;
+
+        _local.xTokens = IDFStore(dfStore).getMintedTokenList();
+        for (uint256 i = 0; i < _local.xTokens.length; i++) {
+            (, _local.xProfit) = getProfitByXToken(_local.xTokens[i]);
+            _local.xTotalProfit = _local.xTotalProfit.add(_local.xProfit);
+        }
+        return _local.xTotalProfit;
+    }
+
+    struct ProfitDetailsLocalVars {
+        address[] xTokens;
+        uint256[] xProfits;
+        address[] tokens;
+        uint256[] profits;
+    }
+
+    function getProfitDetails()
+        external
         returns (
             address[] memory,
             uint256[] memory,
@@ -282,29 +285,44 @@ contract ProfitProviderUSDx is DSAuth {
             uint256[] memory
         )
     {
-        ProfitLocalVars memory _local;
+        ProfitDetailsLocalVars memory _local;
         _local.xTokens = IDFStore(dfStore).getMintedTokenList();
-        _local.xAmounts = new uint256[](_local.xTokens.length);
+        _local.xProfits = new uint256[](_local.xTokens.length);
         _local.tokens = new address[](_local.xTokens.length);
-        _local.amounts = new uint256[](_local.xTokens.length);
-        _local.dfCollateral = dfCollateral;
+        _local.profits = new uint256[](_local.xTokens.length);
         for (uint256 i = 0; i < _local.xTokens.length; i++) {
-            _local.tokens[i] = IDSWrappedToken(_local.xTokens[i]).getSrcERC20();
-            _local.xAmount = IDSWrappedToken(_local.xTokens[i])
-                .changeByMultiple(
-                getUnderlyingAmountOfDToken(_local.tokens[i])
+            (_local.tokens[i], _local.xProfits[i]) = getProfitByXToken(
+                _local.xTokens[i]
             );
-            _local.xBalance = IERC20(_local.xTokens[i]).balanceOf(
-                _local.dfCollateral
-            );
-
-            _local.xAmounts[i] = _local.xAmount > _local.xBalance
-                ? _local.xAmount.sub(_local.xBalance)
-                : 0;
-            _local.amounts[i] = IDSWrappedToken(_local.xTokens[i])
-                .reverseByMultiple(_local.xAmounts[i]);
+            _local.profits[i] = IDSWrappedToken(_local.xTokens[i])
+                .reverseByMultiple(_local.xProfits[i]);
         }
-        return (_local.tokens, _local.amounts, _local.xTokens, _local.xAmounts);
+        return (_local.tokens, _local.profits, _local.xTokens, _local.xProfits);
+    }
+
+    struct ProfitInfoLocalVars {
+        address token;
+        uint256 xBalance;
+        uint256 xPrincipal;
+    }
+
+    function getProfitByXToken(address _xToken)
+        public
+        returns (address, uint256)
+    {
+        ProfitInfoLocalVars memory _local;
+
+        _local.token = IDSWrappedToken(_xToken).getSrcERC20();
+        _local.xBalance = IDSWrappedToken(_xToken).changeByMultiple(
+            getUnderlying(_local.token)
+        );
+        _local.xPrincipal = IERC20(_xToken).balanceOf(dfCollateral);
+        return (
+            _local.token,
+            _local.xBalance > _local.xPrincipal
+                ? _local.xBalance.sub(_local.xPrincipal)
+                : 0
+        );
     }
 
     struct DTokenLocalVars {
@@ -313,19 +331,16 @@ contract ProfitProviderUSDx is DSAuth {
         uint256 feeRate;
         uint256 grossAmount;
         // uint256 baseAmount;
-        // uint256 amount;
+        // uint256 netAmount;
     }
 
-    function getUnderlyingAmountOfDToken(address _underlying)
-        public
-        returns (uint256)
-    {
+    function getUnderlying(address _underlying) public returns (uint256) {
         DTokenLocalVars memory _local;
         _local.dToken = IDTokenController(dTokenController).getDToken(
             _underlying
         );
-        if (_local.dToken == address(0))
-            return 0;
+        if (_local.dToken == address(0)) return 0;
+
         (, _local.exchangeRate, , _local.feeRate, ) = IDToken(_local.dToken)
             .getBaseData();
 
@@ -333,15 +348,10 @@ contract ProfitProviderUSDx is DSAuth {
             IERC20(_local.dToken).balanceOf(dfPool),
             _local.exchangeRate
         );
-        return _local.grossAmount.sub(
-            rmul(_local.grossAmount, _local.feeRate)
-        );
-        // _local.amount = _local.grossAmount.sub(
-        //     rmul(_local.grossAmount, _local.feeRate)
-        // );
+        return _local.grossAmount.sub(rmul(_local.grossAmount, _local.feeRate));
+        // _local.netAmount = _local.grossAmount.sub(rmul(_local.grossAmount, _local.feeRate));
         // _local.baseAmount = 10**uint256(IERC20(_local.dToken).decimals());
 
-        // return _local.amount > _local.baseAmount ? _local.amount.sub(_local.baseAmount) : 0;
-        // return _local.amount;
+        // return _local.netAmount > _local.baseAmount ? _local.netAmount.sub(_local.baseAmount) : 0;
     }
 }
