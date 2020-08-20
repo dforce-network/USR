@@ -1,10 +1,8 @@
 pragma solidity 0.5.12;
 
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
-
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Detailed.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
 
 import "./ERC20Pausable.sol";
 import "./Chargeable.sol";
@@ -29,6 +27,7 @@ contract ERC20Exchangeable is
         address _underlyingToken,
         address _feeRecipient
     ) public initializer {
+        ERC20Pausable.initialize(msg.sender);
         ERC20Detailed.initialize(
             _name,
             _symbol,
