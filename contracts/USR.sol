@@ -171,7 +171,7 @@ contract USR is Initializable, DSAuth, ERC20Exchangeable {
         if (totalSupply() == 0) {
             require(
                 amount >= SafeRatioMath.base(),
-                "The first mint amount is too small"
+                "The first mint amount is too small."
             );
         }
     }
@@ -179,7 +179,7 @@ contract USR is Initializable, DSAuth, ERC20Exchangeable {
     function checkRedeem(uint256 amount) internal {
         uint256 balance = underlyingToken.balanceOf(address(this));
 
-        //There is not enough balance here, need to withdraw from profit provider
+        //There is not enough balance here, need to withdraw from interest provider
         if (amount > balance) {
             interestProvider.withdrawInterest(amount.sub(balance));
         }
