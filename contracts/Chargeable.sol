@@ -4,7 +4,7 @@ import "@openzeppelin/upgrades/contracts/Initializable.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
 
 import "./library/DSAuth.sol";
-import "./SafeRatioMath.sol";
+import "./library/SafeRatioMath.sol";
 
 contract Chargeable is Initializable, DSAuth {
     using SafeMath for uint256;

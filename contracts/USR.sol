@@ -4,9 +4,9 @@ import "@openzeppelin/upgrades/contracts/Initializable.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Detailed.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
 
-import "./ERC20Pausable.sol";
+import "./library//ERC20Pausable.sol";
+import "./library/SafeRatioMath.sol";
 import "./Chargeable.sol";
-import "./SafeRatioMath.sol";
 import "./interface/IInterestProvider.sol";
 
 contract ERC20Exchangeable is
