@@ -1,14 +1,12 @@
 pragma solidity 0.5.12;
 
+import "@openzeppelin/upgrades/contracts/Initializable.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Detailed.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
 
-import "@openzeppelin/upgrades/contracts/Initializable.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Detailed.sol";
-
-import "./ERC20Pausable.sol";
+import "./library//ERC20Pausable.sol";
+import "./library/SafeRatioMath.sol";
 import "./Chargeable.sol";
-import "./SafeRatioMath.sol";
 import "./interface/IInterestProvider.sol";
 
 contract ERC20Exchangeable is
@@ -29,6 +27,7 @@ contract ERC20Exchangeable is
         address _underlyingToken,
         address _feeRecipient
     ) public initializer {
+        ERC20Pausable.initialize(msg.sender);
         ERC20Detailed.initialize(
             _name,
             _symbol,
@@ -172,7 +171,7 @@ contract USR is Initializable, DSAuth, ERC20Exchangeable {
         if (totalSupply() == 0) {
             require(
                 amount >= SafeRatioMath.base(),
-                "The first mint amount is too small"
+                "The first mint amount is too small."
             );
         }
     }
@@ -180,7 +179,7 @@ contract USR is Initializable, DSAuth, ERC20Exchangeable {
     function checkRedeem(uint256 amount) internal {
         uint256 balance = underlyingToken.balanceOf(address(this));
 
-        //There is not enough balance here, need to withdraw from profit provider
+        //There is not enough balance here, need to withdraw from interest provider
         if (amount > balance) {
             interestProvider.withdrawInterest(amount.sub(balance));
         }
