@@ -1,5 +1,5 @@
-const { expect } = require("chai");
-const { loadFixture } = require("ethereum-waffle");
+const {expect} = require("chai");
+const {loadFixture} = require("ethereum-waffle");
 
 const BASE = ethers.utils.parseEther("1");
 const MINT_SELECTOR = "0x40c10f19";
@@ -42,13 +42,13 @@ async function fixtureDeployed([wallet, other], provider) {
   const usr = await USR.deploy();
   await usr.deployed();
 
-  return { usdx, usr, interestProvider };
+  return {usdx, usr, interestProvider};
 }
 
 async function fixtureInitialized([wallet, other], provider) {
   const [owner, ...accounts] = await ethers.getSigners();
 
-  const { usdx, usr, interestProvider } = await loadFixture(fixtureDeployed);
+  const {usdx, usr, interestProvider} = await loadFixture(fixtureDeployed);
 
   // There are many initialize due to inheritance, use the full typed signature
   //console.log(usr.functions);
@@ -65,7 +65,7 @@ async function fixtureInitialized([wallet, other], provider) {
       .approve(usr.address, ethers.constants.MaxUint256);
   }
 
-  return { usdx, usr, interestProvider };
+  return {usdx, usr, interestProvider};
 }
 
 describe("USR", function () {
@@ -77,12 +77,12 @@ describe("USR", function () {
 
   describe("Initializable", async function () {
     it("Should be able to initialize", async function () {
-      const { usr } = await loadFixture(fixtureInitialized);
+      const {usr} = await loadFixture(fixtureInitialized);
       expect(await usr.name()).to.equal("USR");
     });
 
     it("Should not be able to initialize again", async function () {
-      const { usr, usdx, interestProvider } = await loadFixture(
+      const {usr, usdx, interestProvider} = await loadFixture(
         fixtureInitialized
       );
       await expect(
@@ -96,7 +96,7 @@ describe("USR", function () {
 
   describe("ERC20Pausable", function () {
     it("Should be able to pause", async function () {
-      const { usr } = await loadFixture(fixtureInitialized);
+      const {usr} = await loadFixture(fixtureInitialized);
 
       let account = accounts[1];
 
@@ -134,7 +134,7 @@ describe("USR", function () {
     });
 
     it("Should be able to unpause ", async function () {
-      const { usr } = await loadFixture(fixtureInitialized);
+      const {usr} = await loadFixture(fixtureInitialized);
 
       let account = accounts[1];
       await expect(usr.unpause())
@@ -169,7 +169,7 @@ describe("USR", function () {
 
   describe("Chargeable", function () {
     it("Should be able to update fee recipient", async function () {
-      const { usdx, usr, interestProvider } = await loadFixture(
+      const {usdx, usr, interestProvider} = await loadFixture(
         fixtureInitialized
       );
 
@@ -179,7 +179,7 @@ describe("USR", function () {
     });
 
     it("Should be able to charge some fee when mint", async function () {
-      const { usdx, usr, interestProvider } = await loadFixture(
+      const {usdx, usr, interestProvider} = await loadFixture(
         fixtureInitialized
       );
 
@@ -241,7 +241,7 @@ describe("USR", function () {
     });
 
     it("Should be able to charge some fee when redeem", async function () {
-      const { usdx, usr, interestProvider } = await loadFixture(
+      const {usdx, usr, interestProvider} = await loadFixture(
         fixtureInitialized
       );
 
@@ -308,7 +308,7 @@ describe("USR", function () {
     });
 
     it("Should be able to charge some fee when redeemUnderlying", async function () {
-      const { usdx, usr, interestProvider } = await loadFixture(
+      const {usdx, usr, interestProvider} = await loadFixture(
         fixtureInitialized
       );
 
@@ -377,7 +377,7 @@ describe("USR", function () {
     });
 
     it("Should be able to update fee to zero", async function () {
-      const { usr } = await loadFixture(fixtureInitialized);
+      const {usr} = await loadFixture(fixtureInitialized);
       await usr.updateOriginationFee(REDEEM_SELECTOR, 0);
       await usr.updateOriginationFee(MINT_SELECTOR, 0);
     });
@@ -385,7 +385,7 @@ describe("USR", function () {
 
   describe("ERC20Exchangeable", function () {
     it("Initial exchange rate should be 1.0", async function () {
-      const { usr } = await loadFixture(fixtureInitialized);
+      const {usr} = await loadFixture(fixtureInitialized);
 
       //console.log(ethers.utils.formatEther(await usr.totalSupply()));
 
@@ -395,7 +395,7 @@ describe("USR", function () {
     });
 
     it("Should be able to update exchange rate", async function () {
-      const { usdx, usr, interestProvider } = await loadFixture(
+      const {usdx, usr, interestProvider} = await loadFixture(
         fixtureInitialized
       );
 
@@ -421,7 +421,7 @@ describe("USR", function () {
     });
 
     it("Should be able to get underlying balance", async function () {
-      const { usdx, usr, interestProvider } = await loadFixture(
+      const {usdx, usr, interestProvider} = await loadFixture(
         fixtureInitialized
       );
 
@@ -472,7 +472,7 @@ describe("USR", function () {
 
   describe("Mint/Redeem/RedeemUnderlying", function () {
     it("Should not be able to mint < 0 when totalSupply is 0", async function () {
-      const { usdx, usr, interestProvider } = await loadFixture(
+      const {usdx, usr, interestProvider} = await loadFixture(
         fixtureInitialized
       );
 
@@ -484,7 +484,7 @@ describe("USR", function () {
     });
 
     it("Should be able to mint with mock profit provider", async function () {
-      const { usdx, usr, interestProvider } = await loadFixture(
+      const {usdx, usr, interestProvider} = await loadFixture(
         fixtureInitialized
       );
 
@@ -544,7 +544,7 @@ describe("USR", function () {
     });
 
     it("Should be able to redeem with mock profit provider", async function () {
-      const { usdx, usr, interestProvider } = await loadFixture(
+      const {usdx, usr, interestProvider} = await loadFixture(
         fixtureInitialized
       );
 
@@ -599,7 +599,7 @@ describe("USR", function () {
     });
 
     it("Should be able to redeemUnderlying with mock profit provider", async function () {
-      const { usdx, usr, interestProvider } = await loadFixture(
+      const {usdx, usr, interestProvider} = await loadFixture(
         fixtureInitialized
       );
 
