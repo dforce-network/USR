@@ -259,6 +259,9 @@ describe("USR", function () {
 
       let balancesBefore = {
         usr: await usr.balanceOf(account._address),
+        usrUnderlying: await usr.callStatic.balanceOfUnderlying(
+          account._address
+        ),
         usdx: await usdx.balanceOf(account._address),
       };
 
@@ -299,6 +302,9 @@ describe("USR", function () {
           .div(BASE)
           .abs()
       ).to.equal(changed.usdx.abs());
+
+      // Also check balanceOfUnderlying
+      expect(balancesBefore.usrUnderlying).to.equal(changed.usdx.abs());
     });
 
     it("Should be able to charge some fee when redeemUnderlying", async function () {
@@ -321,6 +327,9 @@ describe("USR", function () {
 
       let balancesBefore = {
         usr: await usr.balanceOf(account._address),
+        usrUnderlying: await usr.callStatic.balanceOfUnderlying(
+          account._address
+        ),
         usdx: await usdx.balanceOf(account._address),
       };
 
@@ -332,15 +341,9 @@ describe("USR", function () {
       //   "USDx"
       // );
 
-      let redeemUnderlying = balancesBefore.usr
-        .mul(exchangeRate)
-        .div(BASE)
-        .mul(BASE.sub(await usr.originationFee(REDEEM_SELECTOR)))
-        .div(BASE);
-
       await usr
         .connect(account)
-        .redeemUnderlying(account._address, redeemUnderlying);
+        .redeemUnderlying(account._address, balancesBefore.usrUnderlying);
 
       let balancesAfter = {
         usr: await usr.balanceOf(account._address),
@@ -370,7 +373,7 @@ describe("USR", function () {
           .abs()
       ).to.equal(changed.usdx.abs());
 
-      expect(changed.usdx).to.equal(redeemUnderlying);
+      expect(changed.usdx).to.equal(balancesBefore.usrUnderlying);
     });
 
     it("Should be able to update fee to zero", async function () {

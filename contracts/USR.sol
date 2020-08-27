@@ -118,7 +118,12 @@ contract ERC20Exchangeable is
     }
 
     function balanceOfUnderlying(address account) public returns (uint256) {
-        return balanceOf(account).rmul(exchangeRate());
+        uint256 underlying = balanceOf(account).rmul(exchangeRate());
+
+        // Need to take account of fee
+        uint256 fee = calcFee(this.redeem.selector, underlying);
+
+        return underlying.sub(fee);
     }
 
     uint256[50] private ______gap;
