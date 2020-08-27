@@ -409,15 +409,61 @@ describe("USR", function () {
       await usdx.transfer(usr.address, ethers.utils.parseEther("500"));
 
       expect(await usr.callStatic.exchangeRate()).to.equal(
-        (await interestProvider.callStatic.getInterestAmount())
-          .add(await usdx.balanceOf(usr.address))
-          .mul(BASE)
-          .div(amount)
+        ethers.utils.parseEther("1.5")
       );
+
+      // await usr
+      //   .connect(account)
+      //   .redeem(account._address, await usr.balanceOf(account._address));
+    });
+
+    it("Should be able to get underlying balance", async function () {
+      const { usdx, usr, interestProvider } = await loadFixture(
+        fixtureInitialized
+      );
+
+      let account = accounts[1];
+
+      let exchangeRate = await usr.callStatic.exchangeRate();
+      console.log(
+        "Exchange Rate:",
+        ethers.utils.formatEther(await usr.callStatic.exchangeRate())
+      );
+
+      let balancesBefore = {
+        usrUnderlying: await usr.callStatic.balanceOfUnderlying(
+          account._address
+        ),
+        usdx: await usdx.balanceOf(account._address),
+      };
 
       await usr
         .connect(account)
-        .redeem(account._address, await usr.balanceOf(account._address));
+        .mint(account._address, ethers.utils.parseEther("500"));
+
+      let balancesAfter = {
+        usrUnderlying: await usr.callStatic.balanceOfUnderlying(
+          account._address
+        ),
+        usdx: await usdx.balanceOf(account._address),
+      };
+
+      let changed = {
+        usrUnderlying: balancesAfter.usrUnderlying.sub(
+          balancesBefore.usrUnderlying
+        ),
+        usdx: balancesAfter.usdx.sub(balancesBefore.usdx),
+      };
+
+      // usrUnderlying = usdx
+      // There could be some loss of underlying due to the precision
+      let loss = changed.usdx.abs().sub(changed.usrUnderlying.abs());
+      expect(loss.mul(BASE)).to.lte(exchangeRate);
+
+      // Restore the original state
+      await usr
+        .connect(account)
+        .redeemUnderlying(account._address, balancesAfter.usrUnderlying);
     });
   });
 

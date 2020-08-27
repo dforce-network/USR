@@ -105,7 +105,7 @@ contract ERC20Exchangeable is
         return true;
     }
 
-    function underlyingBalance() public returns (uint256) {
+    function totalUnderlying() public returns (uint256) {
         return underlyingToken.balanceOf(address(this));
     }
 
@@ -113,8 +113,12 @@ contract ERC20Exchangeable is
         uint256 totalSupply = totalSupply();
         return
             totalSupply > 0
-                ? underlyingBalance().rdiv(totalSupply)
+                ? totalUnderlying().rdiv(totalSupply)
                 : SafeRatioMath.base();
+    }
+
+    function balanceOfUnderlying(address account) public returns (uint256) {
+        return balanceOf(account).rmul(exchangeRate());
     }
 
     uint256[50] private ______gap;
@@ -164,9 +168,9 @@ contract USR is Initializable, DSAuth, ERC20Exchangeable {
         return true;
     }
 
-    function underlyingBalance() public returns (uint256) {
+    function totalUnderlying() public returns (uint256) {
         return
-            super.underlyingBalance().add(interestProvider.getInterestAmount());
+            super.totalUnderlying().add(interestProvider.getInterestAmount());
     }
 
     function checkMint(uint256 amount) internal {
