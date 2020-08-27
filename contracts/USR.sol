@@ -116,6 +116,8 @@ contract ERC20Exchangeable is
                 ? underlyingBalance().rdiv(totalSupply)
                 : SafeRatioMath.base();
     }
+
+    uint256[50] private ______gap;
 }
 
 contract USR is Initializable, DSAuth, ERC20Exchangeable {
