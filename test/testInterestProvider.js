@@ -4,12 +4,30 @@ const BN = ethers.BigNumber;
 
 const USDxV2deploy = require("../USDx_1.0/test/helpers/USDxV2deploy.js");
 
+const Collaterals = artifacts.require("Collaterals_t.sol");
+
 // USDx Contracts use web3 and truffle
 async function deployUSDxContracts() {
   accounts = await web3.eth.getAccounts();
   let collaterals = new Array("PAX", "TUSD", "USDC");
   var weights = new Array(1, 1, 8);
   return await USDxV2deploy.contractsDeploy(accounts, collaterals, weights);
+}
+
+async function printInterestDetails(details, contracts) {
+  console.log("Interest Details:");
+  for (const i in details[0]) {
+    let srcToken = contracts.srcTokens.find((t) => t.address == details[0][i]);
+    let name = await srcToken.name();
+
+    console.log(
+      name,
+      "Src Amount:",
+      details[1][i].toString(),
+      "Wrap Amount ",
+      ethers.utils.formatEther(details[3][i])
+    );
+  }
 }
 
 async function fixtureDeployed([wallet, other], provider) {
@@ -33,6 +51,11 @@ async function fixtureDeployed([wallet, other], provider) {
   await interestProvider.deployed();
 
   await funds.setAuthority(usdxContracts.guard.address);
+
+  await usdxContracts.guard.permitx(
+    interestProvider.address,
+    usdxContracts.poolV2.address
+  );
   await usdxContracts.guard.permitx(interestProvider.address, funds.address);
 
   return { usdxContracts, funds, interestProvider, owner, accounts };
@@ -59,11 +82,13 @@ describe("InterestProvider", function () {
     });
 
     it("Should be able to get 0 as initial interest details", async function () {
-      const { interestProvider } = await loadFixture(fixtureDeployed);
+      const { usdxContracts, interestProvider } = await loadFixture(
+        fixtureDeployed
+      );
 
       let interestDetails = await interestProvider.callStatic.getInterestDetails();
 
-      console.log("Interest Details:", interestDetails);
+      await printInterestDetails(interestDetails, usdxContracts);
     });
 
     it("Should not be able to withdraw any interest", async function () {
@@ -72,22 +97,52 @@ describe("InterestProvider", function () {
     });
   });
 
-  describe("Now we have some interest", function () {
-    before(async function () {});
+  describe("Mock some interest", function () {
+    before(async function () {
+      const { usdxContracts, funds } = await loadFixture(fixtureDeployed);
+
+      let amount = ethers.utils.parseEther("10000");
+      await usdxContracts.protocol.oneClickMinting(0, amount);
+
+      // Mock some interest
+      for (const wrapToken of usdxContracts.wrapTokens) {
+        let srcToken = await Collaterals.at(await wrapToken.getSrcERC20());
+        let dTokenAddress = await usdxContracts.dTokenController.getDToken(
+          srcToken.address
+        );
+
+        //console.log((await srcToken.balanceOf(owner._address)).toString());
+        await srcToken.transfer(
+          dTokenAddress,
+          await wrapToken.reverseByMultiple(amount.div(10))
+        );
+      }
+
+      // Deposit some USDx in funds
+      await usdxContracts.usdxToken.transfer(funds.address, amount);
+      //   await funds.transferOut(
+      //     usdxContracts.usdxToken.address,
+      //     accounts[1]._address,
+      //     100
+      //   );
+    });
+
     it("getInterestAmount()", async function () {
       const { interestProvider } = await loadFixture(fixtureDeployed);
 
       let interest = await interestProvider.callStatic.getInterestAmount();
 
-      expect(interest).to.equal(0);
+      //expect(interest).to.equal(0);
     });
 
     it("getInterestDetails()", async function () {
-      const { interestProvider } = await loadFixture(fixtureDeployed);
+      const { usdxContracts, interestProvider } = await loadFixture(
+        fixtureDeployed
+      );
 
       let interestDetails = await interestProvider.callStatic.getInterestDetails();
 
-      console.log("Interest Details:", interestDetails);
+      await printInterestDetails(interestDetails, usdxContracts);
     });
 
     it("withdrawInterest()", async function () {
@@ -96,23 +151,37 @@ describe("InterestProvider", function () {
       );
 
       let interest = await interestProvider.callStatic.getInterestAmount();
-      let amount = interest.div(BN.from(10));
+      let amount = interest;
+
+      // BN.js => ethers.BigNumber
+      let balanceBefore = BN.from(
+        (await usdxContracts.usdxToken.balanceOf(owner._address)).toString()
+      );
 
       console.log(
         "Before withdraw, account Balance:",
-        (await usdxContracts.usdxToken.balanceOf(owner._address)).toString(),
+        ethers.utils.formatEther(balanceBefore),
         "interest:",
-        interest.toString()
+        ethers.utils.formatEther(interest)
       );
 
+      console.log("Withdrawing ", ethers.utils.formatEther(amount));
       await interestProvider.withdrawInterest(amount);
+
+      let balanceAfter = BN.from(
+        (await usdxContracts.usdxToken.balanceOf(owner._address)).toString()
+      );
 
       console.log(
         "After withdraw, account Balance:",
-        (await usdxContracts.usdxToken.balanceOf(owner._address)).toString(),
+        ethers.utils.formatEther(balanceAfter),
         "interest:",
-        (await interestProvider.getInterestAmount()).toString()
+        ethers.utils.formatEther(
+          await interestProvider.callStatic.getInterestAmount()
+        )
       );
+
+      expect(balanceAfter.sub(balanceBefore)).to.equal(amount);
     });
   });
 });

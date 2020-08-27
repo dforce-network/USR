@@ -8,10 +8,6 @@ contract Funds is DSAuth {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
 
-  constructor() public {
-    owner = msg.sender;
-  }
-
   function transferOut(
     address _token,
     address _to,
