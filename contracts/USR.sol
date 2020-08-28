@@ -3,6 +3,7 @@ pragma solidity 0.5.12;
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Detailed.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/utils/ReentrancyGuard.sol";
 
 import "./library//ERC20Pausable.sol";
 import "./library/SafeRatioMath.sol";
@@ -11,6 +12,7 @@ import "./interface/IInterestProvider.sol";
 
 contract ERC20Exchangeable is
     Initializable,
+    ReentrancyGuard,
     ERC20Pausable,
     ERC20Detailed,
     Chargeable
@@ -27,6 +29,7 @@ contract ERC20Exchangeable is
         address _underlyingToken,
         address _feeRecipient
     ) public initializer {
+        ReentrancyGuard.initialize();
         ERC20Pausable.initialize(msg.sender);
         ERC20Detailed.initialize(
             _name,
@@ -45,6 +48,7 @@ contract ERC20Exchangeable is
     function mint(address account, uint256 amount)
         public
         whenNotPaused
+        nonReentrant
         returns (bool)
     {
         // Allow sub contract to do something
@@ -62,6 +66,7 @@ contract ERC20Exchangeable is
     function redeem(address account, uint256 amount)
         public
         whenNotPaused
+        nonReentrant
         returns (bool)
     {
         uint256 underlying = amount.rmul(exchangeRate());
@@ -84,6 +89,7 @@ contract ERC20Exchangeable is
     function redeemUnderlying(address account, uint256 underlying)
         public
         whenNotPaused
+        nonReentrant
         returns (bool)
     {
         uint256 fee = calcAdditionalFee(this.redeem.selector, underlying);
