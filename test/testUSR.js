@@ -428,10 +428,10 @@ describe("USR", function () {
       let account = accounts[1];
 
       let exchangeRate = await usr.callStatic.exchangeRate();
-      console.log(
-        "Exchange Rate:",
-        ethers.utils.formatEther(await usr.callStatic.exchangeRate())
-      );
+      // console.log(
+      //   "Exchange Rate:",
+      //   ethers.utils.formatEther(await usr.callStatic.exchangeRate())
+      // );
 
       let balancesBefore = {
         usrUnderlying: await usr.callStatic.balanceOfUnderlying(

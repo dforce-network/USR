@@ -23,6 +23,22 @@ contract ERC20Exchangeable is
 
     IERC20 public underlyingToken;
 
+    event Mint(
+        address indexed account,
+        uint256 indexed underlying,
+        uint256 amount,
+        uint256 totalSupply,
+        uint256 exchangeRate
+    );
+
+    event Redeem(
+        address indexed account,
+        uint256 indexed underlying,
+        uint256 amount,
+        uint256 totalSupply,
+        uint256 exchangeRate
+    );
+
     function initialize(
         string memory _name,
         string memory _symbol,
@@ -45,20 +61,24 @@ contract ERC20Exchangeable is
 
     function checkRedeem(uint256 amount) internal {}
 
-    function mint(address account, uint256 amount)
+    function mint(address account, uint256 underlying)
         public
         whenNotPaused
         nonReentrant
         returns (bool)
     {
         // Allow sub contract to do something
-        checkMint(amount);
+        checkMint(underlying);
 
-        uint256 remaining = chargeFee(msg.sig, msg.sender, amount);
+        uint256 remaining = chargeFee(msg.sig, msg.sender, underlying);
+        uint256 exchangeRate = exchangeRate();
+        uint256 amount = remaining.rdiv(exchangeRate);
 
-        _mint(account, remaining.rdiv(exchangeRate()));
+        _mint(account, amount);
 
         underlyingToken.safeTransferFrom(msg.sender, address(this), remaining);
+
+        emit Mint(account, underlying, amount, totalSupply(), exchangeRate);
 
         return true;
     }
@@ -69,7 +89,8 @@ contract ERC20Exchangeable is
         nonReentrant
         returns (bool)
     {
-        uint256 underlying = amount.rmul(exchangeRate());
+        uint256 exchangeRate = exchangeRate();
+        uint256 underlying = amount.rmul(exchangeRate);
 
         if (account == msg.sender) {
             _burn(account, amount);
@@ -83,6 +104,8 @@ contract ERC20Exchangeable is
         uint256 remaining = chargeFee(msg.sig, address(this), underlying);
         underlyingToken.safeTransfer(msg.sender, remaining);
 
+        emit Redeem(account, underlying, amount, totalSupply(), exchangeRate);
+
         return true;
     }
 
@@ -93,8 +116,9 @@ contract ERC20Exchangeable is
         returns (bool)
     {
         uint256 fee = calcAdditionalFee(this.redeem.selector, underlying);
-        uint256 totalUnderlying = underlying.add(fee);
-        uint256 amount = totalUnderlying.rdivup(exchangeRate());
+        uint256 underlyingWithFee = underlying.add(fee);
+        uint256 exchangeRate = exchangeRate();
+        uint256 amount = underlyingWithFee.rdivup(exchangeRate);
 
         if (account == msg.sender) {
             _burn(account, amount);
@@ -103,10 +127,18 @@ contract ERC20Exchangeable is
         }
 
         // Allow sub contract to do something
-        checkRedeem(totalUnderlying);
+        checkRedeem(underlyingWithFee);
 
         transferFee(address(this), fee);
         underlyingToken.safeTransfer(msg.sender, underlying);
+
+        emit Redeem(
+            account,
+            underlyingWithFee,
+            amount,
+            totalSupply(),
+            exchangeRate
+        );
 
         return true;
     }
