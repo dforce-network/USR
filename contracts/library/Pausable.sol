@@ -1,19 +1,20 @@
-pragma solidity 0.5.12;
+pragma solidity ^0.5.0;
 
+import "@openzeppelin/upgrades/contracts/Initializable.sol";
+
+import "@openzeppelin/contracts-ethereum-package/contracts/GSN/Context.sol";
 import "./DSAuth.sol";
 
 /**
  * @dev Contract module which allows children to implement an emergency stop
- * mechanism that can be triggered by owner account.
+ * mechanism that can be triggered by an authorized account.
  *
  * This module is used through inheritance. It will make available the
  * modifiers `whenNotPaused` and `whenPaused`, which can be applied to
  * the functions of your contract. Note that they will not be pausable by
  * simply including this module, only once the modifiers are put in place.
  */
-contract Pausable is DSAuth {
-    bool public paused;
-
+contract Pausable is Initializable, Context, DSAuth {
     /**
      * @dev Emitted when the pause is triggered by a pauser (`account`).
      */
@@ -24,11 +25,30 @@ contract Pausable is DSAuth {
      */
     event Unpaused(address account);
 
+    bool private _paused;
+
+    /**
+     * @dev Initializes the contract in unpaused state. Assigns the Pauser role
+     * to the deployer.
+     */
+    function initialize(address sender) public initializer {
+        owner = sender;
+
+        _paused = false;
+    }
+
+    /**
+     * @dev Returns true if the contract is paused, and false otherwise.
+     */
+    function paused() public view returns (bool) {
+        return _paused;
+    }
+
     /**
      * @dev Modifier to make a function callable only when the contract is not paused.
      */
     modifier whenNotPaused() {
-        require(!paused, "whenNotPaused: paused");
+        require(!_paused, "Pausable: paused");
         _;
     }
 
@@ -36,31 +56,25 @@ contract Pausable is DSAuth {
      * @dev Modifier to make a function callable only when the contract is paused.
      */
     modifier whenPaused() {
-        require(paused, "whenPaused: not paused");
+        require(_paused, "Pausable: not paused");
         _;
     }
 
     /**
-     * @dev Initializes the contract in unpaused state. Assigns the Pauser role
-     * to the deployer.
+     * @dev Called by a pauser to pause, triggers stopped state.
      */
-    constructor() internal {
-        paused = false;
+    function pause() public auth whenNotPaused {
+        _paused = true;
+        emit Paused(_msgSender());
     }
 
     /**
-     * @dev Called by the contract owner to pause, triggers stopped state.
+     * @dev Called by a pauser to unpause, returns to normal state.
      */
-    function pause() public whenNotPaused auth {
-        paused = true;
-        emit Paused(owner);
+    function unpause() public auth whenPaused {
+        _paused = false;
+        emit Unpaused(_msgSender());
     }
 
-    /**
-     * @dev Called by the contract owner to unpause, returns to normal state.
-     */
-    function unpause() public whenPaused auth {
-        paused = false;
-        emit Unpaused(owner);
-    }
+    uint256[50] private ______gap;
 }

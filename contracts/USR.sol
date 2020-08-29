@@ -1,18 +1,18 @@
 pragma solidity 0.5.12;
 
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
-
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Detailed.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/utils/ReentrancyGuard.sol";
 
-import "./ERC20Pausable.sol";
+import "./library//ERC20Pausable.sol";
+import "./library/SafeRatioMath.sol";
 import "./Chargeable.sol";
-import "./SafeRatioMath.sol";
 import "./interface/IInterestProvider.sol";
 
 contract ERC20Exchangeable is
     Initializable,
+    ReentrancyGuard,
     ERC20Pausable,
     ERC20Detailed,
     Chargeable
@@ -23,12 +23,30 @@ contract ERC20Exchangeable is
 
     IERC20 public underlyingToken;
 
+    event Mint(
+        address indexed account,
+        uint256 indexed underlying,
+        uint256 amount,
+        uint256 totalSupply,
+        uint256 exchangeRate
+    );
+
+    event Redeem(
+        address indexed account,
+        uint256 indexed underlying,
+        uint256 amount,
+        uint256 totalSupply,
+        uint256 exchangeRate
+    );
+
     function initialize(
         string memory _name,
         string memory _symbol,
         address _underlyingToken,
         address _feeRecipient
     ) public initializer {
+        ReentrancyGuard.initialize();
+        ERC20Pausable.initialize(msg.sender);
         ERC20Detailed.initialize(
             _name,
             _symbol,
@@ -43,19 +61,24 @@ contract ERC20Exchangeable is
 
     function checkRedeem(uint256 amount) internal {}
 
-    function mint(address account, uint256 amount)
+    function mint(address account, uint256 underlying)
         public
         whenNotPaused
+        nonReentrant
         returns (bool)
     {
         // Allow sub contract to do something
-        checkMint(amount);
+        checkMint(underlying);
 
-        uint256 remaining = chargeFee(msg.sig, msg.sender, amount);
+        uint256 remaining = chargeFee(msg.sig, msg.sender, underlying);
+        uint256 exchangeRate = exchangeRate();
+        uint256 amount = remaining.rdiv(exchangeRate);
 
-        _mint(account, remaining.rdiv(exchangeRate()));
+        _mint(account, amount);
 
         underlyingToken.safeTransferFrom(msg.sender, address(this), remaining);
+
+        emit Mint(account, underlying, amount, totalSupply(), exchangeRate);
 
         return true;
     }
@@ -63,9 +86,11 @@ contract ERC20Exchangeable is
     function redeem(address account, uint256 amount)
         public
         whenNotPaused
+        nonReentrant
         returns (bool)
     {
-        uint256 underlying = amount.rmul(exchangeRate());
+        uint256 exchangeRate = exchangeRate();
+        uint256 underlying = amount.rmul(exchangeRate);
 
         if (account == msg.sender) {
             _burn(account, amount);
@@ -79,17 +104,21 @@ contract ERC20Exchangeable is
         uint256 remaining = chargeFee(msg.sig, address(this), underlying);
         underlyingToken.safeTransfer(msg.sender, remaining);
 
+        emit Redeem(account, underlying, amount, totalSupply(), exchangeRate);
+
         return true;
     }
 
     function redeemUnderlying(address account, uint256 underlying)
         public
         whenNotPaused
+        nonReentrant
         returns (bool)
     {
         uint256 fee = calcAdditionalFee(this.redeem.selector, underlying);
-        uint256 totalUnderlying = underlying.add(fee);
-        uint256 amount = totalUnderlying.rdivup(exchangeRate());
+        uint256 underlyingWithFee = underlying.add(fee);
+        uint256 exchangeRate = exchangeRate();
+        uint256 amount = underlyingWithFee.rdivup(exchangeRate);
 
         if (account == msg.sender) {
             _burn(account, amount);
@@ -98,15 +127,23 @@ contract ERC20Exchangeable is
         }
 
         // Allow sub contract to do something
-        checkRedeem(totalUnderlying);
+        checkRedeem(underlyingWithFee);
 
         transferFee(address(this), fee);
         underlyingToken.safeTransfer(msg.sender, underlying);
 
+        emit Redeem(
+            account,
+            underlyingWithFee,
+            amount,
+            totalSupply(),
+            exchangeRate
+        );
+
         return true;
     }
 
-    function underlyingBalance() public returns (uint256) {
+    function totalUnderlying() public returns (uint256) {
         return underlyingToken.balanceOf(address(this));
     }
 
@@ -114,9 +151,20 @@ contract ERC20Exchangeable is
         uint256 totalSupply = totalSupply();
         return
             totalSupply > 0
-                ? underlyingBalance().rdiv(totalSupply)
+                ? totalUnderlying().rdiv(totalSupply)
                 : SafeRatioMath.base();
     }
+
+    function balanceOfUnderlying(address account) public returns (uint256) {
+        uint256 underlying = balanceOf(account).rmul(exchangeRate());
+
+        // Need to take account of fee
+        uint256 fee = calcFee(this.redeem.selector, underlying);
+
+        return underlying.sub(fee);
+    }
+
+    uint256[50] private ______gap;
 }
 
 contract USR is Initializable, DSAuth, ERC20Exchangeable {
@@ -163,16 +211,16 @@ contract USR is Initializable, DSAuth, ERC20Exchangeable {
         return true;
     }
 
-    function underlyingBalance() public returns (uint256) {
+    function totalUnderlying() public returns (uint256) {
         return
-            super.underlyingBalance().add(interestProvider.getInterestAmount());
+            super.totalUnderlying().add(interestProvider.getInterestAmount());
     }
 
     function checkMint(uint256 amount) internal {
         if (totalSupply() == 0) {
             require(
                 amount >= SafeRatioMath.base(),
-                "The first mint amount is too small"
+                "The first mint amount is too small."
             );
         }
     }
@@ -180,7 +228,7 @@ contract USR is Initializable, DSAuth, ERC20Exchangeable {
     function checkRedeem(uint256 amount) internal {
         uint256 balance = underlyingToken.balanceOf(address(this));
 
-        //There is not enough balance here, need to withdraw from profit provider
+        //There is not enough balance here, need to withdraw from interest provider
         if (amount > balance) {
             interestProvider.withdrawInterest(amount.sub(balance));
         }

@@ -2,8 +2,7 @@ pragma solidity ^0.5.0;
 
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
-
-import "./library/Pausable.sol";
+import "./Pausable.sol";
 
 /**
  * @title Pausable token
@@ -14,6 +13,10 @@ import "./library/Pausable.sol";
  * bug.
  */
 contract ERC20Pausable is Initializable, ERC20, Pausable {
+    function initialize(address sender) public initializer {
+        Pausable.initialize(sender);
+    }
+
     function transfer(address to, uint256 value)
         public
         whenNotPaused

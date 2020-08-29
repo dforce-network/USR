@@ -3,7 +3,8 @@ pragma solidity 0.5.12;
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 
 import "../interface/IInterestProvider.sol";
-import "@nomiclabs/buidler/console.sol";
+
+//import "@nomiclabs/buidler/console.sol";
 
 contract MockInterestProvider is IInterestProvider {
     using SafeMath for uint256;
@@ -28,7 +29,7 @@ contract MockInterestProvider is IInterestProvider {
      * @return Withdraw USDx amount.
      */
     function withdrawInterest(uint256 _amount) external {
-        console.log("About to transfer %d from %s", _amount, address(USDx));
+        //console.log("About to transfer %d from %s", _amount, address(USDx));
         USDx.safeTransferFrom(funds, msg.sender, _amount);
     }
 }

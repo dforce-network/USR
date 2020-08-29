@@ -10,7 +10,7 @@ interface IFunds {
         address _token,
         address _to,
         uint256 _amount
-    ) external returns (bool);
+    ) external;
 }
 
 interface IDSWrappedToken {

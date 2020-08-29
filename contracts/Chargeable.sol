@@ -4,7 +4,7 @@ import "@openzeppelin/upgrades/contracts/Initializable.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
 
 import "./library/DSAuth.sol";
-import "./SafeRatioMath.sol";
+import "./library/SafeRatioMath.sol";
 
 contract Chargeable is Initializable, DSAuth {
     using SafeMath for uint256;
@@ -73,19 +73,41 @@ contract Chargeable is Initializable, DSAuth {
         emit NewOriginationFee(_sig, _oldOriginationFee, _newOriginationFee);
     }
 
-    function calcAdditionalFee(bytes4 _sig, uint256 _amount)
+    function calcAdditionalFee(bytes4 _sig, uint256 _remaining)
         internal
         view
         returns (uint256)
     {
         uint256 _originationFee = originationFee[_sig];
+
+        // fee = (remaining / (1 - feeRate)) - remaining
         return
-            _amount.rdivup(SafeRatioMath.base().sub(_originationFee)).sub(
-                _amount
-            );
+            _originationFee > 0
+                ? _remaining
+                    .rdivup(SafeRatioMath.base().sub(_originationFee))
+                    .sub(_remaining)
+                : 0;
+    }
+
+    function calcFee(bytes4 _sig, uint256 _total)
+        internal
+        view
+        returns (uint256)
+    {
+        uint256 _originationFee = originationFee[_sig];
+
+        // fee = total - total * (1 - feeRate)
+        return
+            _originationFee > 0
+                ? _total.sub(
+                    _total.rmul(SafeRatioMath.base().sub(_originationFee))
+                )
+                : 0;
     }
 
     function transferFee(address _account, uint256 _amount) internal {
+        if (_amount == 0) return;
+
         if (_account == address(this)) {
             token.safeTransfer(feeRecipient, _amount);
         } else {
