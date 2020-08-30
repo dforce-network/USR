@@ -60,7 +60,7 @@ module.exports = async function(deployer, network, accounts) {
     await deployer.deploy(USRProxy, usrImplementation.address);
     let usrProxy = await USRProxy.deployed();
     let usr = await USR.at(usrProxy.address);
-    await usr.initialize(USDx, interestProvider.address, {'from': owner}).then(result => {
+    await usr.methods["initialize(address,address)"](USDx, interestProvider.address, {'from': owner}).then(result => {
         print("usr.initialize");
         printTx(result.tx);
     }).catch(error => {
