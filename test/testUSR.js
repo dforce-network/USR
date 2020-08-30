@@ -1,5 +1,6 @@
 const {expect} = require("chai");
 const {loadFixture} = require("ethereum-waffle");
+const USRTruffle = artifacts.require("USR");
 
 const BASE = ethers.utils.parseEther("1");
 const MINT_SELECTOR = "0x40c10f19";
@@ -42,13 +43,23 @@ async function fixtureDeployed([wallet, other], provider) {
   const usr = await USR.deploy();
   await usr.deployed();
 
-  return {usdx, usr, interestProvider};
+  // const usrTruffle = await USRTruffle.at(usr.address);
+  // console.log(usrTruffle.methods);
+
+  // await usrTruffle.methods["initialize(address,address)"](
+  //   usdx.address,
+  //   interestProvider.address
+  // );
+
+  return {usdx, usr, interestProvider, funds};
 }
 
 async function fixtureInitialized([wallet, other], provider) {
   const [owner, ...accounts] = await ethers.getSigners();
 
-  const {usdx, usr, interestProvider} = await loadFixture(fixtureDeployed);
+  const {usdx, usr, interestProvider, funds} = await loadFixture(
+    fixtureDeployed
+  );
 
   // There are many initialize due to inheritance, use the full typed signature
   //console.log(usr.functions);
@@ -65,7 +76,7 @@ async function fixtureInitialized([wallet, other], provider) {
       .approve(usr.address, ethers.constants.MaxUint256);
   }
 
-  return {usdx, usr, interestProvider};
+  return {usdx, usr, interestProvider, funds};
 }
 
 describe("USR", function () {
@@ -82,14 +93,51 @@ describe("USR", function () {
     });
 
     it("Should not be able to initialize again", async function () {
-      const {usr, usdx, interestProvider} = await loadFixture(
+      const {usr, usdx, interestProvider, funds} = await loadFixture(
         fixtureInitialized
       );
+
       await expect(
         usr.functions["initialize(address,address)"](
           usdx.address,
           interestProvider.address
         )
+      ).to.be.revertedWith("Contract instance has already been initialized");
+
+      // Try to initialize() all overloaded ones
+      // const initializeFuncs = Object.entries(usr.functions).filter(([k, v]) =>
+      //   k.startsWith("initialize(")
+      // );
+
+      // initializeFuncs.forEach(([k, v]) => {
+      //   console.log(k, v);
+      // });
+
+      // Here are what we also have for now
+      // initialize(string,string,uint8);
+      // initialize();
+      // initialize(string,string,address,address);
+      // initialize(address);
+
+      await expect(
+        usr.functions["initialize(string,string,uint8)"]("USR", "USR", 18)
+      ).to.be.revertedWith("Contract instance has already been initialized");
+
+      await expect(usr.functions["initialize()"]()).to.be.revertedWith(
+        "Contract instance has already been initialized"
+      );
+
+      await expect(
+        usr.functions["initialize(string,string,address,address)"](
+          "USR",
+          "USR",
+          usdx.address,
+          funds._address // Here funds is an account
+        )
+      ).to.be.revertedWith("Contract instance has already been initialized");
+
+      await expect(
+        usr.functions["initialize(address)"](owner._address)
       ).to.be.revertedWith("Contract instance has already been initialized");
     });
   });
