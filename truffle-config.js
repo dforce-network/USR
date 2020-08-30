@@ -76,7 +76,7 @@ module.exports = {
         ),
       network_id: 42, // Kovan's id
       gas: 6721975,
-      gasPrice: 10000000000, // Gas price used for deploys: 10gwei
+      gasPrice: 1000000000, // Gas price used for deploys: 1gwei
       confirmations: 2,
       timeoutBlocks: 200,
       skipDryRun: true,
