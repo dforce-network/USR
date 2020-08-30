@@ -5,7 +5,7 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Deta
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/utils/ReentrancyGuard.sol";
 
-import "./library//ERC20Pausable.sol";
+import "./library/ERC20Pausable.sol";
 import "./library/SafeRatioMath.sol";
 import "./Chargeable.sol";
 import "./interface/IInterestProvider.sol";
