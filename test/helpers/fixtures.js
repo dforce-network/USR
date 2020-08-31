@@ -11,8 +11,8 @@ async function deployUSDxContracts() {
   return await USDxV2deploy.contractsDeploy(accounts, collaterals, weights);
 }
 
-async function initialize(usr, usdx, interestProvider) {
-  const [owner, ...accounts] = await ethers.getSigners();
+async function initialize(usr, usdx, protocol, interestProvider) {
+  const accounts = await web3.eth.getAccounts();
 
   // There are many initialize due to inheritance, use the full typed signature
   //console.log(usr.functions);
@@ -21,12 +21,14 @@ async function initialize(usr, usdx, interestProvider) {
     interestProvider.address
   );
 
-  // Allocate some USDx
+  // Mint some USDx
+  const amount = ethers.utils.parseEther("10000");
   for (const account of accounts) {
-    await usdx.transfer(account._address, ethers.utils.parseEther("10000"));
-    await usdx
-      .connect(account)
-      .approve(usr.address, ethers.constants.MaxUint256);
+    // USDx contracts are truffle contracts
+    await protocol.oneClickMinting(0, amount, {from: account});
+    await usdx.approve(usr.address, ethers.constants.MaxUint256, {
+      from: account,
+    });
   }
 }
 
@@ -95,7 +97,19 @@ async function fixtureUSRWithMockInterestProvider([wallet, other], provider) {
   const usr = await USR.deploy();
   await usr.deployed();
 
-  await initialize(usr, usdx, interestProvider);
+  await usr.functions["initialize(address,address)"](
+    usdx.address,
+    interestProvider.address
+  );
+
+  // Transfer some USDx
+  const amount = ethers.utils.parseEther("10000");
+  for (const account of accounts) {
+    await usdx.transfer(account._address, amount);
+    await usdx
+      .connect(account)
+      .approve(usr.address, ethers.constants.MaxUint256);
+  }
 
   return {usdx, usr, interestProvider, funds};
 }
@@ -111,9 +125,23 @@ async function fixtureUSRWithInterestProvider([wallet, other], provider) {
   const usr = await USR.deploy();
   await usr.deployed();
 
-  await initialize(usdx, usr, interestProvider);
+  await initialize(
+    usr,
+    usdxContracts.usdxToken,
+    usdxContracts.protocol,
+    interestProvider
+  );
 
-  return {usdx, usr, interestProvider};
+  // Provide some interest
+  await usdxContracts.usdxToken.transfer(
+    funds.address,
+    ethers.utils.parseEther("10000")
+  );
+
+  await interestProvider.setAuthority(usdxContracts.guard.address);
+  await usdxContracts.guard.permitx(usr.address, interestProvider.address);
+
+  return {usdxContracts, usr, interestProvider};
 }
 
 module.exports = {
