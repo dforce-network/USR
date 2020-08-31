@@ -26,7 +26,7 @@ require("dotenv").config();
 
 const HDWalletProvider = require("truffle-hdwallet-provider");
 var infuraKey = process.env.INFURA_APIKEY;
-var privateKey = process.env.PRIVATE_KEY;
+var privateKey = JSON.parse(process.env.PRIVATE_KEY);
 
 module.exports = {
   /**
@@ -58,7 +58,9 @@ module.exports = {
       provider: () =>
         new HDWalletProvider(
           privateKey,
-          `https://mainnet.infura.io/v3/${infuraKey}`
+          `https://mainnet.infura.io/v3/${infuraKey}`,
+          0,
+          privateKey.length
         ),
       network_id: 1, // Mainnet's id
       gas: 6721975, // Gas limit used for deploys
@@ -72,7 +74,9 @@ module.exports = {
       provider: () =>
         new HDWalletProvider(
           privateKey,
-          `https://kovan.infura.io/v3/${infuraKey}`
+          `https://kovan.infura.io/v3/${infuraKey}`,
+          0,
+          privateKey.length
         ),
       network_id: 42, // Kovan's id
       gas: 6721975,
@@ -87,7 +91,9 @@ module.exports = {
       provider: () =>
         new HDWalletProvider(
           privateKey,
-          `https://ropsten.infura.io/v3/${infuraKey}`
+          `https://ropsten.infura.io/v3/${infuraKey}`,
+          0,
+          privateKey.length
         ),
       network_id: 3, // ropsten's id
       gas: 6721975,
@@ -101,7 +107,9 @@ module.exports = {
       provider: () =>
         new HDWalletProvider(
           privateKey,
-          `https://rinkeby.infura.io/v3/${infuraKey}`
+          `https://rinkeby.infura.io/v3/${infuraKey}`,
+          0,
+          privateKey.length
         ),
       network_id: 4, // ropsten's id
       gas: 6721975,
