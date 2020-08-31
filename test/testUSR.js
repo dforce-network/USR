@@ -2,82 +2,11 @@ const {expect} = require("chai");
 const {loadFixture} = require("ethereum-waffle");
 const USRTruffle = artifacts.require("USR");
 
+const {fixtureUSRWithMockInterestProvider} = require("./helpers/fixtures.js");
+
 const BASE = ethers.utils.parseEther("1");
 const MINT_SELECTOR = "0x40c10f19";
 const REDEEM_SELECTOR = "0x1e9a6950";
-
-async function fixtureDeployed([wallet, other], provider) {
-  const [owner, ...accounts] = await ethers.getSigners();
-
-  const USDx = await ethers.getContractFactory("USDx");
-  const usdx = await USDx.deploy();
-  await usdx.deployed();
-
-  // console.log("USDx address:", usdx.address);
-
-  const MockInterestProvider = await ethers.getContractFactory(
-    "MockInterestProvider"
-  );
-
-  // let accounts[0] to act as funds
-  let funds = accounts[0];
-  // console.log("funds address:", funds._address);
-
-  const interestProvider = await MockInterestProvider.deploy(
-    usdx.address,
-    funds._address
-  );
-  await interestProvider.deployed();
-
-  // console.log("interestProvider address:", interestProvider.address);
-
-  await usdx
-    .connect(funds)
-    .approve(interestProvider.address, ethers.constants.MaxUint256);
-
-  const initialInterest = ethers.utils.parseEther("500");
-  await usdx.transfer(funds._address, initialInterest);
-  expect(await usdx.balanceOf(funds._address)).to.equal(initialInterest);
-
-  const USR = await ethers.getContractFactory("USR");
-  const usr = await USR.deploy();
-  await usr.deployed();
-
-  // const usrTruffle = await USRTruffle.at(usr.address);
-  // console.log(usrTruffle.methods);
-
-  // await usrTruffle.methods["initialize(address,address)"](
-  //   usdx.address,
-  //   interestProvider.address
-  // );
-
-  return {usdx, usr, interestProvider, funds};
-}
-
-async function fixtureInitialized([wallet, other], provider) {
-  const [owner, ...accounts] = await ethers.getSigners();
-
-  const {usdx, usr, interestProvider, funds} = await loadFixture(
-    fixtureDeployed
-  );
-
-  // There are many initialize due to inheritance, use the full typed signature
-  //console.log(usr.functions);
-  await usr.functions["initialize(address,address)"](
-    usdx.address,
-    interestProvider.address
-  );
-
-  // Allocate some USDx
-  for (const account of accounts) {
-    await usdx.transfer(account._address, ethers.utils.parseEther("10000"));
-    await usdx
-      .connect(account)
-      .approve(usr.address, ethers.constants.MaxUint256);
-  }
-
-  return {usdx, usr, interestProvider, funds};
-}
 
 describe("USR", function () {
   let owner, accounts;
@@ -88,13 +17,13 @@ describe("USR", function () {
 
   describe("Initializable", async function () {
     it("Should be able to initialize", async function () {
-      const {usr} = await loadFixture(fixtureInitialized);
+      const {usr} = await loadFixture(fixtureUSRWithMockInterestProvider);
       expect(await usr.name()).to.equal("USR");
     });
 
     it("Should not be able to initialize again", async function () {
       const {usr, usdx, interestProvider, funds} = await loadFixture(
-        fixtureInitialized
+        fixtureUSRWithMockInterestProvider
       );
 
       await expect(
@@ -144,7 +73,7 @@ describe("USR", function () {
 
   describe("ERC20Pausable", function () {
     it("Should be able to pause", async function () {
-      const {usr} = await loadFixture(fixtureInitialized);
+      const {usr} = await loadFixture(fixtureUSRWithMockInterestProvider);
 
       let account = accounts[1];
 
@@ -182,7 +111,7 @@ describe("USR", function () {
     });
 
     it("Should be able to unpause ", async function () {
-      const {usr} = await loadFixture(fixtureInitialized);
+      const {usr} = await loadFixture(fixtureUSRWithMockInterestProvider);
 
       let account = accounts[1];
       await expect(usr.unpause())
@@ -218,7 +147,7 @@ describe("USR", function () {
   describe("Chargeable", function () {
     it("Should be able to update fee recipient", async function () {
       const {usdx, usr, interestProvider} = await loadFixture(
-        fixtureInitialized
+        fixtureUSRWithMockInterestProvider
       );
 
       let recipient = accounts[accounts.length - 1]._address;
@@ -228,7 +157,7 @@ describe("USR", function () {
 
     it("Should be able to charge some fee when mint", async function () {
       const {usdx, usr, interestProvider} = await loadFixture(
-        fixtureInitialized
+        fixtureUSRWithMockInterestProvider
       );
 
       let fee = ethers.utils.parseEther("0.05");
@@ -290,7 +219,7 @@ describe("USR", function () {
 
     it("Should be able to charge some fee when redeem", async function () {
       const {usdx, usr, interestProvider} = await loadFixture(
-        fixtureInitialized
+        fixtureUSRWithMockInterestProvider
       );
 
       let fee = ethers.utils.parseEther("0.05");
@@ -357,7 +286,7 @@ describe("USR", function () {
 
     it("Should be able to charge some fee when redeemUnderlying", async function () {
       const {usdx, usr, interestProvider} = await loadFixture(
-        fixtureInitialized
+        fixtureUSRWithMockInterestProvider
       );
 
       let account = accounts[1];
@@ -425,7 +354,7 @@ describe("USR", function () {
     });
 
     it("Should be able to update fee to zero", async function () {
-      const {usr} = await loadFixture(fixtureInitialized);
+      const {usr} = await loadFixture(fixtureUSRWithMockInterestProvider);
       await usr.updateOriginationFee(REDEEM_SELECTOR, 0);
       await usr.updateOriginationFee(MINT_SELECTOR, 0);
     });
@@ -433,7 +362,7 @@ describe("USR", function () {
 
   describe("ERC20Exchangeable", function () {
     it("Initial exchange rate should be 1.0", async function () {
-      const {usr} = await loadFixture(fixtureInitialized);
+      const {usr} = await loadFixture(fixtureUSRWithMockInterestProvider);
 
       //console.log(ethers.utils.formatEther(await usr.totalSupply()));
 
@@ -444,7 +373,7 @@ describe("USR", function () {
 
     it("Should be able to update exchange rate", async function () {
       const {usdx, usr, interestProvider} = await loadFixture(
-        fixtureInitialized
+        fixtureUSRWithMockInterestProvider
       );
 
       expect(await usr.callStatic.exchangeRate()).to.equal(
@@ -470,7 +399,7 @@ describe("USR", function () {
 
     it("Should be able to get underlying balance", async function () {
       const {usdx, usr, interestProvider} = await loadFixture(
-        fixtureInitialized
+        fixtureUSRWithMockInterestProvider
       );
 
       let account = accounts[1];
@@ -521,7 +450,7 @@ describe("USR", function () {
   describe("Mint/Redeem/RedeemUnderlying", function () {
     it("Should not be able to mint < 0 when totalSupply is 0", async function () {
       const {usdx, usr, interestProvider} = await loadFixture(
-        fixtureInitialized
+        fixtureUSRWithMockInterestProvider
       );
 
       let account = accounts[1];
@@ -533,7 +462,7 @@ describe("USR", function () {
 
     it("Should be able to mint with mock profit provider", async function () {
       const {usdx, usr, interestProvider} = await loadFixture(
-        fixtureInitialized
+        fixtureUSRWithMockInterestProvider
       );
 
       let account = accounts[1];
@@ -593,7 +522,7 @@ describe("USR", function () {
 
     it("Should be able to redeem with mock profit provider", async function () {
       const {usdx, usr, interestProvider} = await loadFixture(
-        fixtureInitialized
+        fixtureUSRWithMockInterestProvider
       );
 
       let account = accounts[1];
@@ -648,7 +577,7 @@ describe("USR", function () {
 
     it("Should be able to redeemUnderlying with mock profit provider", async function () {
       const {usdx, usr, interestProvider} = await loadFixture(
-        fixtureInitialized
+        fixtureUSRWithMockInterestProvider
       );
 
       let account = accounts[1];

@@ -2,17 +2,8 @@ const {expect} = require("chai");
 const {loadFixture} = require("ethereum-waffle");
 const BN = ethers.BigNumber;
 
-const USDxV2deploy = require("../USDx_1.0/test/helpers/USDxV2deploy.js");
-
+const {fixtureInterestProvider} = require("./helpers/fixtures.js");
 const Collaterals = artifacts.require("Collaterals_t.sol");
-
-// USDx Contracts use web3 and truffle
-async function deployUSDxContracts() {
-  accounts = await web3.eth.getAccounts();
-  let collaterals = new Array("PAX", "TUSD", "USDC");
-  var weights = new Array(1, 1, 8);
-  return await USDxV2deploy.contractsDeploy(accounts, collaterals, weights);
-}
 
 async function printInterestDetails(details, contracts) {
   console.log("Interest Details:");
@@ -30,37 +21,6 @@ async function printInterestDetails(details, contracts) {
   }
 }
 
-async function fixtureDeployed([wallet, other], provider) {
-  const usdxContracts = await deployUSDxContracts();
-
-  //console.log(usdxContracts);
-
-  const [owner, ...accounts] = await ethers.getSigners();
-
-  const Funds = await ethers.getContractFactory("Funds");
-  const funds = await Funds.deploy();
-  await funds.deployed();
-
-  const InterestProvider = await ethers.getContractFactory("InterestProvider");
-  const interestProvider = await InterestProvider.deploy(
-    usdxContracts.usdxToken.address,
-    usdxContracts.store.address,
-    usdxContracts.poolV2.address,
-    funds.address
-  );
-  await interestProvider.deployed();
-
-  await funds.setAuthority(usdxContracts.guard.address);
-
-  await usdxContracts.guard.permitx(
-    interestProvider.address,
-    usdxContracts.poolV2.address
-  );
-  await usdxContracts.guard.permitx(interestProvider.address, funds.address);
-
-  return {usdxContracts, funds, interestProvider, owner, accounts};
-}
-
 describe("InterestProvider", function () {
   let owner, accounts;
 
@@ -70,11 +30,11 @@ describe("InterestProvider", function () {
 
   describe("deployment()", function () {
     it("Should be able to deploy basic contracts", async function () {
-      const {usdx, usr} = await loadFixture(fixtureDeployed);
+      const {usdx, usr} = await loadFixture(fixtureInterestProvider);
     });
 
     it("Should be able to get 0 as initial interest amount", async function () {
-      const {interestProvider} = await loadFixture(fixtureDeployed);
+      const {interestProvider} = await loadFixture(fixtureInterestProvider);
 
       let interest = await interestProvider.callStatic.getInterestAmount();
 
@@ -83,7 +43,7 @@ describe("InterestProvider", function () {
 
     it("Should be able to get 0 as initial interest details", async function () {
       const {usdxContracts, interestProvider} = await loadFixture(
-        fixtureDeployed
+        fixtureInterestProvider
       );
 
       let interestDetails = await interestProvider.callStatic.getInterestDetails();
@@ -92,14 +52,14 @@ describe("InterestProvider", function () {
     });
 
     it("Should not be able to withdraw any interest", async function () {
-      const {interestProvider} = await loadFixture(fixtureDeployed);
+      const {interestProvider} = await loadFixture(fixtureInterestProvider);
       await expect(interestProvider.withdrawInterest(1)).to.be.reverted;
     });
   });
 
   describe("Mock some interest", function () {
     before(async function () {
-      const {usdxContracts, funds} = await loadFixture(fixtureDeployed);
+      const {usdxContracts, funds} = await loadFixture(fixtureInterestProvider);
 
       let amount = ethers.utils.parseEther("10000");
       await usdxContracts.protocol.oneClickMinting(0, amount);
@@ -128,7 +88,7 @@ describe("InterestProvider", function () {
     });
 
     it("getInterestAmount()", async function () {
-      const {interestProvider} = await loadFixture(fixtureDeployed);
+      const {interestProvider} = await loadFixture(fixtureInterestProvider);
 
       let interest = await interestProvider.callStatic.getInterestAmount();
 
@@ -137,7 +97,7 @@ describe("InterestProvider", function () {
 
     it("getInterestDetails()", async function () {
       const {usdxContracts, interestProvider} = await loadFixture(
-        fixtureDeployed
+        fixtureInterestProvider
       );
 
       let interestDetails = await interestProvider.callStatic.getInterestDetails();
@@ -147,7 +107,7 @@ describe("InterestProvider", function () {
 
     it("withdrawInterest()", async function () {
       const {usdxContracts, interestProvider, owner} = await loadFixture(
-        fixtureDeployed
+        fixtureInterestProvider
       );
 
       let interest = await interestProvider.callStatic.getInterestAmount();
