@@ -1,3 +1,4 @@
 [submodule "USDx_1.0"]
 	path = USDx_1.0
-	url = https://github.com/dforce-network/USDx_1.0/tree/dev
+	url = https://github.com/dforce-network/USDx_1.0
+	branch = dev
