@@ -22,8 +22,6 @@ exchangeRate = (principal + interest) / totalSupply;
 
 #### Audit Contracts
 
-- Chargeable.sol
-- ERC20Pausable.sol
 - Funds.sol
 - InterestProvider.sol
 - USR.sol
