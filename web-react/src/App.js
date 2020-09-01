@@ -583,7 +583,7 @@ export default class App extends React.Component {
                         <span style={{ fontWeight: 500 }}>
                           {
                             this.state.total_underlying ?
-                              this.state.total_underlying.toFixed(2)
+                              format_num_to_K(this.state.total_underlying.toFixed(2))
                               : '...'
                           }
                         </span>
@@ -600,7 +600,7 @@ export default class App extends React.Component {
                         <span style={{ fontWeight: 500 }}>
                           {
                             this.state.token_apy ?
-                              this.state.token_apy.toFixed(2)
+                              format_num_to_K(this.state.token_apy.toFixed(2))
                               : '...'
                           }
                         </span>
@@ -649,13 +649,13 @@ export default class App extends React.Component {
                 <FormattedMessage id='Resource' />
               </div>
               <div className="foot-item-content">
-                <a href='https://github.com/dforce-network/dToken.git' target='_blank' rel="noopener noreferrer">
+                <a href='https://github.com/dforce-network/USR' target='_blank' rel="noopener noreferrer">
                   GitHub
                 </a>
               </div>
               <div className="foot-item-content">
                 <a
-                  href='https://github.com/dforce-network/dToken.git'
+                  href='https://github.com/dforce-network/USR'
                   target='_blank'
                   rel="noopener noreferrer"
                 >

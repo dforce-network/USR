@@ -48,6 +48,10 @@ $theme-color: #675CFF;
 
 .ant-tabs-tab.ant-tabs-tab-active {
     color: $theme-color !important;
+
+    .ant-tabs-tab-btn {
+        font-weight: bold !important;
+    }
 }
 
 
