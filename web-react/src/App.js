@@ -604,7 +604,7 @@ export default class App extends React.Component {
                               : '...'
                           }
                         </span>
-                        {this.state.token_apy && '%'}
+                        {this.state.token_apy ? '%' : ''}
                       </span>
                     </div>
                   </div>
