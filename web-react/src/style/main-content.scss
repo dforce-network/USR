@@ -1,4 +1,4 @@
-$theme-color: #D4A454;
+$theme-color: #675CFF;
 
 
 
@@ -158,21 +158,20 @@ input[type="text"] {
                     margin-bottom: 16px;
 
                     .choose-token-left {
+                        // background-color: red;
+                        display: flex;
+
                         .cur-choosen-token {
                             color: #444A76;
                             margin-right: 4px;
                             font-weight: 500;
+                            // background-color: goldenrod;
                         }
 
                         .choose-token-logo {
                             width: 20px;
                             margin-right: 4px;
                             margin-top: -4px;
-                        }
-
-                        .arrow-down {
-                            width: 7px;
-                            margin-top: -2px;
                         }
                     }
 
@@ -254,7 +253,7 @@ input[type="text"] {
 
         .content-right {
             width: 432px;
-            max-height: 390px;
+            max-height: 440px;
             box-shadow: 0px 0px 35px 0px rgba(94, 85, 126, 0.15);
             border-radius: 6px;
             // padding: 22px;
@@ -266,6 +265,7 @@ input[type="text"] {
             .token-status {
                 border-radius: 4px;
                 // border: 1px solid #E5E6F2;
+                margin-bottom: 25px;
 
                 .token-status-header {
                     // background: rgba(238, 239, 248, 1);
@@ -286,7 +286,7 @@ input[type="text"] {
                     // border: 1px solid red;
 
                     .account-balance {
-                        color: #D1A255;
+                        color: #675CFF;
                         font-size: 22px;
                         font-weight: bold;
                     }
@@ -351,15 +351,8 @@ input[type="text"] {
                     }
 
                     .token-status-body-item-sle {
-                        // border-left: 2px solid #D4A454 !important;
-                        // color: #D4A454 !important;
                         padding-left: 0px;
                         display: block;
-                    }
-
-                    .token-status-body-item:hover {
-                        // transform:translate(1px,1px);
-                        // color: #D4A454 !important;
                     }
                 }
             }
@@ -564,6 +557,7 @@ input[type="text"] {
             .token-status {
                 border-radius: 4px;
                 // border: 1px solid #E5E6F2;
+                margin-bottom: 20px;
 
                 .token-status-header {
                     height: 44px;
@@ -582,7 +576,7 @@ input[type="text"] {
                     // border: 1px solid red;
 
                     .account-balance {
-                        color: #D1A255;
+                        color: #675CFF;
                         font-size: 16px;
                         font-weight: bold;
                     }
@@ -603,7 +597,7 @@ input[type="text"] {
                         font-weight: 400;
                         color: rgba(67, 73, 118, 1);
                         line-height: 42px;
-                        border-bottom: 1px solid #E5E6F2;
+                        // border-bottom: 1px solid #E5E6F2;
                         padding-left: 2px;
                         // background-color: red;
 
@@ -649,8 +643,8 @@ input[type="text"] {
                     }
 
                     .token-status-body-item-sle {
-                        border-left: 2px solid #D4A454 !important;
-                        color: #D4A454 !important;
+                        border-left: 2px solid #675CFF !important;
+                        color: #675CFF !important;
                         padding-left: 0px;
                     }
                 }

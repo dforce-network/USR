@@ -3,22 +3,18 @@ import Web3 from 'web3';
 import { Menu, Dropdown, Tabs, Input, Button, Modal } from 'antd';
 import History from './component/history';
 import ReactEcharts from 'echarts-for-react';
-import CountUp from 'react-countup';
 // add i18n.
 import { IntlProvider, FormattedMessage } from 'react-intl';
 import en_US from './language/en_US.js';
 import zh_CN from './language/zh_CN';
 
-import './App.scss';
-import './header.scss';
+import './style/App.scss';
+import './style/header.scss';
 import './style/main-content.scss';
 import 'antd/dist/antd.css';
 import tips from './style/tips.scss';
 
-import DAI_logo from './images/DAI.svg';
-import TUSD_logo from './images/TUSD.svg';
-import USDT_logo from './images/USDT.svg';
-import USDC_logo from './images/USDC.svg';
+import USDx_logo from './images/USDx.svg';
 import logo_xswap from './images/logo-dforce.svg';
 import close from './images/close.svg';
 import close_new from './images/close-new.svg';
@@ -32,9 +28,7 @@ import Youtube from './images/Youtube.svg';
 import erweima from './images/erweima.png';
 import weixin from './images/weixin.svg';
 import arrow_u from './images/up.svg';
-import wallet_metamask from './images/wallet-metamask.svg';
 import arrow_d from './images/arrow_d.svg';
-import arrow_down from './images/arrow_down.svg';
 import no_history from './images/no-history.svg';
 import no_support from './images/no_support.svg';
 
@@ -42,7 +36,6 @@ import {
   get_nettype,
   mint_change,
   mint_click,
-  get_tokens_status,
   get_tokens_status_apy,
   format_bn,
   format_num_to_K,
@@ -51,7 +44,6 @@ import {
   mint_max,
   redeem_max,
   init_metamask_wallet,
-  set_show_data,
   accounts_changed,
   approve_click
 } from './utils.js';
@@ -64,12 +56,10 @@ export default class App extends React.Component {
     super(props);
 
     this.state = {
-      // token_name: ['USDT', 'USDC', 'DAI', 'TUSD'],
-      // token_d_name: ['dUSDT', 'dUSDC', 'dDAI', 'dTUSD'],
-      token_name: ['USDT', 'USDC', 'DAI'],
-      token_d_name: ['dUSDT', 'dUSDC', 'dDAI'],
-      token_d_balance__prev: [0, 0, 0],
-      token_logo: [USDT_logo, USDC_logo, DAI_logo, TUSD_logo],
+      token_name: ['USDx'],
+      token_d_name: ['dUSDx'],
+      token_d_balance__prev: [0],
+      token_logo: [USDx_logo],
       token_decimals: [],
       token_contract: [],
       token_d_contract: [],
@@ -77,41 +67,25 @@ export default class App extends React.Component {
       token_balance: [],
       token_d_balance: [],
       token_BaseData: [],
-      // cur_index_mint: 0,
-      // cur_index_redeem: 0,
-      // cur_show_data_index: 0,
-      // cur_index_mint: props.location.state && props.location.state.cur_index || 0,
-      // cur_index_redeem: props.location.state && props.location.state.cur_index || 0,
-      // cur_show_data_index: props.location.state && props.location.state.cur_index || 0,
-      cur_index_mint: this.getUrl(props),
-      cur_index_redeem: this.getUrl(props),
-      cur_show_data_index: this.getUrl(props),
-      is_withdraw: props.location.state && props.location.state.is_withdraw || false,
+      cur_index_mint: 0,
+      cur_index_redeem: 0,
+      cur_show_data_index: 0,
       token_status: [],
-      token_status_apy: [],
       options: {},
-
-      cur_language: props.location.state && props.location.state.cur_language === '中文' ? '中文' : 'English',
+      cur_language: navigator.language.toLowerCase() === 'zh-cn' ? '中文' : 'English',
       showonly: false,
       meun1: true,
       meun2: true,
       meun3: true,
-      source: this.handleUrl(props),
+      source: this.handleUrl(),
     }
 
     this.new_web3 = window.new_web3 = new Web3(Web3.givenProvider || null);
     this.bn = this.new_web3.utils.toBN;
-
-    // console.log(props.location.state)
-    // console.log(window.location.href)
   }
 
-  handleUrl = (props) => {
-    if (props && props.location.state && props.location.state.source) {
-      console.log(props.location.state.source);
-      return props.location.state.source;
-    }
 
+  handleUrl = () => {
     const wallet_list = ['imtoken', 'bitpie', 'mykey', 'dapppocket', 'blocto', 'huobiwallet', 'abcwallet', 'tokenpocket', 'dappbirds', 'mathwallet', 'meetone'];
     let t_url = window.location.href;
     let arr_url = t_url.split('/');
@@ -130,28 +104,6 @@ export default class App extends React.Component {
     return source = 'web';
   }
 
-  getUrl = (props) => {
-    // console.log(props.location.state && props.location.state.cur_index || 0)
-
-    if (props && props.location.state && props.location.state.cur_index) {
-      console.log('props');
-      return props.location.state && props.location.state.cur_index || 0;
-    }
-
-    if (window.location.href.toLowerCase().includes('dapp/dai')) {
-      console.log('dapp/dai');
-      return 2;
-    } else if (window.location.href.toLowerCase().includes('dapp/usdc')) {
-      console.log('dapp/usdc');
-      return 1;
-    } else {
-      console.log('dapp/usdt');
-      return 0;
-    }
-
-  }
-
-
 
   componentDidMount = async () => {
     if (!Web3.givenProvider) {
@@ -164,33 +116,7 @@ export default class App extends React.Component {
     this.setState({
       net_type: nettype,
     }, () => {
-      get_tokens_status(this);
       get_tokens_status_apy(this);
-
-      window.timer_10s = setInterval(() => {
-        return console.log('window.timer_5s......');
-        if (
-          (
-            this.state.start_arr.length !== this.state.token_name.length ||
-            this.state.end_arr.length !== this.state.token_name.length ||
-            this.state.token_d_balance.length !== this.state.token_name.length
-          )
-        ) { return console.log('not ready'); }
-        let need_update = false;
-        for (let i = 0; i < this.state.start_arr.length; i++) {
-          if (this.bn(this.state.token_d_balance[i]).gt(this.bn(this.state.end_arr[i]))) {
-            need_update = true;
-          }
-        }
-        if (need_update) {
-          console.log('need_update******...');
-          this.setState({
-            is_already_set_count: false
-          }, () => {
-            get_tokens_status_apy(this);
-          })
-        }
-      }, 1000 * 5);
     })
 
     if (window.ethereum) {
@@ -202,83 +128,6 @@ export default class App extends React.Component {
         }
       });
     }
-  }
-
-
-  set_mint_token = (index) => {
-    if (!this.state.is_already && !this.state.token_status_is_ready) {
-      return console.log('not already');
-    }
-    if (!Web3.givenProvider) {
-      return console.log('no web3 provider');
-    }
-    if (index === this.state.cur_index_mint) {
-      return console.log('cur_index_mint is choosed...');
-    }
-    if (!this.state.token_name[index]) {
-      return console.log('not exist...');
-    }
-    console.log(index);
-    this.setState({
-      cur_index_mint: index,
-      cur_index_redeem: index,
-      value_mint: '',
-      mint_to_receive_bn: '',
-      is_btn_disabled_mint: false,
-      is_already_set_count: false
-    }, () => {
-      set_show_data(this);
-      get_tokens_status_apy(this);
-      console.log(this.state.start_arr, this.state.end_arr)
-    })
-  }
-
-
-  set_redeem_token = (index) => {
-    if (!this.state.is_already) {
-      return console.log('no is_already');
-    }
-    if (!Web3.givenProvider) {
-      return console.log('no web3 provider');
-    }
-    if (index === this.state.cur_index_redeem) {
-      return console.log('is choosed...');
-    }
-    if (!this.state.token_name[index]) {
-      return console.log('not exist...');
-    }
-    console.log(index);
-    this.setState({
-      cur_index_redeem: index,
-      cur_index_mint: index,
-      value_redeem: '',
-      redeem_to_receive_bn: '',
-      is_btn_disabled_redeem: false,
-      is_already_set_count: false
-    }, () => {
-      set_show_data(this);
-      get_tokens_status_apy(this);
-    })
-  }
-
-
-  set_show_index = (index) => {
-    // console.log(document.body.clientWidth)
-    if (document.body.clientWidth <= 767) {
-      this.setState({
-        show_overlay: true
-      })
-    }
-
-    // console.log(index);
-    if (this.state.cur_show_data_index === index) {
-      return console.log('has set...')
-    }
-    this.setState({
-      cur_show_data_index: index
-    }, () => {
-      set_show_data(this);
-    })
   }
 
 
@@ -301,22 +150,6 @@ export default class App extends React.Component {
   render() {
     return (
       <IntlProvider locale={'en'} messages={this.state.cur_language === '中文' ? zh_CN : en_US} >
-        <Modal
-          visible={this.state.show_wallets}
-          onCancel={() => { this.setState({ show_wallets: false }) }}
-          footer={false}
-        >
-          <div className={tips.title}>Connect Wallet</div>
-          <div className={tips.wallets}>
-            <div className={tips.wallets__item} onClick={() => { this.click_wallet('metamask') }}>
-              <span className={tips.wallets__item_name}>{'MetaMask'}</span>
-              <span className={tips.wallets__item_icon}>
-                <img src={wallet_metamask} alt="" />
-              </span>
-            </div>
-          </div>
-        </Modal>
-
         {/* overlay */}
         <Modal
           visible={this.state.show_overlay}
@@ -379,7 +212,7 @@ export default class App extends React.Component {
                 <Menu className={'header__overlay'}>
                   <Menu.Item>
                     <a rel="noopener noreferrer" href="https://trade.dforce.network/" className={'header__overlay_item'}>
-                      <span>dForce Trade</span>
+                      <span>dForce Swap</span>
                       <label>
                         <FormattedMessage id='Instant_Swap_of_Stable_Assets' />
                       </label>
@@ -536,7 +369,7 @@ export default class App extends React.Component {
           <div className={this.state.meun3 ? 'meun1' : 'only1px'}>
             <div className='m-item'>
               <a href='https://trade.dforce.network/' rel="noopener noreferrer">
-                <span className='title'>dForce Trade</span>
+                <span className='title'>dForce Swap</span>
               </a>
               <span className='details'>
                 <FormattedMessage id='Instant_Swap_of_Stable_Assets' />
@@ -583,80 +416,15 @@ export default class App extends React.Component {
             <div className="content-left">
               <div className="action">
                 <Tabs
-                  defaultActiveKey={this.state.is_withdraw ? '2' : '1'}
-                  tabBarStyle={{ fontSize: '16px', fontWeight: 'bold' }}
+                  defaultActiveKey={'1'}
+                  tabBarStyle={{ fontSize: '16px' }}
                   onChange={(activeKey) => { this.empty_state(activeKey) }}
                 >
                   <TabPane tab={this.state.cur_language === '中文' ? "存入" : "DEPOSIT"} key="1">
                     <div className="choose-token">
                       <div className="choose-token-left">
-                        <Dropdown overlay={
-                          <Menu className="menu">
-                            <Menu.Item key={0}>
-                              <div onClick={() => { this.set_mint_token(0) }}>
-                                <img src={this.state.token_logo[0]} alt='' />
-                                <span className="span-name">USDT</span>
-                                {/* <span style={{ opacity: '0.7' }}> (Tether USD)</span> */}
-                                <span className="span-number">
-                                  {
-                                    this.state.token_balance[0] ?
-                                      format_num_to_K(format_bn(this.state.token_balance[0], this.state.token_decimals[0], 2)) : '...'
-                                  }
-                                </span>
-                              </div>
-                            </Menu.Item>
-                            <Menu.Divider />
-
-                            <Menu.Item key={1}>
-                              <div onClick={() => { this.set_mint_token(1) }}>
-                                <img src={this.state.token_logo[1]} alt='' />
-                                <span className="span-name">USDC</span>
-                                {/* <span style={{ opacity: '0.7' }}> (USDC)</span> */}
-                                <span className="span-number">
-                                  {
-                                    this.state.token_balance[1] ?
-                                      format_num_to_K(format_bn(this.state.token_balance[1], this.state.token_decimals[1], 2)) : '...'
-                                  }
-                                </span>
-                              </div>
-                            </Menu.Item>
-
-                            <Menu.Item key={2}>
-                              <div onClick={() => { this.set_mint_token(2) }}>
-                                <img src={this.state.token_logo[2]} alt='' />
-                                <span className="span-name">DAI</span>
-                                {/* <span style={{ opacity: '0.7' }}> (USDC)</span> */}
-                                <span className="span-number">
-                                  {
-                                    this.state.token_balance[2] ?
-                                      format_num_to_K(format_bn(this.state.token_balance[2], this.state.token_decimals[2], 2)) : '...'
-                                  }
-                                </span>
-                              </div>
-                            </Menu.Item>
-
-                            <Menu.Item key={3}>
-                              <div onClick={() => { this.set_mint_token(3) }}>
-                                <img src={this.state.token_logo[3]} alt='' />
-                                <span className="span-name">TUSD</span>
-                                {/* <span style={{ opacity: '0.7' }}> (USDC)</span> */}
-                                <span className="span-number">
-                                  {
-                                    this.state.token_balance[3] ?
-                                      format_num_to_K(format_bn(this.state.token_balance[3], this.state.token_decimals[3], 2)) : '...'
-                                  }
-                                </span>
-                              </div>
-                            </Menu.Item>
-
-                          </Menu>
-                        } trigger={['click']}>
-                          <a className="ant-dropdown-link" onClick={e => e.preventDefault()} rel="noopener noreferrer">
-                            <img className='choose-token-logo' src={this.state.token_logo[this.state.cur_index_mint]} alt='' />
-                            <span className="cur-choosen-token">{this.state.token_name[this.state.cur_index_mint]}</span>
-                            <img className='arrow-down' src={arrow_down} alt="down" />
-                          </a>
-                        </Dropdown>
+                        <img className='choose-token-logo' src={this.state.token_logo[0]} alt='' />
+                        <span className="cur-choosen-token">USDx</span>
                       </div>
                       <div className="choose-token-right">
                         <span className="span-balance">
@@ -664,8 +432,8 @@ export default class App extends React.Component {
                         </span>
                         <span className="span-balance-num">
                           {
-                            this.state.token_balance[this.state.cur_index_mint] ?
-                              format_num_to_K(format_bn(this.state.token_balance[this.state.cur_index_mint], this.state.token_decimals[this.state.cur_index_mint], 2)) : '...'
+                            this.state.my_balance__usdx ?
+                              format_num_to_K(format_bn(this.state.my_balance__usdx, 18, 2)) : '...'
                           }
                         </span>
                       </div>
@@ -676,19 +444,9 @@ export default class App extends React.Component {
                         placeholder={'Amount'}
                         type='text'
                         value={this.state.value_mint}
-                        onChange={(e) => { mint_change(this, e.target.value, this.state.token_decimals[this.state.cur_index_mint]) }}
+                        onChange={(e) => { mint_change(this, e.target.value, 18) }}
                       />
                       <span className="span-max" onClick={() => { mint_max(this) }}>MAX</span>
-                      {/* <span className="span-cloud-receive">
-                        <FormattedMessage id='you_w_receive' />
-                        <span className="span-cloud-receive-num">
-                          {
-                            this.state.mint_to_receive_bn ?
-                              format_num_to_K(format_bn(this.state.mint_to_receive_bn, this.state.token_decimals[this.state.cur_index_mint], 2)) : '...'
-                          }
-                        </span>
-                        {' ' + this.state.token_d_name[this.state.cur_index_mint]}
-                      </span> */}
                     </div>
 
                     {
@@ -704,7 +462,7 @@ export default class App extends React.Component {
                     }
 
                     {
-                      this.state.show_btn && this.state.token_is_approve[this.state.cur_index_mint] &&
+                      this.state.show_btn && this.state.is_approve__usdx &&
                       <div className="btn-wrap btn-wrap-plus">
                         <Button
                           disabled={this.state.is_btn_disabled_mint}
@@ -719,7 +477,7 @@ export default class App extends React.Component {
                       </div>
                     }
                     {
-                      this.state.show_btn && !this.state.token_is_approve[this.state.cur_index_mint] &&
+                      this.state.show_btn && !this.state.is_approve__usdx &&
                       <div className="btn-wrap btn-wrap-plus">
                         <Button
                           disabled={this.state.is_btn_disabled_mint}
@@ -739,69 +497,8 @@ export default class App extends React.Component {
                   <TabPane tab={this.state.cur_language === '中文' ? "取回" : "WITHDRAW"} key="2">
                     <div className="choose-token">
                       <div className="choose-token-left">
-                        <Dropdown overlay={
-                          <Menu className="menu">
-                            <Menu.Item key={0}>
-                              <div onClick={() => { this.set_redeem_token(0) }}>
-                                <img src={this.state.token_logo[0]} alt='' />
-                                <span className="span-name">USDT</span>
-                                <span className="span-number">
-                                  {
-                                    this.state.token_d_balance[0] ?
-                                      format_num_to_K(format_bn(this.state.token_d_balance[0], this.state.token_decimals[0], 2)) : '...'
-                                  }
-                                </span>
-                              </div>
-                            </Menu.Item>
-                            <Menu.Divider />
-
-                            <Menu.Item key={1}>
-                              <div onClick={() => { this.set_redeem_token(1) }}>
-                                <img src={this.state.token_logo[1]} alt='' />
-                                <span className="span-name">USDC</span>
-                                <span className="span-number">
-                                  {
-                                    this.state.token_d_balance[1] ?
-                                      format_num_to_K(format_bn(this.state.token_d_balance[1], this.state.token_decimals[1], 2)) : '...'
-                                  }
-                                </span>
-                              </div>
-                            </Menu.Item>
-
-                            <Menu.Item key={2}>
-                              <div onClick={() => { this.set_redeem_token(2) }}>
-                                <img src={this.state.token_logo[2]} alt='' />
-                                <span className="span-name">DAI</span>
-                                <span className="span-number">
-                                  {
-                                    this.state.token_d_balance[2] ?
-                                      format_num_to_K(format_bn(this.state.token_d_balance[2], this.state.token_decimals[2], 2)) : '...'
-                                  }
-                                </span>
-                              </div>
-                            </Menu.Item>
-
-                            <Menu.Item key={3}>
-                              <div onClick={() => { this.set_redeem_token(3) }}>
-                                <img src={this.state.token_logo[3]} alt='' />
-                                <span className="span-name">TUSD</span>
-                                <span className="span-number">
-                                  {
-                                    this.state.token_d_balance[3] ?
-                                      format_num_to_K(format_bn(this.state.token_d_balance[3], this.state.token_decimals[3], 2)) : '...'
-                                  }
-                                </span>
-                              </div>
-                            </Menu.Item>
-
-                          </Menu>
-                        } trigger={['click']}>
-                          <a className="ant-dropdown-link" onClick={e => e.preventDefault()} rel="noopener noreferrer">
-                            <img className='choose-token-logo' src={this.state.token_logo[this.state.cur_index_redeem]} alt='' />
-                            <span className="cur-choosen-token">{this.state.token_d_name[this.state.cur_index_redeem].slice(1)}</span>
-                            <img className='arrow-down' src={arrow_down} alt="down" />
-                          </a>
-                        </Dropdown>
+                        <img className='choose-token-logo' src={this.state.token_logo[0]} alt='' />
+                        <span className="cur-choosen-token">USDx</span>
                       </div>
                       <div className="choose-token-right">
                         <span className="span-balance">
@@ -809,8 +506,8 @@ export default class App extends React.Component {
                         </span>
                         <span className="span-balance-num">
                           {
-                            this.state.token_d_balance[this.state.cur_index_redeem] ?
-                              format_num_to_K(format_bn(this.state.token_d_balance[this.state.cur_index_redeem], this.state.token_decimals[this.state.cur_index_redeem], 2)) : '...'
+                            this.state.my_balance__dusdx ?
+                              format_num_to_K(format_bn(this.state.my_balance__dusdx, 18, 2)) : '...'
                           }
                         </span>
                       </div>
@@ -821,19 +518,9 @@ export default class App extends React.Component {
                         placeholder={'Amount'}
                         type='text'
                         value={this.state.value_redeem}
-                        onChange={(e) => { redeem_change(this, e.target.value, this.state.token_decimals[this.state.cur_index_redeem]) }}
+                        onChange={(e) => { redeem_change(this, e.target.value, 18) }}
                       />
                       <span className="span-max" onClick={() => { redeem_max(this) }}>MAX</span>
-                      {/* <span className="span-cloud-receive">
-                        <FormattedMessage id='you_w_receive' />
-                        <span className="span-cloud-receive-num">
-                          {
-                            this.state.redeem_to_receive_bn ?
-                              format_num_to_K(format_bn(this.state.redeem_to_receive_bn, this.state.token_decimals[this.state.cur_index_redeem], 2)) : '...'
-                          }
-                        </span>
-                        {' ' + this.state.token_name[this.state.cur_index_redeem]}
-                      </span> */}
                     </div>
 
                     <div className="btn-wrap btn-wrap-plus">
@@ -873,54 +560,10 @@ export default class App extends React.Component {
                   <div className="token-status-header-child">
                     <FormattedMessage id='You_have' />
                     {
-                      // this.state.token_d_balance[this.state.cur_index_redeem] ?
-                      //   <CountUp
-                      //     className="account-balance"
-                      //     start={
-                      //       Number(format_bn(this.state.token_d_balance__prev[this.state.cur_index_mint], this.state.token_decimals[this.state.cur_index_mint], 6))
-                      //     }
-                      //     // start={
-                      //     //   Number(format_bn(this.state.token_d_balance[this.state.cur_index_mint], this.state.token_decimals[this.state.cur_index_mint], 6))
-                      //     // }
-                      //     end={
-                      //       Number(format_bn(this.state.token_d_balance[this.state.cur_index_mint], this.state.token_decimals[this.state.cur_index_mint], 6))
-                      //     }
-                      //     duration={Number(2)}
-                      //     useGrouping={true}
-                      //     separator=","
-                      //     decimals={6}
-                      //     decimal="."
-                      //     update={
-                      //       Number(format_bn(this.state.token_d_balance[this.state.cur_index_mint], this.state.token_decimals[this.state.cur_index_mint], 6))
-                      //     }
-                      //   />
-                      //   : '...'
-                    }
-
-                    {
-                      // this.state.token_d_balance[this.state.cur_index_redeem] && this.state.is_already_set_count ?
-                      // this.state.is_already_set_count ?
-                      //   <CountUp
-                      //     className="account-balance"
-                      //     start={Number(format_bn(this.state.start_arr[this.state.cur_index_mint], this.state.token_decimals[this.state.cur_index_mint], 6))}
-                      //     end={Number(format_bn(this.state.end_arr[this.state.cur_index_mint], this.state.token_decimals[this.state.cur_index_mint], 6))}
-                      //     duration={Number(24 * 60 * 60)}
-                      //     useGrouping={true}
-                      //     separator=","
-                      //     decimals={6}
-                      //     decimal="."
-                      //   /> : '...'
-                    }
-
-                    {
-                      this.state.token_d_balance[this.state.cur_index_redeem] ?
+                      this.state.my_balance__dusdx ?
                         <span className="account-balance">
                           {
-                            format_num_to_K(format_bn(
-                              this.state.token_d_balance[this.state.cur_index_mint],
-                              this.state.token_decimals[this.state.cur_index_mint],
-                              6
-                            ))
+                            format_num_to_K(format_bn(this.state.my_balance__dusdx, 18, 6))
                           }
                         </span> : '...'
                     }
@@ -931,43 +574,40 @@ export default class App extends React.Component {
                 </div>
 
                 <div className="token-status-body">
-                  {
-                    // this.state.token_status_apy.length > 0 &&
-                    <div
-                      className={"token-status-body-item"}
-                    // key={index}
-                    // onClick={() => { this.set_show_index(index) }}
-                    >
-                      {/* <div className="pool-wrap">
-                        <span className="token-title"><FormattedMessage id='net_value' /></span>
-                        <span className="token-balance">
-                          <span style={{ fontWeight: 500 }}>
-                            {
-                              this.state.token_status_apy[this.state.cur_index_mint] ?
-                                format_num_to_K(format_bn(this.state.token_status_apy[this.state.cur_index_mint].net_value, 0, 2))
-                                : '...'
-                            }
-                          </span>
-                          {' ' + this.state.token_name[this.state.cur_index_mint]}
+                  <div className={"token-status-body-item"}>
+                    <div className="pool-wrap">
+                      <span className="token-title">
+                        <FormattedMessage id='Market_Size' />
+                      </span>
+                      <span className="token-rate">
+                        <span style={{ fontWeight: 500 }}>
+                          {
+                            this.state.total_underlying ?
+                              this.state.total_underlying.toFixed(2)
+                              : '...'
+                          }
                         </span>
-                      </div> */}
-                      <div className="pool-wrap">
-                        <span className="token-title">
-                          <FormattedMessage id='APY' />
-                        </span>
-                        <span className="token-rate">
-                          <span style={{ fontWeight: 500 }}>
-                            {
-                              this.state.token_status_apy[this.state.cur_index_mint] ?
-                                this.state.token_status_apy[this.state.cur_index_mint].now_apy
-                                : '...'
-                            }
-                          </span>
-                          {this.state.token_status_apy[this.state.cur_index_mint] && '%'}
-                        </span>
-                      </div>
+                      </span>
                     </div>
-                  }
+                  </div>
+
+                  <div className={"token-status-body-item"}>
+                    <div className="pool-wrap">
+                      <span className="token-title">
+                        <FormattedMessage id='APY' />
+                      </span>
+                      <span className="token-rate">
+                        <span style={{ fontWeight: 500 }}>
+                          {
+                            this.state.token_apy ?
+                              this.state.token_apy.toFixed(2)
+                              : '...'
+                          }
+                        </span>
+                        {this.state.token_apy && '%'}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
 

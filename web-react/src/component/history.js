@@ -122,20 +122,7 @@ export default class RecordBoard extends Component {
         if (this.state.RecentTransactions === null) {
             return "";
         }
-        // debugger;
-        const decimals_obj = {}
         const { token_name, token_d_name, decimals } = this.props;
-
-        if (token_name && token_d_name) {
-            for (let i = 0; i < token_name.length; i++) {
-                decimals_obj[token_name[i]] = decimals[i];
-            }
-            for (let i = 0; i < token_d_name.length; i++) {
-                decimals_obj[token_d_name[i]] = decimals[i];
-            }
-            // console.log(decimals_obj);
-        }
-
 
         return (
             <IntlProvider locale={'en'} messages={this.props.cur_language === '中文' ? zh_CN : en_US} >
@@ -189,14 +176,11 @@ export default class RecordBoard extends Component {
                                         </div>
                                         <div className="history-item-right-bottom">
                                             <FormattedMessage id={item.action} />
-
-                                            {' ' + format_num_to_K(format_bn(item.send_amount, decimals_obj[item.send_token], 2)) + ' '}
-                                            {item.send_token.indexOf('d') === 0 ? item.send_token.slice(1) : item.send_token}
-
-                                            {/* {', '}
-                                            <FormattedMessage id='recive_l' />
-                                            {' ' + format_num_to_K(format_bn(item.recive_amount, decimals_obj[item.send_token], 2)) + ' '}
-                                            {item.recive_token} */}
+                                            {' ' + format_num_to_K(format_bn(item.send_amount, 18, 2)) + ' '}
+                                            {
+                                                item.send_token.indexOf('d') === 0 ?
+                                                    item.send_token.slice(1) : item.send_token
+                                            }
                                         </div>
                                     </div>
                                 </div>
