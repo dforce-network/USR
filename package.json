@@ -22,6 +22,7 @@
     "ethers": "^5.0.8",
     "prettier": "^2.0.5",
     "prettier-plugin-solidity": "^1.0.0-alpha.56",
+    "solidity-coverage": "^0.7.10",
     "truffle-hdwallet-provider": "^1.0.17",
     "web3": "^1.2.11"
   },
