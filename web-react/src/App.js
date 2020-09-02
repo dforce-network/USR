@@ -173,7 +173,7 @@ export default class App extends React.Component {
 
         {/* menu */}
         <div className={'header'}>
-          <a href="/" className={'header__logo'}>
+          <a href="https://dforce.network" className={'header__logo'}>
             <img src={logo_xswap} alt="logo" />
           </a>
 
@@ -322,10 +322,9 @@ export default class App extends React.Component {
         <div className={this.state.showonly ? 'mobile-only' : 'disn'}>
           <div className='wrap-mob'>
             <div className='only-left'>
-              <a href="/" className={'header__logo'}>
+              <a href="https://dforce.network" className={'header__logo'}>
                 <img src={logo_xswap} alt="logo" />
               </a>
-              {/* <img src={logo_xswap} alt='' /> */}
             </div>
             <div className='only-right'>
               <img src={close_new} alt='' onClick={() => { this.setState({ showonly: false }) }} />
@@ -412,8 +411,7 @@ export default class App extends React.Component {
         <div className="App">
           <div className='wrap-mob'>
             <div className='only-left'>
-              {/* <img src={logo_xswap} alt='' /> */}
-              <a href="/" className={'header__logo'}>
+              <a href="https://dforce.network" className={'header__logo'}>
                 <img src={logo_xswap} alt="logo" />
               </a>
             </div>
