@@ -494,8 +494,10 @@ export const set_show_data = (that) => {
   let temp_data = that.state.token_status;
   // console.log(temp_data)
   let date_arr = [];
+  let apy_list = [];
   for (let i = 0; i < temp_data.date_list.length; i++) {
     date_arr[i] = moment(temp_data.date_list[i] * 1000).format('YYYY/M/DD');
+    apy_list[i] = temp_data.apy_list[i].toFixed(2);
   }
 
   that.setState({
@@ -541,7 +543,7 @@ export const set_show_data = (that) => {
       series: [{
         name: 'APY',
         type: 'line',
-        data: temp_data.apy_list,
+        data: apy_list,
         color: '#675CFF',
         smooth: true
       }],
