@@ -17,7 +17,8 @@ function env() {
   } else {
     return {
       ENV: "production",
-      URL_getBanlanceInfo: "https://testapi.dforce.network/api/v1/baseInfo/",
+      // URL_getBanlanceInfo: "https://testapi.dforce.network/api/v1/baseInfo/", // test
+      URL_getBanlanceInfo: "https://usr.dforce.network/api/v1/baseInfo/",
       ADDRESS: {
         main: {
           USDx: "0xeb269732ab75A6fD61Ea60b06fE994cD32a83549",
