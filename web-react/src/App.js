@@ -78,6 +78,7 @@ export default class App extends React.Component {
       meun2: true,
       meun3: true,
       source: this.handleUrl(),
+      is_withdraw: this.handleWithdraw(),
     }
 
     this.new_web3 = window.new_web3 = new Web3(Web3.givenProvider || null);
@@ -105,8 +106,19 @@ export default class App extends React.Component {
   }
 
 
+  handleWithdraw = () => {
+    // console.log(window.location.href)
+    // console.log(window.location.href.includes('is_withdraw=true'))
+    return window.location.href.includes('is_withdraw=true');
+  }
+
+
   componentDidMount = async () => {
     if (!Web3.givenProvider) {
+      get_tokens_status_apy(this);
+      window.timer = setInterval(() => {
+        get_tokens_status_apy(this);
+      }, 1000 * 15);
       return console.log('no web3 provider');
     }
 
@@ -416,7 +428,7 @@ export default class App extends React.Component {
             <div className="content-left">
               <div className="action">
                 <Tabs
-                  defaultActiveKey={'1'}
+                  defaultActiveKey={this.state.is_withdraw ? '2' : '1'}
                   tabBarStyle={{ fontSize: '16px' }}
                   onChange={(activeKey) => { this.empty_state(activeKey) }}
                 >
