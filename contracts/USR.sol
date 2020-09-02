@@ -170,7 +170,7 @@ contract ERC20Exchangeable is
 contract USR is Initializable, DSAuth, ERC20Exchangeable {
     using SafeERC20 for IERC20;
 
-    IInterestProvider interestProvider;
+    IInterestProvider public interestProvider;
 
     event NewInterestProvider(
         address oldInterestProvider,
@@ -201,8 +201,9 @@ contract USR is Initializable, DSAuth, ERC20Exchangeable {
         address _oldInterestProvider = address(interestProvider);
 
         require(
-            _interestProvider != _oldInterestProvider,
-            "updateInterestProvider: same profit provider address."
+            _interestProvider != address(0) &&
+                _interestProvider != _oldInterestProvider,
+            "updateInterestProvider: interest provider can be not set to 0 or the current one."
         );
 
         interestProvider = IInterestProvider(_interestProvider);

@@ -583,6 +583,64 @@ describe("USR with Mock Interest Provider", function () {
       );
     });
 
+    it("Should be able to redeem from another account", async function () {
+      const {usdx, usr, interestProvider} = await loadFixture(
+        fixtureUSRWithMockInterestProvider
+      );
+
+      let account = accounts[1];
+      let from = accounts[2];
+
+      let amount = ethers.utils.parseEther("500");
+
+      await usr.connect(from).mint(from._address, amount);
+      await usr.connect(from).approve(account._address, amount);
+
+      let exchangeRate = await usr.callStatic.exchangeRate();
+      // console.log(
+      //   "Exchange Rate:",
+      //   ethers.utils.formatEther(await usr.callStatic.exchangeRate())
+      // );
+
+      let balancesBefore = {
+        usr: await usr.balanceOf(from._address),
+        usdx: await usdx.balanceOf(account._address),
+      };
+
+      // console.log(
+      //   "Account has",
+      //   ethers.utils.formatEther(balancesBefore.usr),
+      //   "USR",
+      //   ethers.utils.formatEther(balancesBefore.usdx),
+      //   "USDx"
+      // );
+
+      await usr.connect(account).redeem(from._address, balancesBefore.usr);
+
+      let balancesAfter = {
+        usr: await usr.balanceOf(from._address),
+        usdx: await usdx.balanceOf(account._address),
+      };
+
+      // console.log(
+      //   "Account has",
+      //   ethers.utils.formatEther(balancesAfter.usr),
+      //   "USR",
+      //   ethers.utils.formatEther(balancesAfter.usdx),
+      //   "USDx"
+      // );
+
+      let changed = {
+        usr: balancesAfter.usr.sub(balancesBefore.usr),
+        usdx: balancesAfter.usdx.sub(balancesBefore.usdx),
+      };
+
+      // usdx = usr * exchangeRate/BASE
+      expect(changed.usr.mul(exchangeRate).div(BASE).abs()).to.equal(
+        changed.usdx.abs()
+      );
+    });
+
     it("Should be able to redeemUnderlying", async function () {
       const {usdx, usr, interestProvider} = await loadFixture(
         fixtureUSRWithMockInterestProvider
@@ -639,6 +697,90 @@ describe("USR with Mock Interest Provider", function () {
 
       expect(changed.usdx.abs()).to.equal(amount);
     });
+
+    it("Should be able to redeemUnderlying from another account", async function () {
+      const {usdx, usr, interestProvider} = await loadFixture(
+        fixtureUSRWithMockInterestProvider
+      );
+
+      let account = accounts[1];
+      let from = accounts[2];
+
+      let amount = ethers.utils.parseEther("500");
+
+      await usr.connect(from).mint(from._address, amount);
+      await usr.connect(from).approve(account._address, amount);
+
+      let exchangeRate = await usr.callStatic.exchangeRate();
+      // console.log(
+      //   "Exchange Rate:",
+      //   ethers.utils.formatEther(await usr.callStatic.exchangeRate())
+      // );
+
+      let balancesBefore = {
+        usr: await usr.balanceOf(from._address),
+        usdx: await usdx.balanceOf(account._address),
+      };
+
+      // console.log(
+      //   "Account has",
+      //   ethers.utils.formatEther(balancesBefore.usr),
+      //   "USR",
+      //   ethers.utils.formatEther(balancesBefore.usdx),
+      //   "USDx"
+      // );
+
+      await usr.connect(account).redeemUnderlying(from._address, amount);
+
+      let balancesAfter = {
+        usr: await usr.balanceOf(from._address),
+        usdx: await usdx.balanceOf(account._address),
+      };
+
+      // console.log(
+      //   "Account has",
+      //   ethers.utils.formatEther(balancesAfter.usr),
+      //   "USR",
+      //   ethers.utils.formatEther(balancesAfter.usdx),
+      //   "USDx"
+      // );
+
+      let changed = {
+        usr: balancesAfter.usr.sub(balancesBefore.usr),
+        usdx: balancesAfter.usdx.sub(balancesBefore.usdx),
+      };
+
+      // usdx = usr * exchangeRate/BASE
+      expect(changed.usr.mul(exchangeRate).div(BASE).abs()).to.equal(
+        changed.usdx.abs()
+      );
+
+      expect(changed.usdx.abs()).to.equal(amount);
+    });
+  });
+
+  it("updateInterestProvider()", async function () {
+    const {usr, interestProvider} = await loadFixture(
+      fixtureUSRWithMockInterestProvider
+    );
+
+    await expect(
+      usr.updateInterestProvider(ethers.constants.AddressZero)
+    ).to.be.revertedWith(
+      "updateInterestProvider: interest provider can be not set to 0 or the current one."
+    );
+
+    await expect(
+      usr.updateInterestProvider(interestProvider.address)
+    ).to.be.revertedWith(
+      "updateInterestProvider: interest provider can be not set to 0 or the current one."
+    );
+
+    await usr.updateInterestProvider(usr.address);
+    expect(await usr.interestProvider()).to.equal(usr.address);
+
+    // Restore back
+    await usr.updateInterestProvider(interestProvider.address);
   });
 });
 

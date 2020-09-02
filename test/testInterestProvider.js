@@ -144,4 +144,54 @@ describe("InterestProvider", function () {
       expect(balanceAfter.sub(balanceBefore)).to.equal(amount);
     });
   });
+
+  describe("setPool() & setFunds()", function () {
+    it("setPool()", async function () {
+      const {usdxContracts, interestProvider} = await loadFixture(
+        fixtureInterestProvider
+      );
+
+      await expect(
+        interestProvider.setPool(usdxContracts.poolV2.address)
+      ).to.be.revertedWith(
+        "setPool: dfPool can be not set to 0 or the current one."
+      );
+
+      await expect(
+        interestProvider.setPool(ethers.constants.AddressZero)
+      ).to.be.revertedWith(
+        "setPool: dfPool can be not set to 0 or the current one."
+      );
+
+      await interestProvider.setPool(interestProvider.address);
+      expect(await interestProvider.dfPool()).to.equal(
+        interestProvider.address
+      );
+
+      // Restore back
+      await interestProvider.setPool(usdxContracts.poolV2.address);
+    });
+
+    it("setFunds()", async function () {
+      const {interestProvider, funds} = await loadFixture(
+        fixtureInterestProvider
+      );
+
+      await expect(
+        interestProvider.setFunds(ethers.constants.AddressZero)
+      ).to.be.revertedWith(
+        "setFunds: funds can be not set to 0 or the current one."
+      );
+
+      await expect(interestProvider.setFunds(funds.address)).to.be.revertedWith(
+        "setFunds: funds can be not set to 0 or the current one."
+      );
+
+      await interestProvider.setFunds(interestProvider.address);
+      expect(await interestProvider.funds()).to.equal(interestProvider.address);
+
+      // Restore back
+      await interestProvider.setFunds(funds.address);
+    });
+  });
 });
