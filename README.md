@@ -18,6 +18,8 @@ in an existing USR repo.
 
 ## Usage
 
+### Build
+
 Install buidler and plugins
 
 ```
@@ -37,11 +39,33 @@ Compile the USDx contracts for integration test:
 npx buidler compile --config buidler.config.usdx.js
 ```
 
+Run a local develop network with buidler EVM:
+
+```
+npx buidler node
+```
+
+Run a local node and a console:
+
+```
+npx buidler console
+```
+
+### Test
+
 To run the tests:
 
 ```
 npx buidler test
 ```
+
+To run test coverage:
+
+```
+npx buidler coverage --temp build
+```
+
+### Deploy
 
 To deploy contracts, need to set basic config parameters in `.env`:
 
@@ -60,10 +84,4 @@ Deploy contracts at the testnet: Kovan.
 
 ```
 truffle migrate --network kovan
-```
-
-Run a local develop network with buidler EVM:
-
-```
-npx buidler node
 ```

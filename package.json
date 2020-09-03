@@ -4,6 +4,7 @@
   "description": "",
   "scripts": {
     "test": "npx buidler test",
+    "coverage": "npx buidler coverage --temp build",
     "format": "prettier --write contracts test"
   },
   "author": "",

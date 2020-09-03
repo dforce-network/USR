@@ -1,7 +1,7 @@
-const {loadFixture} = require("ethereum-waffle");
-const BN = ethers.BigNumber;
-
+const {createFixtureLoader} = require("ethereum-waffle");
 const USDxV2deploy = require("../../USDx_1.0/test/helpers/USDxV2deploy.js");
+
+const loadFixture = createFixtureLoader([], ethers.provider);
 
 // USDx Contracts use web3 and truffle
 async function deployUSDxContracts() {
@@ -74,7 +74,7 @@ async function fixtureUSRWithMockInterestProvider([wallet, other], provider) {
   );
 
   // let accounts[0] to act as funds
-  let funds = accounts[0];
+  const [funds, ...others] = accounts;
   // console.log("funds address:", funds._address);
 
   const interestProvider = await MockInterestProvider.deploy(
@@ -89,10 +89,6 @@ async function fixtureUSRWithMockInterestProvider([wallet, other], provider) {
     .connect(funds)
     .approve(interestProvider.address, ethers.constants.MaxUint256);
 
-  const initialInterest = ethers.utils.parseEther("500");
-  await usdx.transfer(funds._address, initialInterest);
-  expect(await usdx.balanceOf(funds._address)).to.equal(initialInterest);
-
   const USR = await ethers.getContractFactory("USR");
   const usr = await USR.deploy();
   await usr.deployed();
@@ -104,7 +100,8 @@ async function fixtureUSRWithMockInterestProvider([wallet, other], provider) {
 
   // Transfer some USDx
   const amount = ethers.utils.parseEther("10000");
-  for (const account of accounts) {
+
+  for (const account of others) {
     await usdx.transfer(account._address, amount);
     await usdx
       .connect(account)
@@ -145,6 +142,7 @@ async function fixtureUSRWithInterestProvider([wallet, other], provider) {
 }
 
 module.exports = {
+  loadFixture,
   fixtureInterestProvider,
   fixtureUSRWithInterestProvider,
   fixtureUSRWithMockInterestProvider,

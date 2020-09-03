@@ -1,9 +1,9 @@
 const {expect} = require("chai");
-const {loadFixture} = require("ethereum-waffle");
 const BN = ethers.BigNumber;
 
-const {fixtureInterestProvider} = require("./helpers/fixtures.js");
 const Collaterals = artifacts.require("Collaterals_t.sol");
+
+const {loadFixture, fixtureInterestProvider} = require("./helpers/fixtures.js");
 
 async function printInterestDetails(details, contracts) {
   console.log("Interest Details:");
