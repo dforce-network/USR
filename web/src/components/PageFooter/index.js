@@ -75,7 +75,7 @@ export default class PageFooter extends Component {
                     <a href="https://www.reddit.com/r/dForceNetwork" target="_blank">
                       <img src={iconReddit} alt="reddit" />
                     </a>
-                    <a href="https://discord.gg/Gbtd3MR" target="_blank">
+                    <a href="https://discord.gg/c2PC8SM" target="_blank">
                       <img src={iconDiscord} alt="discord" />
                     </a>
                     <a href="https://www.linkedin.com/company/dforce-network" target="_blank">

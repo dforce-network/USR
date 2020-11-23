@@ -190,6 +190,14 @@ export default class App extends React.Component {
                     </a>
                   </Menu.Item>
                   <Menu.Item>
+                    <a href="https://usr.dforce.network/" className={'header__overlay_item'}>
+                      <span>USR</span>
+                      <label>
+                        <FormattedMessage id='USR_content' />
+                      </label>
+                    </a>
+                  </Menu.Item>
+                  <Menu.Item>
                     <a target="_blank" rel="noopener noreferrer" href="https://markets.dforce.network/" className={'header__overlay_item'}>
                       <span>
                         <FormattedMessage id='Yield_Markets' />
@@ -346,6 +354,14 @@ export default class App extends React.Component {
               </a>
               <span className='details'>
                 <FormattedMessage id='Portal' />
+              </span>
+            </div>
+            <div className='m-item'>
+              <a href='https://usr.dforce.network/'>
+                <span className='title'>USR</span>
+              </a>
+              <span className='details'>
+                <FormattedMessage id='USR_content' />
               </span>
             </div>
             <div className='m-item'>
@@ -691,7 +707,7 @@ export default class App extends React.Component {
                 <a href='https://www.reddit.com/r/dForceNetwork' target='_blank' rel="noopener noreferrer">
                   <img alt='' src={Reddit} />
                 </a>
-                <a href='https://discord.gg/Gbtd3MR' target='_blank' rel="noopener noreferrer">
+                <a href='https://discord.gg/c2PC8SM' target='_blank' rel="noopener noreferrer">
                   <img alt='' src={Discord} />
                 </a>
                 <a href='https://www.linkedin.com/company/dforce-network' target='_blank' rel="noopener noreferrer">
